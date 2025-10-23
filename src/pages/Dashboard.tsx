@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, TrendingDown, TrendingUp, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DollarSign, TrendingDown, TrendingUp, Wallet, Tags, Users, MapPin, Receipt } from "lucide-react";
 import { getCurrentUser } from "@/lib/supabase";
 import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    checkAuth();
-
-    // Listener para mudanças no estado de autenticação
+    // Listener para mudanças no estado de autenticação (opcional)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         navigate("/auth");
@@ -24,24 +22,6 @@ const Dashboard = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const checkAuth = async () => {
-    const { user } = await getCurrentUser();
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    setUser(user);
-    setIsLoading(false);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -117,6 +97,38 @@ const Dashboard = () => {
 
         <Card className="shadow-medium">
           <CardHeader>
+            <CardTitle>Acesso Rápido</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2">
+            <Link to="/transactions">
+              <Button variant="outline" className="w-full h-20 flex-col gap-2">
+                <Receipt className="w-6 h-6" />
+                <span>Nova Transação</span>
+              </Button>
+            </Link>
+            <Link to="/categories">
+              <Button variant="outline" className="w-full h-20 flex-col gap-2">
+                <Tags className="w-6 h-6" />
+                <span>Gerenciar Categorias</span>
+              </Button>
+            </Link>
+            <Link to="/contacts">
+              <Button variant="outline" className="w-full h-20 flex-col gap-2">
+                <Users className="w-6 h-6" />
+                <span>Gerenciar Contatos</span>
+              </Button>
+            </Link>
+            <Link to="/addresses">
+              <Button variant="outline" className="w-full h-20 flex-col gap-2">
+                <MapPin className="w-6 h-6" />
+                <span>Gerenciar Endereços</span>
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-medium mt-8">
+          <CardHeader>
             <CardTitle>Próximos Passos</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -127,7 +139,7 @@ const Dashboard = () => {
               <div>
                 <h3 className="font-semibold mb-1">Configure sua API Backend</h3>
                 <p className="text-sm text-muted-foreground">
-                  Conecte sua API existente para começar a visualizar seus dados financeiros reais.
+                  Conecte sua API existente em src/services/api.ts para começar a visualizar dados reais.
                 </p>
               </div>
             </div>
@@ -137,9 +149,9 @@ const Dashboard = () => {
                 <span className="text-primary font-bold">2</span>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Configure Autenticação Google</h3>
+                <h3 className="font-semibold mb-1">Teste as Funcionalidades</h3>
                 <p className="text-sm text-muted-foreground">
-                  Você precisará configurar as credenciais do Google OAuth no Lovable Cloud.
+                  Use os CRUDs disponíveis para testar todas as funcionalidades do sistema.
                 </p>
               </div>
             </div>
