@@ -1,38 +1,12 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import useAuth from "@/hooks/useAuth";
 import { Chrome } from "lucide-react";
-import { signInWithGoogle, getCurrentUser } from "@/lib/supabase";
-import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
-const Auth = () => {
+export default function Auth() {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
-    const { user } = await getCurrentUser();
-    if (user) {
-      navigate("/dashboard");
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    const { error } = await signInWithGoogle();
-    
-    if (error) {
-      toast.error("Erro ao fazer login com Google");
-      setIsLoading(false);
-      return;
-    }
-    
-    // O usuário será redirecionado automaticamente
-  };
+  const { isLoading, handleGoogleSignIn } = useAuth();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-hero px-4">
@@ -42,17 +16,10 @@ const Auth = () => {
             <span className="text-white font-bold text-3xl">F</span>
           </div>
           <CardTitle className="text-2xl">Bem-vindo de volta</CardTitle>
-          <CardDescription>
-            Faça login para acessar seu controle financeiro
-          </CardDescription>
+          <CardDescription>Faça login para acessar seu controle financeiro</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button
-            variant="outline"
-            className="w-full gap-2 h-12"
-            onClick={handleGoogleSignIn}
-            disabled={isLoading}
-          >
+          <Button variant="outline" className="w-full gap-2 h-12" disabled={isLoading} onClick={() => handleGoogleSignIn()}>
             <Chrome className="w-5 h-5" />
             {isLoading ? "Conectando..." : "Continuar com Google"}
           </Button>
@@ -66,11 +33,7 @@ const Auth = () => {
             </div>
           </div>
 
-          <Button
-            variant="secondary"
-            className="w-full h-12"
-            onClick={() => navigate("/dashboard")}
-          >
+          <Button variant="secondary" className="w-full h-12" onClick={() => navigate("/dashboard")}>
             Continuar sem login (teste)
           </Button>
 
@@ -81,6 +44,4 @@ const Auth = () => {
       </Card>
     </div>
   );
-};
-
-export default Auth;
+}

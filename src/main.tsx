@@ -1,5 +1,13 @@
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+const clientId = import.meta.env.VITE_CLIENT_ID;
+
+console.log(clientId);
+createRoot(document.getElementById("root")!).render(
+  <GoogleOAuthProvider clientId={clientId}>
+    <App />
+  </GoogleOAuthProvider>,
+);
