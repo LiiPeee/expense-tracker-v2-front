@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { LogOut, User, LayoutDashboard, Tags, Users, MapPin, List } from "lucide-react";
-import { signOut } from "@/lib/supabase";
-import { useNavigate, Link } from "react-router-dom";
-import { toast } from "sonner";
+import { LayoutDashboard, List, LogOut, MapPin, Tags, User, Users } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   user?: any;
@@ -10,16 +8,6 @@ interface HeaderProps {
 
 export const Header = ({ user }: HeaderProps) => {
   const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (error) {
-      toast.error("Erro ao sair");
-      return;
-    }
-    toast.success("Você saiu com sucesso");
-    navigate("/");
-  };
 
   return (
     <header className="border-b bg-card shadow-soft">
@@ -31,7 +19,7 @@ export const Header = ({ user }: HeaderProps) => {
             </div>
             <span className="text-xl font-bold text-foreground">FinControl</span>
           </Link>
-          
+
           <nav className="hidden md:flex items-center gap-4">
             <Link to="/dashboard">
               <Button variant="ghost" size="sm" className="gap-2">
@@ -72,12 +60,7 @@ export const Header = ({ user }: HeaderProps) => {
               <User className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">{user.email}</span>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSignOut}
-              className="gap-2"
-            >
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/auth")}>
               <LogOut className="w-4 h-4" />
               Sair
             </Button>

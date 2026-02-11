@@ -1,16 +1,16 @@
 /**
  * API Service
- * 
+ *
  * Configure aqui as chamadas para seu backend existente.
  * Substitua a BASE_URL pela URL da sua API.
  */
 
-const BASE_URL = process.env.VITE_API_URL || 'http://localhost:3000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 interface Transaction {
   id: string;
   amount: number;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   category: string;
   description: string;
   date: string;
@@ -29,21 +29,21 @@ interface Balance {
 export const getBalance = async (userId: string): Promise<Balance> => {
   try {
     const response = await fetch(`${BASE_URL}/balance/${userId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         // Adicione headers de autenticação se necessário
         // 'Authorization': `Bearer ${token}`
       },
     });
 
     if (!response.ok) {
-      throw new Error('Erro ao buscar saldo');
+      throw new Error("Erro ao buscar saldo");
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Erro na API:', error);
+    console.error("Erro na API:", error);
     throw error;
   }
 };
@@ -54,19 +54,40 @@ export const getBalance = async (userId: string): Promise<Balance> => {
 export const getTransactions = async (userId: string): Promise<Transaction[]> => {
   try {
     const response = await fetch(`${BASE_URL}/transactions/${userId}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!response.ok) {
-      throw new Error('Erro ao buscar transações');
+      throw new Error("Erro ao buscar transações");
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Erro na API:', error);
+    console.error("Erro na API:", error);
+    throw error;
+  }
+};
+
+export const getExpense = async () => {
+  try {
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth();
+    console.log(year);
+
+    const response = await fetch(`${BASE_URL}/api/Transaction/GetExpenseByMonthAndYear/${year}/${month}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) throw new Error("Error ao buscar despesas");
+
+    return await response.json();
+  } catch (error) {
+    console.error("Erro na API:", error);
     throw error;
   }
 };
@@ -74,15 +95,12 @@ export const getTransactions = async (userId: string): Promise<Transaction[]> =>
 /**
  * Exemplo de chamada POST para criar uma transação
  */
-export const createTransaction = async (
-  userId: string,
-  transaction: Omit<Transaction, 'id'>
-): Promise<Transaction> => {
+export const createTransaction = async (userId: string, transaction: Omit<Transaction, "id">): Promise<Transaction> => {
   try {
     const response = await fetch(`${BASE_URL}/transactions`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         userId,
@@ -91,12 +109,12 @@ export const createTransaction = async (
     });
 
     if (!response.ok) {
-      throw new Error('Erro ao criar transação');
+      throw new Error("Erro ao criar transação");
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Erro na API:', error);
+    console.error("Erro na API:", error);
     throw error;
   }
 };
