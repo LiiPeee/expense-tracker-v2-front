@@ -1,53 +1,48 @@
-import { useState } from "react";
 import { Header } from "@/components/layout/Header";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { TrendingDown, TrendingUp } from "lucide-react";
-
-interface Transaction {
-  id: number;
-  description: string;
-  amount: number;
-  type: "income" | "expense";
-  category: string;
-  date: string;
-}
+import { categories, monthNames } from "@/helper/utils";
+import { useTransaction } from "@/hooks/use-create-and-edit-transaction";
+import { useGetAll } from "@/hooks/use-get-transactions";
+import { Pencil, Trash2, TrendingDown, TrendingUp } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 const TransactionsList = () => {
-  const [transactions] = useState<Transaction[]>([
-    { id: 1, description: "Salário", amount: 5000, type: "income", category: "Salário", date: "2024-01-15" },
-    { id: 2, description: "Supermercado", amount: 350, type: "expense", category: "Alimentação", date: "2024-01-16" },
-    { id: 3, description: "Freelance", amount: 1500, type: "income", category: "Trabalho", date: "2024-01-18" },
-    { id: 4, description: "Uber", amount: 45, type: "expense", category: "Transporte", date: "2024-01-19" },
-    { id: 5, description: "Restaurante", amount: 120, type: "expense", category: "Alimentação", date: "2024-01-20" },
-  ]);
-  
+  const { handleDelete, handleEdit } = useTransaction();
+  const {
+    transactions,
+    expenseMonthTotal,
+    incomeMonthTotal,
+    enconomyMonthTotal,
+    isRefreshing,
+    year,
+    month,
+    getAllTransaction,
+    getAllExpenseAndIncome,
+    getByCategory,
+    getByMontAndYear,
+    setMonth,
+    setYear,
+  } = useGetAll();
+
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
+  const didFetchRef = useRef(false);
 
-  const categories = Array.from(new Set(transactions.map(t => t.category)));
-
-  const filteredTransactions = transactions.filter(transaction => {
-    const categoryMatch = filterCategory === "all" || transaction.category === filterCategory;
-    const typeMatch = filterType === "all" || transaction.type === filterType;
-    return categoryMatch && typeMatch;
-  });
-
-  const totalIncome = filteredTransactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalExpense = filteredTransactions
-    .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const balance = totalIncome - totalExpense;
+  useEffect(() => {
+    if (didFetchRef.current) return;
+    didFetchRef.current = true;
+    void getAllTransaction();
+  }, [getAllTransaction]);
 
   return (
     <div className="min-h-screen bg-background">
       <Header user={null} />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2">Todas as Transações</h2>
@@ -57,45 +52,36 @@ const TransactionsList = () => {
         <div className="grid gap-6 md:grid-cols-3 mb-8">
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Receitas
-              </CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Receitas</CardTitle>
               <TrendingUp className="w-4 h-4 text-success" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-success">
-                R$ {totalIncome.toFixed(2)}
-              </div>
+              <div className="text-2xl font-bold text-success">R$ {incomeMonthTotal.toFixed(2)}</div>
             </CardContent>
           </Card>
 
           <Card className="shadow-soft">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Despesas
-              </CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Despesas</CardTitle>
               <TrendingDown className="w-4 h-4 text-destructive" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive">
-                R$ {totalExpense.toFixed(2)}
-              </div>
+              <div className="text-2xl font-bold text-destructive">R$ {expenseMonthTotal.toFixed(2)}</div>
             </CardContent>
           </Card>
 
           <Card className="shadow-soft">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Saldo
-              </CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Saldo</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${balance >= 0 ? "text-success" : "text-destructive"}`}>
-                R$ {balance.toFixed(2)}
+              <div className={`text-2xl font-bold ${enconomyMonthTotal >= 0 ? "text-success" : "text-destructive"}`}>
+                R$ {incomeMonthTotal.toFixed(2)}
               </div>
             </CardContent>
           </Card>
         </div>
+        <RefreshAllButton isRefreshing={isRefreshing} onRefresh={getAllExpenseAndIncome} />
 
         <Card className="shadow-medium mb-6">
           <CardHeader>
@@ -104,14 +90,19 @@ const TransactionsList = () => {
           <CardContent>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Categoria</label>
-                <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <label className="text-sm font-medium">Mês</label>
+                <Select
+                  value={month}
+                  onValueChange={(value) => {
+                    setMonth(value);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todas as categorias</SelectItem>
-                    {categories.map(category => (
+                    <SelectItem value="all">Todas os meses</SelectItem>
+                    {monthNames.map((category) => (
                       <SelectItem key={category} value={category}>
                         {category}
                       </SelectItem>
@@ -119,54 +110,108 @@ const TransactionsList = () => {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-2">
-                <label className="text-sm font-medium">Tipo</label>
-                <Select value={filterType} onValueChange={setFilterType}>
+                <label className="text-sm font-medium">Ano</label>
+                <Input
+                  id="year"
+                  type="number"
+                  step="0.01"
+                  value={year}
+                  onChange={(e) => {
+                    setYear(e.target.value);
+                  }}
+                  placeholder="Ex: 1999"
+                  required
+                />
+              </div>
+            </div>
+          </CardContent>
+
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Categoria</label>
+                <Select
+                  value={filterCategory}
+                  onValueChange={(value) => {
+                    setFilterCategory(value);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos os tipos</SelectItem>
-                    <SelectItem value="income">Receitas</SelectItem>
-                    <SelectItem value="expense">Despesas</SelectItem>
+                    <SelectItem value="all">Todas as categorias</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
           </CardContent>
+          <Button
+            variant="outline"
+            className="w-full h-20 flex-col gap-2"
+            onClick={() => {
+              if (filterCategory != null) {
+                void getByCategory(filterCategory);
+              }
+            }}
+          >
+            <span>Consulta por Filtros</span>
+          </Button>
         </Card>
 
         <Card className="shadow-medium">
           <CardHeader>
-            <CardTitle>Transações ({filteredTransactions.length})</CardTitle>
+            <CardTitle>Transações ({transactions.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead className="text-right">Valor</TableHead>
+                  <TableHead className="w-[110px]">Data</TableHead>
+                  <TableHead className="w-[220px]">Descrição</TableHead>
+                  <TableHead className="w-[160px]">Categoria</TableHead>
+                  <TableHead className="w-[120px]">Tipo</TableHead>
+                  <TableHead className="w-[140px] text-right">Valor</TableHead>
+                  <TableHead className="w-[160px]">Nome</TableHead>
+                  <TableHead className="w-[220px]">Email</TableHead>
+                  <TableHead className="w-[160px]">Telefone</TableHead>
+                  <TableHead className="w-[90px]">Recurrence</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
-                {filteredTransactions.map((transaction) => (
+                {transactions.map((transaction) => (
                   <TableRow key={transaction.id}>
-                    <TableCell>{new Date(transaction.date).toLocaleDateString("pt-BR")}</TableCell>
-                    <TableCell className="font-medium">{transaction.description}</TableCell>
-                    <TableCell>{transaction.category}</TableCell>
-                    <TableCell>
-                      <span className={transaction.type === "income" ? "text-success" : "text-destructive"}>
-                        {transaction.type === "income" ? "Receita" : "Despesa"}
-                      </span>
+                    <TableCell className="truncate">
+                      {transaction.dateOfInstallment ? new Date(transaction.dateOfInstallment).toLocaleDateString("pt-BR") : "sem data"}
                     </TableCell>
-                    <TableCell className={`text-right font-semibold ${
-                      transaction.type === "income" ? "text-success" : "text-destructive"
-                    }`}>
-                      {transaction.type === "income" ? "+" : "-"} R$ {transaction.amount.toFixed(2)}
+                    <TableCell className="truncate">{transaction.description}</TableCell>
+                    <TableCell className="truncate">{transaction.category.name}</TableCell>
+                    <TableCell className="truncate">{transaction.typeTransaction === 1 ? "Despesa" : "Receita"}</TableCell>
+                    <TableCell
+                      className={`text-right font-medium ${transaction.typeTransaction === 1 ? "text-destructive" : "text-success"}`}
+                    >
+                      R$ {Number(transaction.amount).toFixed(2) ?? 0}
+                    </TableCell>
+                    <TableCell className="truncate">{transaction.contact.email ?? ""}</TableCell>
+                    <TableCell className="truncate">{transaction.contact.name}</TableCell>
+                    <TableCell className="truncate">{transaction.contact.phone}</TableCell>
+                    <TableCell className="truncate">{transaction.recurrence}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(transaction)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(transaction.id)}>
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
