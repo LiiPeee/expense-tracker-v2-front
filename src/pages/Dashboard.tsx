@@ -2,12 +2,22 @@ import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
-import { useGetAll } from "@/hooks/use-get-all";
-import { DollarSign, MapPin, Receipt, Tags, TrendingDown, TrendingUp, Users, Wallet } from "lucide-react";
+import { useGetAll } from "@/hooks/use-get-transactions";
+import { DollarSign, MapPin, Receipt, Tags, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 const Dashboard = () => {
-  const { isRefreshing, getAllExpense } = useGetAll();
+  const { isRefreshing, getAllExpenseAndIncome, expenseMonthTotal, incomeMonthTotal, enconomyMonthTotal } = useGetAll();
+  const didFetchRef = useRef(false);
+
+  useEffect(() => {
+    if (didFetchRef.current) return;
+    didFetchRef.current = true;
+    void getAllExpenseAndIncome();
+  }, [getAllExpenseAndIncome]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header user="{user}" />
@@ -16,27 +26,16 @@ const Dashboard = () => {
           <h2 className="text-3xl font-bold text-foreground mb-2">Dashboard</h2>
           <p className="text-muted-foreground">Visão geral das suas finanças</p>
         </div>
-        <RefreshAllButton isRefreshing={isRefreshing} onRefresh={getAllExpense} />
+        <RefreshAllButton isRefreshing={isRefreshing} onRefresh={getAllExpenseAndIncome} />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card className="shadow-soft hover:shadow-medium transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Total</CardTitle>
-              <Wallet className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-foreground">R$ 0,00</div>
-              <p className="text-xs text-muted-foreground mt-1">Conecte sua API para ver dados reais</p>
-            </CardContent>
-          </Card>
-
           <Card className="shadow-soft hover:shadow-medium transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Receitas</CardTitle>
               <TrendingUp className="w-4 h-4 text-success" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-success">R$ 0,00</div>
+              <div className="text-2xl font-bold text-success">{formatBRL(incomeMonthTotal)}</div>
               <p className="text-xs text-muted-foreground mt-1">Este mês</p>
             </CardContent>
           </Card>
@@ -47,7 +46,7 @@ const Dashboard = () => {
               <TrendingDown className="w-4 h-4 text-destructive" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive">R$ 0,00</div>
+              <div className="text-2xl font-bold text-destructive">{formatBRL(expenseMonthTotal) ? formatBRL(expenseMonthTotal) : 0.0}</div>
               <p className="text-xs text-muted-foreground mt-1">Este mês</p>
             </CardContent>
           </Card>
@@ -58,7 +57,7 @@ const Dashboard = () => {
               <DollarSign className="w-4 h-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-primary">R$ 0,00</div>
+              <div className="text-2xl font-bold text-primary">{formatBRL(enconomyMonthTotal)}</div>
               <p className="text-xs text-muted-foreground mt-1">Este mês</p>
             </CardContent>
           </Card>
