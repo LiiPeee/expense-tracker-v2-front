@@ -7,9 +7,9 @@ import { Label } from "@/components/ui/label";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { RecurrenceLabel } from "@/helper/transaction";
-import { useTransaction } from "@/hooks/use-create-and-edit-transaction";
-import { useGetAll } from "@/hooks/use-get-transactions";
+import { PaidValue, RecurrenceLabel } from "@/helper/transaction";
+import { useTransaction } from "@/hooks/transaction/use-create-transaction";
+import { useGetAll } from "@/hooks/transaction/use-get-transactions";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 
@@ -25,7 +25,7 @@ const Transactions = () => {
     isDialogOpen,
     formData,
   } = useTransaction();
-  const { transactions, isRefreshing, getAllTransaction } = useGetAll();
+  const { transactions, isRefreshing, getAllTransaction, contact, getAllContact } = useGetAll();
 
   const didFetchRef = useRef(false);
 
@@ -46,7 +46,13 @@ const Transactions = () => {
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2" onClick={() => handleDialogClose()}>
+              <Button
+                className="gap-2"
+                onClick={() => {
+                  handleDialogClose();
+                  getAllContact();
+                }}
+              >
                 <Plus className="w-4 h-4" />
                 Nova Transação
               </Button>
@@ -77,7 +83,7 @@ const Transactions = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="paid">Pago</Label>
-                  <Select value={formData.paid} onValueChange={(value) => setFormData({ ...formData, paid: value })}>
+                  <Select value={formData.paid} onValueChange={(value) => setFormData({ ...formData, paid: value as PaidValue })}>
                     <SelectTrigger id="paid">
                       <SelectValue placeholder="Selecione..."></SelectValue>
                     </SelectTrigger>
@@ -94,9 +100,12 @@ const Transactions = () => {
                       <SelectValue placeholder="Selecione..."></SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Amanda">Amanda</SelectItem>
-                      <SelectItem value="Marco">Marco</SelectItem>
-                      <SelectItem value="Aluguel">Aluguel</SelectItem>
+                      <SelectItem value="all"></SelectItem>
+                      {contact.map((contacts) => (
+                        <SelectItem key={contacts.id ?? contacts.name} value={contacts.name ?? ""}>
+                          {contacts.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -149,13 +158,13 @@ const Transactions = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="type">Tipo</Label>
-                  <Select value={formData.type} onValueChange={(value: "income" | "expense") => setFormData({ ...formData, type: value })}>
+                  <Select value={formData.type} onValueChange={(value: "Income" | "Expense") => setFormData({ ...formData, type: value })}>
                     <SelectTrigger id="type">
                       <SelectValue placeholder="Selecione..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="income">Receita</SelectItem>
-                      <SelectItem value="expense">Despesa</SelectItem>
+                      <SelectItem value="Income">Receita</SelectItem>
+                      <SelectItem value="Expense">Despesa</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, List, LogOut, MapPin, Tags, User, Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useAuthForm } from "@/hooks/auth/use-auth-form";
+import { LayoutDashboard, List, LogOut, User, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
   user?: any;
 }
 
 export const Header = ({ user }: HeaderProps) => {
-  const navigate = useNavigate();
+  const { handleLogOut, isLoading } = useAuthForm();
 
   return (
     <header className="border-b bg-card shadow-soft">
@@ -17,7 +18,7 @@ export const Header = ({ user }: HeaderProps) => {
             <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center">
               <span className="text-white font-bold text-xl">F</span>
             </div>
-            <span className="text-xl font-bold text-foreground">FinControl</span>
+            <span className="text-xl font-bold text-foreground">Controle Financeiro</span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-4">
@@ -33,22 +34,10 @@ export const Header = ({ user }: HeaderProps) => {
                 Transações
               </Button>
             </Link>
-            <Link to="/categories">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <Tags className="w-4 h-4" />
-                Categorias
-              </Button>
-            </Link>
             <Link to="/contacts">
               <Button variant="ghost" size="sm" className="gap-2">
                 <Users className="w-4 h-4" />
                 Contatos
-              </Button>
-            </Link>
-            <Link to="/addresses">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <MapPin className="w-4 h-4" />
-                Endereços
               </Button>
             </Link>
           </nav>
@@ -60,9 +49,9 @@ export const Header = ({ user }: HeaderProps) => {
               <User className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">{user.email}</span>
             </div>
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/auth")}>
+            <Button variant="outline" size="sm" className="gap-2" onClick={handleLogOut} disabled={isLoading}>
               <LogOut className="w-4 h-4" />
-              Sair
+              {isLoading ? "Saindo..." : "Sair"}
             </Button>
           </div>
         )}
