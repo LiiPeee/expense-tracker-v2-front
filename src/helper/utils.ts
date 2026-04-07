@@ -6,21 +6,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const categories = [
-  "MORADIA",
-  "TRANSPORTE",
-  "ALIMENTACAO",
-  "SAUDE",
-  "EDUCACAO",
-  "LAZER",
-  "BENS_PESSOAIS",
-  "INVESTIMENTO",
-  "OUTROS",
-  "RENDA_VARIAVEL",
-  "BENEFICIOS",
-  "SALARIO",
-  "CONFORTO",
-];
 export const monthNames = [
   "Janeiro",
   "Fevereiro",
@@ -46,8 +31,8 @@ export function recurrence(rec: RecurrenceLabel): number {
     case "Mensal":
       return 4;
     default: {
-      const _exhaustive: never = rec;
-      return _exhaustive;
+      const _exhaustive: string = rec;
+      return _exhaustive as never;
     }
   }
 }
@@ -62,39 +47,53 @@ export function recurrenceResponse(rec: number): RecurrenceLabel {
     case 4:
       return "Mensal";
     default: {
-      return "Não";
+      return "-";
     }
   }
 }
 
+type YearMonth = { year?: number; month?: number };
+
+export function getDefaultYearMonth(): Required<YearMonth> {
+  const now = new Date();
+  return { year: now.getFullYear(), month: now.getMonth() + 1 };
+}
+
 export function monthResponse(rec: string): number {
   switch (rec) {
-    case "janeiro":
-      return 0;
-    case "fevereiro":
+    case "Janeiro":
       return 1;
-    case "março":
+    case "Fevereiro":
       return 2;
-    case "abril":
+    case "Março":
       return 3;
-    case "maio":
+    case "Abril":
       return 4;
-    case "junho":
+    case "Maio":
       return 5;
-    case "julho":
+    case "Junho":
       return 6;
-    case "agosto":
+    case "Julho":
       return 7;
-    case "setembro":
+    case "Agosto":
       return 8;
-    case "outubro":
+    case "Setembro":
       return 9;
-    case "Novembro":
+    case "Outubro":
       return 10;
-    case "Dezembro":
+    case "Novembro":
       return 11;
+    case "Dezembro":
+      return 12;
     default: {
       return 0;
     }
   }
 }
+
+export const maskPhone = (event: string) => {
+  return event
+    .replace(/\D/g, "")
+    .replace(/(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d{4})/, "$1-$2");
+};

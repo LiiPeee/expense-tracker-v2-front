@@ -2,8 +2,8 @@ import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
-import { useGetAll } from "@/hooks/use-get-transactions";
-import { DollarSign, MapPin, Receipt, Tags, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { useGetAll } from "@/hooks/transaction/use-get-transactions";
+import { DollarSign, Receipt, TrendingDown, TrendingUp, Users } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
@@ -74,22 +74,10 @@ const Dashboard = () => {
                 <span>Nova Transação</span>
               </Button>
             </Link>
-            <Link to="/categories">
-              <Button variant="outline" className="w-full h-20 flex-col gap-2">
-                <Tags className="w-6 h-6" />
-                <span>Gerenciar Categorias</span>
-              </Button>
-            </Link>
             <Link to="/contacts">
               <Button variant="outline" className="w-full h-20 flex-col gap-2">
                 <Users className="w-6 h-6" />
                 <span>Gerenciar Contatos</span>
-              </Button>
-            </Link>
-            <Link to="/addresses">
-              <Button variant="outline" className="w-full h-20 flex-col gap-2">
-                <MapPin className="w-6 h-6" />
-                <span>Gerenciar Endereços</span>
               </Button>
             </Link>
           </CardContent>
