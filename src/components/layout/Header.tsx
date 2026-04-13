@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
-import { LayoutDashboard, List, LogOut, User, Users } from "lucide-react";
+import { BarChart2, LayoutDashboard, List, LogOut, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface HeaderProps {
-  user?: any;
+  user?: { email?: string } | string;
 }
 
 export const Header = ({ user }: HeaderProps) => {
@@ -40,20 +40,20 @@ export const Header = ({ user }: HeaderProps) => {
                 Contatos
               </Button>
             </Link>
+            <Link to="/reports">
+              <Button variant="ghost" size="sm" className="gap-2">
+                <BarChart2 className="w-4 h-4" />
+                Relatórios
+              </Button>
+            </Link>
           </nav>
         </div>
 
         {user && (
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{user.email}</span>
-            </div>
-            <Button variant="outline" size="sm" className="gap-2" onClick={handleLogOut} disabled={isLoading}>
-              <LogOut className="w-4 h-4" />
-              {isLoading ? "Saindo..." : "Sair"}
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" className="gap-2" onClick={handleLogOut} disabled={isLoading}>
+            <LogOut className="w-4 h-4" />
+            {isLoading ? "Saindo..." : "Sair"}
+          </Button>
         )}
       </div>
     </header>

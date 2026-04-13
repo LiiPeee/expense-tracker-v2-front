@@ -1,32 +1,28 @@
 import { ContactRequest } from "@/helper/contact";
+import { authFetch } from "@/lib/api";
 
 export const BASE_URL = import.meta.env.VITE_API_URL;
 
 export async function getAllContacts() {
-  const url = `${BASE_URL}/Contact/GetAll}`;
+  const response = await authFetch(`${BASE_URL}/Contact/GetAll`);
+  if (!response.ok) throw new Error("Falha ao buscar contatos");
 
-  const response = await fetch(url);
-  return Array.isArray(response.json()) ? response.json() : [];
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
 }
 
-export async function createContact(input: ContactRequest) {
-  const response = await fetch(`${BASE_URL}/Contact/Create`, {
+export async function createContact(input: ContactRequest): Promise<boolean> {
+  const response = await authFetch(`${BASE_URL}/Contact/Create`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(input),
   });
-  return response.json() ? response.json() : null;
+  return response.ok;
 }
 
-export async function editContact(input: ContactRequest) {
-  const response = await fetch(`${BASE_URL}/Contact/EditContact`, {
+export async function editContact(input: ContactRequest): Promise<boolean> {
+  const response = await authFetch(`${BASE_URL}/Contact/EditContact`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(input),
   });
-  return response.json() ? response.json() : null;
+  return response.ok;
 }

@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Contacts from "./pages/Contacts";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import Reports from "./pages/Reports";
 import Transactions from "./pages/Transactions";
 import TransactionsList from "./pages/TransactionsList";
 
@@ -51,6 +52,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <TransactionsList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <Reports />
               </ProtectedRoute>
             }
           />
