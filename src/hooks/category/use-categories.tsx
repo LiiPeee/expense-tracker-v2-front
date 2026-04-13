@@ -55,12 +55,10 @@ export function useCategories() {
     setCategories([]);
     setIsRefreshing(false);
     try {
-      const backEndCategory = await getAll();
-
-      setCategories(backEndCategory);
+      const data = await getAll();
+      setCategories(data);
       setIsRefreshing(false);
-    } catch (error) {
-      console.log(error);
+    } catch {
       setCategories([]);
       setIsRefreshing(false);
     }

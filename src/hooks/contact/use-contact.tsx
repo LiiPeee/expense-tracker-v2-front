@@ -77,14 +77,10 @@ export function useContact() {
     setContacts([]);
     setIsRefreshing(false);
     try {
-      const backEndCategory = await getAllContacts();
-
-      console.log(backEndCategory);
-
-      setContacts(backEndCategory);
+      const data = await getAllContacts();
+      setContacts(data);
       setIsRefreshing(false);
-    } catch (error) {
-      console.log(error);
+    } catch {
       setContacts([]);
       setIsRefreshing(false);
     }

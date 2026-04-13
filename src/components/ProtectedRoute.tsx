@@ -1,15 +1,36 @@
 import { Navigate } from "react-router-dom";
+import { clearAuth, getAccessToken, GOOGLE_AUTH_KEY, isTokenValid } from "@/lib/api";
+import { useEffect } from "react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const token = localStorage.getItem("accessToken");
-  const googleAuth = localStorage.getItem("auth");
+function checkAuth(): boolean {
+  const token = getAccessToken();
+  if (token) {
+    if (!isTokenValid(token)) {
+      clearAuth();
+      return false;
+    }
+    return true;
+  }
 
-  // Verifica se há autenticação (token padrão ou Google)
-  const isAuthenticated = !!token || !!googleAuth;
+  // Google OAuth path — no JWT to validate, only existence check
+  const googleAuth = localStorage.getItem(GOOGLE_AUTH_KEY);
+  return !!googleAuth;
+}
+
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const isAuthenticated = checkAuth();
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      window.location.replace("/auth");
+    };
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, []);
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;

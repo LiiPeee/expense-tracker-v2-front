@@ -1,4 +1,5 @@
 import { useGoogleLogin } from "@react-oauth/google";
+import { GOOGLE_AUTH_KEY } from "@/lib/api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,11 +16,17 @@ export default function useAuth() {
         const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
-        if (!res.ok) throw new Error("Falha ao buscar userinfo");
+        if (!res.ok) throw new Error("Falha ao buscar perfil do Google");
 
         const profile = await res.json();
 
-        localStorage.setItem("auth", JSON.stringify({ provider: "google", token: tokenResponse, profile }));
+        // Store only the necessary profile fields — never persist the OAuth token
+        const safeProfile = {
+          name: profile.name as string,
+          email: profile.email as string,
+          picture: profile.picture as string,
+        };
+        localStorage.setItem(GOOGLE_AUTH_KEY, JSON.stringify({ provider: "google", profile: safeProfile }));
 
         navigate("/dashboard");
       } finally {
@@ -30,8 +37,5 @@ export default function useAuth() {
     onNonOAuthError: () => setIsLoading(false),
   });
 
-  return {
-    handleGoogleSignIn,
-    isLoading,
-  };
+  return { handleGoogleSignIn, isLoading };
 }

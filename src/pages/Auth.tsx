@@ -136,10 +136,11 @@ export default function Auth() {
                     <Input
                       id="signup-password"
                       type={showSignupPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="Mínimo 8 caracteres"
                       value={signupData.password}
                       onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
                       required
+                      minLength={8}
                       disabled={isFormLoading}
                       className="pr-10"
                     />
