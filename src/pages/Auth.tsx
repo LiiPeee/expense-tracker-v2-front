@@ -7,6 +7,7 @@ import { useAuthForm } from "@/hooks/auth/use-auth-form";
 import useAuth from "@/hooks/useAuth";
 import { Chrome, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Auth() {
   const { isLoading: isGoogleLoading, handleGoogleSignIn } = useAuth();
@@ -14,7 +15,7 @@ export default function Auth() {
 
   // Estados para os formulários
   const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [signupData, setSignupData] = useState({ name: "", email: "", password: "" });
+  const [signupData, setSignupData] = useState({ lastName: "", firstName: "", email: "", password: "" });
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
 
@@ -101,6 +102,11 @@ export default function Auth() {
                 <Button type="submit" className="w-full" disabled={isFormLoading}>
                   {isLoading ? "Entrando..." : "Entrar"}
                 </Button>
+                <div className="text-center">
+                  <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    Esqueceu sua senha?
+                  </Link>
+                </div>
               </form>
             </TabsContent>
 
@@ -111,9 +117,21 @@ export default function Auth() {
                   <Input
                     id="signup-name"
                     type="text"
-                    placeholder="Seu nome completo"
-                    value={signupData.name}
-                    onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
+                    placeholder="Seu nome"
+                    value={signupData.firstName}
+                    onChange={(e) => setSignupData({ ...signupData, firstName: e.target.value })}
+                    required
+                    disabled={isFormLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-name">Sobrenome</Label>
+                  <Input
+                    id="signup-name"
+                    type="text"
+                    placeholder="Seu sobrenome"
+                    value={signupData.lastName}
+                    onChange={(e) => setSignupData({ ...signupData, lastName: e.target.value })}
                     required
                     disabled={isFormLoading}
                   />

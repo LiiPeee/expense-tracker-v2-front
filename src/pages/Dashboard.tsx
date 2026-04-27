@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
 import { useGetAll } from "@/hooks/transaction/use-get-transactions";
+import { useIncomeByCategory } from "@/hooks/transaction/use-income-by-category";
 import { DollarSign, Receipt, TrendingDown, TrendingUp, Users } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -14,6 +15,7 @@ const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "cu
 const Dashboard = () => {
   const { isRefreshing, getAllExpenseAndIncome, expenseMonthTotal, incomeMonthTotal, enconomyMonthTotal } = useGetAll();
   const { isLoading: isLoadingChart, chartData, totalExpense, loadData } = useExpenseByCategory();
+  const { isLoading: isLoadingIncomeChart, chartData: incomeChartData, totalIncome, loadData: loadIncomeData } = useIncomeByCategory();
   const didFetchRef = useRef(false);
 
   useEffect(() => {
@@ -21,7 +23,8 @@ const Dashboard = () => {
     didFetchRef.current = true;
     void getAllExpenseAndIncome();
     void loadData();
-  }, [getAllExpenseAndIncome, loadData]);
+    void loadIncomeData();
+  }, [getAllExpenseAndIncome, loadData, loadIncomeData]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -80,15 +83,33 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               {isLoadingChart ? (
-                <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
-                  Carregando...
-                </div>
+                <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">Carregando...</div>
               ) : (
                 <ExpensePieChart data={chartData} totalExpense={totalExpense} compact />
               )}
             </CardContent>
           </Card>
 
+          <Card className="shadow-medium">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-base font-semibold">Receitas por Categoria</CardTitle>
+              <Link to="/reports">
+                <Button variant="ghost" size="sm" className="text-xs text-muted-foreground h-7 px-2">
+                  Ver relatório
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent>
+              {isLoadingIncomeChart ? (
+                <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">Carregando...</div>
+              ) : (
+                <ExpensePieChart data={incomeChartData} totalExpense={totalIncome} compact />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 mb-8">
           <Card className="shadow-medium">
             <CardHeader>
               <CardTitle>Acesso Rápido</CardTitle>

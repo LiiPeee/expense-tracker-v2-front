@@ -7,10 +7,14 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Auth from "./pages/Auth";
 import Contacts from "./pages/Contacts";
 import Dashboard from "./pages/Dashboard";
+import ForgotPassword from "./pages/ForgotPassword";
+import NewPassword from "./pages/NewPassword";
 import NotFound from "./pages/NotFound";
 import Reports from "./pages/Reports";
+import ResetCode from "./pages/ResetCode";
 import Transactions from "./pages/Transactions";
 import TransactionsList from "./pages/TransactionsList";
+import VerifyTokenEmail from "./pages/VerifyTokenEmail";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +27,10 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Navigate to="/auth" replace />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-code" element={<ResetCode />} />
+          <Route path="/new-password" element={<NewPassword />} />
+          <Route path="/verify-email/:token" element={<VerifyTokenEmail />} />
           <Route
             path="/dashboard"
             element={

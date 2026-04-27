@@ -1,13 +1,17 @@
-import { logOut, signIn, SignInRequest, signUp, SignUpRequest } from "@/services/auth";
-import { REFRESH_TOKEN_KEY, TOKEN_KEY, USER_KEY } from "@/lib/api";
+import { REFRESH_TOKEN_KEY, TOKEN_KEY } from "@/lib/api";
+import { logOut, signIn, SignInRequest, signUp, SignUpRequest, validateResetCode } from "@/services/auth";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useToast } from "../use-toast";
 
 export function useAuthForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get("email") ?? "";
+
+  const [code, setCode] = useState("");
 
   const handleSignIn = async (data: SignInRequest) => {
     try {
@@ -47,17 +51,18 @@ export function useAuthForm() {
   const handleSignUp = async (data: SignUpRequest) => {
     try {
       setIsLoading(true);
-      const response = await signUp(data);
+      await signUp(data);
 
-      localStorage.setItem(TOKEN_KEY, response.accessToken);
-      localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
-      localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+      // localStorage.setItem(TOKEN_KEY, response.accessToken);
+      // localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+      // localStorage.setItem(USER_KEY, JSON.stringify(response.user));
 
       toast({
-        title: "Conta criada com sucesso!",
-        description: `Bem-vindo, ${response.user.name}`,
+        title: "Enviamos um email de confirmação para o seu email!",
+        description: `Email: ${data.email}`,
       });
-      navigate("/dashboard");
+
+      navigate("/auth");
     } catch {
       toast({
         title: "Erro ao criar conta",
@@ -68,6 +73,23 @@ export function useAuthForm() {
       setIsLoading(false);
     }
   };
+  const handleSendCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      setIsLoading(true);
+      await validateResetCode({ email, code });
+      sessionStorage.setItem("resetPasswordSession", JSON.stringify({ email, code }));
+      navigate("/new-password");
+    } catch {
+      toast({
+        title: "Código inválido",
+        description: "O código informado é inválido ou expirou. Verifique seu email e tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  return { isLoading, handleSignIn, handleSignUp, handleLogOut };
+  return { isLoading, code, setCode, handleSignIn, handleSignUp, handleLogOut, handleSendCode };
 }
