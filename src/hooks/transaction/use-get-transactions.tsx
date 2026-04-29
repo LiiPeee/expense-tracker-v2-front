@@ -1,7 +1,5 @@
-import { Contact } from "@/helper/contact";
 import { TransactionResponse } from "@/helper/transaction";
 import { getDefaultYearMonth, monthResponse, recurrenceResponse } from "@/helper/utils";
-import { getAllContacts } from "@/services/contact";
 import {
   getAllTransactionsPaged,
   getEconomy,
@@ -9,6 +7,7 @@ import {
   getIncomeValue,
   getTransactionsByCategoryPaged,
   getTransactionsByMonthAndYear,
+  getTransactionsByTypeAndContactPaged,
   getTransactionsByTypePaged,
 } from "@/services/transaction";
 import { useQueryClient } from "@tanstack/react-query";
@@ -29,7 +28,6 @@ export function useGetAll() {
   const [incomeMonthTotal, setIncomeMonthTotal] = useState<number>(0);
   const [enconomyMonthTotal, setEconomyMonthTotal] = useState<number>(0);
   const [transactions, setGetAllTransaction] = useState<TransactionResponse[]>([]);
-  const [contact, setGetContact] = useState<Contact[]>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -86,13 +84,13 @@ export function useGetAll() {
 
       const backend = await queryClient.fetchQuery({
         queryKey: [...keyBase, pageNumber],
-        queryFn: () => getAllTransactionsPaged(pageNumber),
+        queryFn: async () => await getAllTransactionsPaged(pageNumber),
         staleTime: 60_000,
       });
 
       applyPagedResult(backend);
 
-      prefetchIfPossible(keyBase, pageNumber + 1, () => getAllTransactionsPaged(pageNumber + 1));
+      prefetchIfPossible(keyBase, pageNumber + 1, async () => await getAllTransactionsPaged(pageNumber + 1));
     } finally {
       setIsRefreshing(false);
     }
@@ -113,18 +111,43 @@ export function useGetAll() {
 
       const backend = await queryClient.fetchQuery({
         queryKey: [...keyBase, pageNumber],
-        queryFn: () => getTransactionsByTypePaged(typeName, m, y, pageNumber),
+        queryFn: async () => await getTransactionsByTypePaged(typeName, m, y, pageNumber),
         staleTime: 60_000,
       });
 
       applyPagedResult(backend);
 
-      prefetchIfPossible(keyBase, pageNumber + 1, () => getTransactionsByTypePaged(typeName, m, y, pageNumber + 1));
+      prefetchIfPossible(keyBase, pageNumber + 1, async () => await getTransactionsByTypePaged(typeName, m, y, pageNumber + 1));
     } finally {
       setIsRefreshing(false);
     }
   }
+  async function getByContactAndType(contactName: string, typeName: string, pageNumber = 1) {
+    setIsRefreshing(true);
+    try {
+      let m = monthResponse(month);
+      let y = Number(year);
 
+      if (m === 0 && y === 0) {
+        const ym = getDefaultYearMonth();
+        m = ym.month;
+        y = ym.year;
+      }
+      const keyBase = ["transactions", "type", "contact", typeName, contactName, m, y] as const;
+
+      const backend = await queryClient.fetchQuery({
+        queryKey: [...keyBase, pageNumber],
+        queryFn: async () => await getTransactionsByTypeAndContactPaged(typeName, contactName, m, y, pageNumber),
+        staleTime: 60_000,
+      });
+
+      applyPagedResult(backend);
+
+      prefetchIfPossible(keyBase, pageNumber + 1, async () => await getTransactionsByTypePaged(typeName, m, y, pageNumber + 1));
+    } finally {
+      setIsRefreshing(false);
+    }
+  }
   async function getByCategoryAndType(category: string, typeName: string, pageNumber = 1) {
     setIsRefreshing(true);
     try {
@@ -141,13 +164,17 @@ export function useGetAll() {
 
       const backend = await queryClient.fetchQuery({
         queryKey: [...keyBase, pageNumber],
-        queryFn: () => getTransactionsByCategoryPaged(category, typeName, m, y, pageNumber),
+        queryFn: async () => await getTransactionsByCategoryPaged(category, typeName, m, y, pageNumber),
         staleTime: 60_000,
       });
 
       applyPagedResult(backend);
 
-      prefetchIfPossible(keyBase, pageNumber + 1, () => getTransactionsByCategoryPaged(category, typeName, m, y, pageNumber + 1));
+      prefetchIfPossible(
+        keyBase,
+        pageNumber + 1,
+        async () => await getTransactionsByCategoryPaged(category, typeName, m, y, pageNumber + 1),
+      );
     } finally {
       setIsRefreshing(false);
       setGetAllTransaction([]);
@@ -169,27 +196,15 @@ export function useGetAll() {
 
       const backend = await queryClient.fetchQuery({
         queryKey: [...keyBase, pageNumber],
-        queryFn: () => getTransactionsByMonthAndYear(m, y, pageNumber),
+        queryFn: async () => await getTransactionsByMonthAndYear(m, y, pageNumber),
         staleTime: 60_000,
       });
 
       applyPagedResult(backend);
 
-      prefetchIfPossible(keyBase, pageNumber + 1, () => getTransactionsByMonthAndYear(m, y, pageNumber + 1));
+      prefetchIfPossible(keyBase, pageNumber + 1, async () => await getTransactionsByMonthAndYear(m, y, pageNumber + 1));
     } finally {
       setIsRefreshing(false);
-    }
-  }
-
-  async function getAllContact() {
-    setGetContact([]);
-    try {
-      const backendContact = await getAllContacts();
-      setGetContact(backendContact ?? []);
-    } catch (error) {
-      setGetContact([]);
-      console.error("Erro no service:", error);
-      throw error;
     }
   }
 
@@ -199,6 +214,7 @@ export function useGetAll() {
     getByCategoryAndType,
     getByMontAndYear,
     getByType,
+    getByContactAndType,
 
     currentPage,
     totalPages,
@@ -211,9 +227,7 @@ export function useGetAll() {
     transactions,
     year,
     month,
-    contact,
 
-    getAllContact,
     setMonth,
     setYear,
   };

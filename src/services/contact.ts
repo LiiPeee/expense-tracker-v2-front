@@ -1,7 +1,5 @@
 import { ContactRequest } from "@/helper/contact";
-import { authFetch } from "@/lib/api";
-
-export const BASE_URL = import.meta.env.VITE_API_URL;
+import { authFetch, BASE_URL } from "@/lib/api";
 
 export async function getAllContacts() {
   const response = await authFetch(`${BASE_URL}/Contact/GetAll`);

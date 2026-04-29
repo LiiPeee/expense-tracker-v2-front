@@ -1,32 +1,15 @@
-import { clearAuth, GOOGLE_AUTH_KEY, REFRESH_TOKEN_KEY, TOKEN_KEY, USER_KEY } from "@/lib/api";
-
-export const BASE_URL = import.meta.env.VITE_API_URL;
-
-export interface SignUpRequest {
-  email: string;
-  password: string;
-  lastName: string;
-  firstName: string;
-}
-
-export interface SignInRequest {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
-}
-
-export interface RefreshTokenRequest {
-  refreshToken: string;
-}
+import {
+  AuthResponse,
+  ForgotPasswordRequest,
+  RefreshTokenRequest,
+  ResetPasswordRequest,
+  SignInRequest,
+  SignUpRequest,
+  ValidateResetCodeRequest,
+  VerifyEmailRequest,
+  VerifyTokenRequest,
+} from "@/helper/auth";
+import { BASE_URL, clearAuth, GOOGLE_AUTH_KEY, REFRESH_TOKEN_KEY, TOKEN_KEY, USER_KEY } from "@/lib/api";
 
 export async function signUp(input: SignUpRequest): Promise<void> {
   const response = await fetch(`${BASE_URL}/Auth/SignUp`, {
@@ -79,10 +62,6 @@ export async function logOut(): Promise<void> {
   clearAuth();
 }
 
-export interface VerifyEmailRequest {
-  token: string;
-}
-
 export async function verifyEmail(input: VerifyEmailRequest): Promise<void> {
   const response = await fetch(`${BASE_URL}/Auth/VerifyEmail`, {
     method: "POST",
@@ -93,19 +72,13 @@ export async function verifyEmail(input: VerifyEmailRequest): Promise<void> {
   if (!response.ok) throw new Error("Token inválido ou expirado");
 }
 
-export interface ForgotPasswordRequest {
-  email: string;
-}
+export async function verifyToken(input: VerifyTokenRequest): Promise<void> {
+  const params = new URLSearchParams({ id: input.id, token: input.token });
+  const response = await fetch(`${BASE_URL}/Auth/VerifyToken?${params.toString()}`, {
+    method: "POST",
+  });
 
-export interface ValidateResetCodeRequest {
-  email: string;
-  code: string;
-}
-
-export interface ResetPasswordRequest {
-  email: string;
-  code: string;
-  newPassword: string;
+  if (!response.ok) throw new Error("Código inválido ou expirado");
 }
 
 export async function forgotPassword(input: ForgotPasswordRequest): Promise<void> {

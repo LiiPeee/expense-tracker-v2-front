@@ -13,7 +13,6 @@ export default function Auth() {
   const { isLoading: isGoogleLoading, handleGoogleSignIn } = useAuth();
   const { isLoading, handleSignIn, handleSignUp } = useAuthForm();
 
-  // Estados para os formulários
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signupData, setSignupData] = useState({ lastName: "", firstName: "", email: "", password: "" });
   const [showLoginPassword, setShowLoginPassword] = useState(false);

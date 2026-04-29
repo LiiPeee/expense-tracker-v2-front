@@ -1,17 +1,18 @@
+import { SignInRequest, SignUpRequest } from "@/helper/auth";
 import { REFRESH_TOKEN_KEY, TOKEN_KEY } from "@/lib/api";
-import { logOut, signIn, SignInRequest, signUp, SignUpRequest, validateResetCode } from "@/services/auth";
+import { logOut, signIn, signUp, validateResetCode, verifyToken } from "@/services/auth";
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useToast } from "../use-toast";
 
 export function useAuthForm() {
   const navigate = useNavigate();
+  const [code, setCode] = useState("");
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email") ?? "";
-
-  const [code, setCode] = useState("");
+  const { id = "" } = useParams<{ id: string }>();
 
   const handleSignIn = async (data: SignInRequest) => {
     try {
@@ -61,8 +62,6 @@ export function useAuthForm() {
         title: "Enviamos um email de confirmação para o seu email!",
         description: `Email: ${data.email}`,
       });
-
-      navigate("/auth");
     } catch {
       toast({
         title: "Erro ao criar conta",
@@ -78,8 +77,7 @@ export function useAuthForm() {
     try {
       setIsLoading(true);
       await validateResetCode({ email, code });
-      sessionStorage.setItem("resetPasswordSession", JSON.stringify({ email, code }));
-      navigate("/new-password");
+      navigate("/new-password", { state: { email, code } });
     } catch {
       toast({
         title: "Código inválido",
@@ -91,5 +89,33 @@ export function useAuthForm() {
     }
   };
 
-  return { isLoading, code, setCode, handleSignIn, handleSignUp, handleLogOut, handleSendCode };
+  const handleVerifyEmailToken = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!id) {
+      toast({
+        title: "Link inválido",
+        description: "O link de verificação é inválido. Solicite um novo email.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await verifyToken({ id, token: code });
+      toast({ title: "Email verificado!", description: "Sua conta foi confirmada com sucesso." });
+      navigate("/auth");
+    } catch {
+      toast({
+        title: "Código inválido",
+        description: "O código informado é inválido ou expirou. Verifique seu email e tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { isLoading, code, setCode, handleSignIn, handleSignUp, handleLogOut, handleSendCode, handleVerifyEmailToken };
 }

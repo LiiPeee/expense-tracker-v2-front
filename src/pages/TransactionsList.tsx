@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CategoryList } from "@/helper/category";
 import { monthNames } from "@/helper/utils";
+import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useGetAll } from "@/hooks/transaction/use-get-transactions";
 import { Pencil, Trash2, TrendingDown, TrendingUp } from "lucide-react";
@@ -23,8 +24,7 @@ import { toast } from "sonner";
 
 const TransactionsList = () => {
   const { handleDelete, handleEdit } = useTransaction();
-
-  const categories = CategoryList;
+  const { contacts, getAllContact } = useContact();
 
   const {
     transactions,
@@ -41,6 +41,7 @@ const TransactionsList = () => {
 
     getAllTransaction,
     getByType,
+    getByContactAndType,
     getAllExpenseAndIncome,
     getByCategoryAndType,
 
@@ -52,10 +53,14 @@ const TransactionsList = () => {
 
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
+  const [filterContact, setContact] = useState<string>("all");
   const didFetchRef = useRef(false);
 
   const [activeQuery, setActiveQuery] = useState<
-    { kind: "all" } | { kind: "type"; typeName: string } | { kind: "categoryType"; category: string; typeName: string }
+    | { kind: "all" }
+    | { kind: "type"; typeName: string }
+    | { kind: "categoryType"; category: string; typeName: string }
+    | { kind: "contactType"; contactName: string; typeName: string }
   >({ kind: "all" });
 
   useEffect(() => {
@@ -77,7 +82,15 @@ const TransactionsList = () => {
       return;
     }
 
-    void getByCategoryAndType(activeQuery.category, activeQuery.typeName, page);
+    if (activeQuery.kind === "categoryType") {
+      void getByCategoryAndType(activeQuery.category, activeQuery.typeName, page);
+      return;
+    }
+
+    if (activeQuery.kind === "contactType") {
+      void getByContactAndType(activeQuery.contactName, activeQuery.typeName, page);
+      return;
+    }
   };
 
   return (
@@ -128,7 +141,7 @@ const TransactionsList = () => {
           onRefresh={async () => {
             try {
               await getAllExpenseAndIncome();
-
+              await getAllContact();
               setActiveQuery({ kind: "all" });
               await getAllTransaction(1);
 
@@ -215,6 +228,41 @@ const TransactionsList = () => {
             </div>
           </CardContent>
 
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Contatos</label>
+                <Select value={filterContact} onValueChange={(value) => setContact(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas os contatos</SelectItem>
+                    {contacts.map((c) => (
+                      <SelectItem key={c.name} value={c.name}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tipo</label>
+                <Select value={filterType} onValueChange={(value) => setFilterType(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas os tipo</SelectItem>
+                    <SelectItem value="INCOME">Receita</SelectItem>
+                    <SelectItem value="EXPENSE">Despesa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+
           <Button
             variant="outline"
             className="w-full h-20 flex-col gap-2"
@@ -224,7 +272,11 @@ const TransactionsList = () => {
                 void getAllTransaction(1);
                 return;
               }
-
+              if (filterContact !== "all" && filterType !== "all") {
+                setActiveQuery({ kind: "contactType", contactName: filterContact, typeName: filterType });
+                void getByContactAndType(filterContact, filterType, 1);
+                return;
+              }
               if (filterCategory === "all" && filterType !== "all") {
                 setActiveQuery({ kind: "type", typeName: filterType });
                 void getByType(filterType, 1);
