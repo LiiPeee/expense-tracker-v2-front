@@ -1,8 +1,6 @@
 import { PagedTransactionsResponse, TransactionRequest } from "@/helper/transaction";
 import { getDefaultYearMonth } from "@/helper/utils";
-import { authFetch } from "@/lib/api";
-
-export const BASE_URL = import.meta.env.VITE_API_URL;
+import { authFetch, BASE_URL } from "@/lib/api";
 
 export async function createTransaction(data: TransactionRequest): Promise<boolean> {
   const response = await authFetch(`${BASE_URL}/Transaction/Create`, {
@@ -64,7 +62,7 @@ export async function getTransactionsByCategoryPaged(
   year: number,
   pageNumber: number,
 ): Promise<PagedTransactionsResponse> {
-  const url = `${BASE_URL}/Transaction/GetByCategory?categoryName=${category}&type=${typeName}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
+  const url = `${BASE_URL}/Transaction/GetByCategory?categoryName=${encodeURIComponent(category)}&type=${encodeURIComponent(typeName)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);
   if (!response.ok) throw new Error("Falha ao buscar transações por categoria");
@@ -85,12 +83,21 @@ export async function getTransactionsByTypePaged(
 
   return response.json() as unknown as PagedTransactionsResponse;
 }
-
-export async function getTransactionsByMonthAndYear(
+export async function getTransactionsByTypeAndContactPaged(
+  typeName: string,
+  contactName: string,
   month: number,
   year: number,
   pageNumber: number,
 ): Promise<PagedTransactionsResponse> {
+  const url = `${BASE_URL}/Transaction/GetByContact?contactName=${encodeURIComponent(contactName)}&type=${encodeURIComponent(typeName)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
+
+  const response = await authFetch(url);
+  if (!response.ok) throw new Error("Falha ao buscar transações por tipo");
+
+  return response.json() as unknown as PagedTransactionsResponse;
+}
+export async function getTransactionsByMonthAndYear(month: number, year: number, pageNumber: number): Promise<PagedTransactionsResponse> {
   const url = `${BASE_URL}/Transaction/GetByMonthAndYear?month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);

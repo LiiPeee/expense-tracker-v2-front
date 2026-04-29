@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { resetPassword } from "@/services/auth";
 import { Check, Eye, EyeOff, LockKeyhole, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface PasswordStrength {
   minLength: boolean;
@@ -40,6 +40,7 @@ const requirements = [
 
 export default function NewPassword() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   const [password, setPassword] = useState("");
@@ -52,11 +53,11 @@ export default function NewPassword() {
   const passwordsMatch = password === confirm && confirm.length > 0;
 
   useEffect(() => {
-    const session = sessionStorage.getItem("resetPasswordSession");
-    if (!session) {
+    const state = location.state as { email?: string; code?: string } | null;
+    if (!state?.email || !state?.code) {
       navigate("/forgot-password", { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, location.state]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,17 +80,16 @@ export default function NewPassword() {
       return;
     }
 
-    const rawSession = sessionStorage.getItem("resetPasswordSession");
-    if (!rawSession) {
+    const state = location.state as { email?: string; code?: string } | null;
+    if (!state?.email || !state?.code) {
       navigate("/forgot-password", { replace: true });
       return;
     }
 
     try {
       setIsLoading(true);
-      const { email, code } = JSON.parse(rawSession) as { email: string; code: string };
+      const { email, code } = state as { email: string; code: string };
       await resetPassword({ email, code, newPassword: password });
-      sessionStorage.removeItem("resetPasswordSession");
       toast({ title: "Senha redefinida com sucesso!", description: "Faça login com sua nova senha." });
       navigate("/auth", { replace: true });
     } catch {

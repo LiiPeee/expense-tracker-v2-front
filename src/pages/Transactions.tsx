@@ -8,6 +8,7 @@ import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PaidValue, RecurrenceLabel } from "@/helper/transaction";
+import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useGetAll } from "@/hooks/transaction/use-get-transactions";
 import { Pencil, Plus, Trash2 } from "lucide-react";
@@ -25,7 +26,8 @@ const Transactions = () => {
     isDialogOpen,
     formData,
   } = useTransaction();
-  const { transactions, isRefreshing, getAllTransaction, contact, getAllContact } = useGetAll();
+  const { transactions, isRefreshing, getAllTransaction } = useGetAll();
+  const { contacts, getAllContact } = useContact();
 
   const didFetchRef = useRef(false);
 
@@ -101,7 +103,7 @@ const Transactions = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all"></SelectItem>
-                      {contact.map((contacts) => (
+                      {contacts.map((contacts) => (
                         <SelectItem key={contacts.id ?? contacts.name} value={contacts.name ?? ""}>
                           {contacts.name}
                         </SelectItem>

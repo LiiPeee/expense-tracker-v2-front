@@ -4,6 +4,26 @@ export const REFRESH_TOKEN_KEY = "refreshToken";
 export const USER_KEY = "user";
 export const GOOGLE_AUTH_KEY = "auth";
 
+const _apiUrl = import.meta.env.VITE_API_URL as string | undefined;
+if (!_apiUrl) throw new Error("[Config] VITE_API_URL is not set. All API calls will fail.");
+export const BASE_URL: string = _apiUrl;
+
+// Secret known only to this module — prevents external scripts from triggering auth:unauthorized
+const AUTH_EVENT_SECRET = crypto.randomUUID();
+
+/**
+ * Registers a handler for the internal "auth:unauthorized" event.
+ * Returns a cleanup function to remove the listener.
+ */
+export function onAuthUnauthorized(handler: () => void): () => void {
+  const listener = (e: Event) => {
+    if ((e as CustomEvent<{ secret: string }>).detail?.secret !== AUTH_EVENT_SECRET) return;
+    handler();
+  };
+  window.addEventListener("auth:unauthorized", listener);
+  return () => window.removeEventListener("auth:unauthorized", listener);
+}
+
 export function getAccessToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
@@ -37,7 +57,7 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
 
   if (response.status === 401) {
     clearAuth();
-    window.dispatchEvent(new Event("auth:unauthorized"));
+    window.dispatchEvent(new CustomEvent("auth:unauthorized", { detail: { secret: AUTH_EVENT_SECRET } }));
   }
 
   return response;

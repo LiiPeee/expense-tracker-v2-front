@@ -113,8 +113,8 @@ const Contacts = () => {
                       <SelectValue placeholder="Selecione tipo de contato" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">Empresa</SelectItem>
-                      <SelectItem value="2">Pessoal</SelectItem>
+                      <SelectItem value="1">Pessoal</SelectItem>
+                      <SelectItem value="2">Empresa</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
