@@ -1,8 +1,10 @@
+import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { getErrorMessage } from "@/lib/api";
 import { resetPassword } from "@/services/auth";
 import { Check, Eye, EyeOff, LockKeyhole, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -48,6 +50,7 @@ export default function NewPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const strength = getPasswordStrength(password);
   const passwordsMatch = password === confirm && confirm.length > 0;
@@ -61,6 +64,7 @@ export default function NewPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
 
     if (!isStrongPassword(strength)) {
       toast({
@@ -92,10 +96,12 @@ export default function NewPassword() {
       await resetPassword({ email, code, newPassword: password });
       toast({ title: "Senha redefinida com sucesso!", description: "Faça login com sua nova senha." });
       navigate("/auth", { replace: true });
-    } catch {
+    } catch (error: unknown) {
+      const message = getErrorMessage(error, "Não foi possível redefinir sua senha. Tente o processo novamente.");
+      setErrorMessage(message);
       toast({
         title: "Erro ao redefinir senha",
-        description: "Não foi possível redefinir sua senha. Tente o processo novamente.",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -104,8 +110,11 @@ export default function NewPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero px-4">
-      <Card className="w-full max-w-md shadow-strong">
+    <div className="page-shell relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
+      <div className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
+
+      <Card className="w-full max-w-md border-white/60 bg-white/80 shadow-strong reveal-up">
         <CardHeader className="text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-4">
             <LockKeyhole className="text-white w-8 h-8" />
@@ -114,6 +123,8 @@ export default function NewPassword() {
           <CardDescription>Crie uma senha forte para proteger sua conta.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {errorMessage ? <ErrorStateCard message={errorMessage} onRetry={() => setErrorMessage(null)} /> : null}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="new-password">Nova senha</Label>
@@ -179,6 +190,8 @@ export default function NewPassword() {
               {isLoading ? "Salvando..." : "Salvar nova senha"}
             </Button>
           </form>
+
+          {isLoading ? <LoadingStateCard lines={2} /> : null}
         </CardContent>
       </Card>
     </div>

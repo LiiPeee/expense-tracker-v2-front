@@ -1,9 +1,17 @@
 import { PagedTransactionsResponse, TransactionRequest } from "@/helper/transaction";
 import { getDefaultYearMonth } from "@/helper/utils";
-import { authFetch, BASE_URL } from "@/lib/api";
+import { authFetch, BASE_URL, readJsonOrThrow } from "@/lib/api";
 
 export async function createTransaction(data: TransactionRequest): Promise<boolean> {
   const response = await authFetch(`${BASE_URL}/Transaction/Create`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  return response.ok;
+}
+
+export async function updateTransaction(id: number, data: TransactionRequest): Promise<boolean> {
+  const response = await authFetch(`${BASE_URL}/Transaction/EditTransaction?id=${encodeURIComponent(id)}`, {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -15,9 +23,8 @@ export async function getExpenseValue(): Promise<number> {
   const url = `${BASE_URL}/Transaction/GetExpenseByMonthAndYear?month=${encodeURIComponent(ym.month)}&year=${encodeURIComponent(ym.year)}`;
 
   const response = await authFetch(url);
-  if (!response.ok) throw new Error("Falha ao buscar despesas");
-
-  return (await response.json()) ?? 0;
+  const value = await readJsonOrThrow<number>(response, "Falha ao buscar despesas");
+  return value ?? 0;
 }
 
 export async function getIncomeValue(): Promise<number> {
@@ -25,9 +32,8 @@ export async function getIncomeValue(): Promise<number> {
   const url = `${BASE_URL}/Transaction/GetIncomeByMonthAndYear?month=${encodeURIComponent(ym.month)}&year=${encodeURIComponent(ym.year)}`;
 
   const response = await authFetch(url);
-  if (!response.ok) throw new Error("Falha ao buscar receitas");
-
-  return (await response.json()) ?? 0;
+  const value = await readJsonOrThrow<number>(response, "Falha ao buscar receitas");
+  return value ?? 0;
 }
 
 export async function getEconomy(): Promise<number> {
@@ -35,9 +41,8 @@ export async function getEconomy(): Promise<number> {
   const url = `${BASE_URL}/Transaction/GetEconomy?month=${encodeURIComponent(ym.month)}&year=${encodeURIComponent(ym.year)}`;
 
   const response = await authFetch(url);
-  if (!response.ok) throw new Error("Falha ao buscar economia");
-
-  return (await response.json()) ?? 0;
+  const value = await readJsonOrThrow<number>(response, "Falha ao buscar economia");
+  return value ?? 0;
 }
 
 export async function getAllTransactionsPaged(pageNumber: number): Promise<PagedTransactionsResponse> {
@@ -45,9 +50,7 @@ export async function getAllTransactionsPaged(pageNumber: number): Promise<Paged
   const url = `${BASE_URL}/Transaction/GetByMonthAndYear?month=${encodeURIComponent(ym.month)}&year=${encodeURIComponent(ym.year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);
-  if (!response.ok) throw new Error("Falha ao buscar transações");
-
-  return response.json() as unknown as PagedTransactionsResponse;
+  return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações");
 }
 
 export async function getAllTransactions(pageNumber: number) {
@@ -65,9 +68,7 @@ export async function getTransactionsByCategoryPaged(
   const url = `${BASE_URL}/Transaction/GetByCategory?categoryName=${encodeURIComponent(category)}&type=${encodeURIComponent(typeName)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);
-  if (!response.ok) throw new Error("Falha ao buscar transações por categoria");
-
-  return response.json() as unknown as PagedTransactionsResponse;
+  return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações por categoria");
 }
 
 export async function getTransactionsByTypePaged(
@@ -79,31 +80,25 @@ export async function getTransactionsByTypePaged(
   const url = `${BASE_URL}/Transaction/GetByType?type=${encodeURIComponent(typeName)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);
-  if (!response.ok) throw new Error("Falha ao buscar transações por tipo");
-
-  return response.json() as unknown as PagedTransactionsResponse;
+  return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações por tipo");
 }
 export async function getTransactionsByTypeAndContactPaged(
   typeName: string,
-  contactName: string,
+  id: string,
   month: number,
   year: number,
   pageNumber: number,
 ): Promise<PagedTransactionsResponse> {
-  const url = `${BASE_URL}/Transaction/GetByContact?contactName=${encodeURIComponent(contactName)}&type=${encodeURIComponent(typeName)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
+  const url = `${BASE_URL}/Transaction/GetByContact?id=${encodeURIComponent(id)}&type=${encodeURIComponent(typeName)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);
-  if (!response.ok) throw new Error("Falha ao buscar transações por tipo");
-
-  return response.json() as unknown as PagedTransactionsResponse;
+  return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações por contato e tipo");
 }
 export async function getTransactionsByMonthAndYear(month: number, year: number, pageNumber: number): Promise<PagedTransactionsResponse> {
   const url = `${BASE_URL}/Transaction/GetByMonthAndYear?month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);
-  if (!response.ok) throw new Error("Falha ao buscar transações");
-
-  return response.json() as unknown as PagedTransactionsResponse;
+  return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações");
 }
 
 export async function deleteTransactions(id: number): Promise<boolean> {

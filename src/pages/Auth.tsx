@@ -31,17 +31,25 @@ export default function Auth() {
   const isFormLoading = isLoading || isGoogleLoading;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero px-4">
-      <Card className="w-full max-w-md shadow-strong">
-        <CardHeader className="text-center space-y-2">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-4">
-            <span className="text-white font-bold text-3xl">F</span>
+    <div className="page-shell relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
+      <div className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
+
+      <Card className="w-full max-w-md border-white/60 bg-white/80 shadow-strong">
+        <CardHeader className="text-center space-y-3">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-3 shadow-medium">
+            <span className="text-white font-bold text-2xl">F</span>
           </div>
-          <CardTitle className="text-2xl">Bem-vindo</CardTitle>
-          <CardDescription>Gerencie suas finanças de forma inteligente</CardDescription>
+          <CardTitle className="text-3xl">Bem-vindo</CardTitle>
+          <CardDescription className="text-sm">Gerencie suas finanças com clareza e controle</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button variant="outline" className="w-full gap-2 h-12" disabled={isFormLoading} onClick={() => handleGoogleSignIn()}>
+          <Button
+            variant="outline"
+            className="w-full gap-2 h-11 rounded-xl border-white/70 bg-white/75 hover:bg-white"
+            disabled={isFormLoading}
+            onClick={() => handleGoogleSignIn()}
+          >
             <Chrome className="w-5 h-5" />
             {isGoogleLoading ? "Conectando..." : "Continuar com Google"}
           </Button>
@@ -51,12 +59,12 @@ export default function Auth() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">ou</span>
+              <span className="bg-white px-3 text-muted-foreground rounded-full">ou</span>
             </div>
           </div>
 
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-2 rounded-xl bg-muted/70 p-1">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Criar Conta</TabsTrigger>
             </TabsList>
@@ -98,7 +106,7 @@ export default function Auth() {
                     </button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={isFormLoading}>
+                <Button type="submit" className="w-full rounded-xl" disabled={isFormLoading}>
                   {isLoading ? "Entrando..." : "Entrar"}
                 </Button>
                 <div className="text-center">
@@ -171,7 +179,7 @@ export default function Auth() {
                     </button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full" disabled={isFormLoading}>
+                <Button type="submit" className="w-full rounded-xl" disabled={isFormLoading}>
                   {isLoading ? "Criando conta..." : "Criar Conta"}
                 </Button>
               </form>

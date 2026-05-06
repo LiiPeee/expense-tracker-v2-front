@@ -1,11 +1,9 @@
 import { CategoryRequest } from "@/helper/category";
-import { authFetch, BASE_URL } from "@/lib/api";
+import { authFetch, BASE_URL, readJsonOrThrow } from "@/lib/api";
 
 export async function getAll() {
   const response = await authFetch(`${BASE_URL}/Category/GetAll`);
-  if (!response.ok) throw new Error("Falha ao buscar categorias");
-
-  const data = await response.json();
+  const data = await readJsonOrThrow<unknown>(response, "Falha ao buscar categorias");
   return Array.isArray(data) ? data : [];
 }
 
@@ -14,7 +12,6 @@ export async function create(input: CategoryRequest) {
     method: "POST",
     body: JSON.stringify(input),
   });
-  if (!response.ok) throw new Error("Falha ao criar categoria");
 
-  return response.json();
+  return readJsonOrThrow<unknown>(response, "Falha ao criar categoria");
 }

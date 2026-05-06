@@ -1,4 +1,5 @@
 import { Header } from "@/components/layout/Header";
+import { TableLoadingState } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -11,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ContactTypeValue } from "@/helper/contact";
 import { maskPhone } from "@/helper/utils";
 import { useContact } from "@/hooks/contact/use-contact";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Inbox, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 const Contacts = () => {
@@ -40,28 +41,28 @@ const Contacts = () => {
   }, [getAllContact]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="page-shell">
       <Header user={null} />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-3xl font-bold text-foreground">Contatos</h2>
+          <div className="rounded-3xl border border-white/50 bg-white/70 backdrop-blur-md px-6 py-6 shadow-medium flex-1 mr-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground">Contatos</h2>
             <p className="text-muted-foreground">Gerencie seus contatos</p>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2" onClick={() => handleDialogClose()}>
+              <Button className="gap-2 rounded-xl" onClick={() => handleDialogClose()}>
                 <Plus className="w-4 h-4" />
                 Novo Contato
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="border-white/60 bg-white/90 backdrop-blur-md sm:max-w-[560px]">
               <DialogHeader>
                 <DialogTitle>{editingContact ? "Editar Contato" : "Novo Contato"}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nome</Label>
                   <Input
@@ -177,7 +178,7 @@ const Contacts = () => {
                     onCheckedChange={(value) => setFormData({ ...formData, isPrimary: value })}
                   />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full rounded-xl">
                   {editingContact ? "Atualizar" : "Criar"}
                 </Button>
               </form>
@@ -186,40 +187,66 @@ const Contacts = () => {
         </div>
 
         <RefreshAllButton isRefreshing={isRefreshing} onRefresh={getAllContact} />
-        <Card className="shadow-medium">
+        <Card className="rounded-2xl reveal-up stagger-2">
           <CardHeader>
             <CardTitle>Lista de Contatos</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>E-mail</TableHead>
-                  <TableHead>Telefone</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {contacts.map((contact) => (
-                  <TableRow key={contact.id ?? contact.email ?? contact.name}>
-                    <TableCell className="font-medium">{contact.name}</TableCell>
-                    <TableCell>{contact.email}</TableCell>
-                    <TableCell>{maskPhone(contact.phone)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(contact)}>
-                          <Pencil className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => contact.id && handleDelete(contact.id)}>
-                          <Trash2 className="w-4 h-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            {isRefreshing && contacts.length === 0 ? (
+              <TableLoadingState columns={4} rows={6} />
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>E-mail</TableHead>
+                    <TableHead>Telefone</TableHead>
+                    <TableHead className="text-right">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {contacts.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4}>
+                        <div className="empty-state">
+                          <Inbox className="w-6 h-6 text-muted-foreground" />
+                          <p className="text-sm font-medium text-foreground">Nenhum contato cadastrado</p>
+                          <p className="text-xs text-muted-foreground">Use o botao Novo Contato para criar o primeiro registro.</p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    contacts.map((contact) => (
+                      <TableRow key={contact.id ?? contact.email ?? contact.name} className="table-row-lift">
+                        <TableCell className="font-medium">{contact.name}</TableCell>
+                        <TableCell>{contact.email}</TableCell>
+                        <TableCell>{maskPhone(contact.phone)}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="rounded-full hover:scale-105 transition-transform"
+                              onClick={() => handleEdit(contact)}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="rounded-full hover:scale-105 transition-transform"
+                              onClick={() => contact.id && handleDelete(contact.id)}
+                            >
+                              <Trash2 className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </main>

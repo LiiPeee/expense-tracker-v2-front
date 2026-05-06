@@ -57,8 +57,9 @@ export const contactFormDefaults: ContactForm = {
   isPrimary: true,
 };
 
-export function mapContactFormToRequest(form: ContactForm): ContactRequest {
+export function mapContactFormToRequest(form: ContactForm, id?: number): ContactRequest {
   return {
+    id: id == null ? undefined : String(id),
     name: form.name.trim(),
     email: form.email.trim(),
     phone: form.phone.trim(),
