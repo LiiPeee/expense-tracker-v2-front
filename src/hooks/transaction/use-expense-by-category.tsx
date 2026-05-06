@@ -1,5 +1,6 @@
 import { TransactionResponse } from "@/helper/transaction";
 import { getDefaultYearMonth } from "@/helper/utils";
+import { getErrorMessage } from "@/lib/api";
 import { getTransactionsByTypePaged } from "@/services/transaction";
 import { useState } from "react";
 
@@ -63,11 +64,13 @@ function aggregateByCategory(transactions: TransactionResponse[]): CategoryChart
 
 export function useExpenseByCategory() {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [chartData, setChartData] = useState<CategoryChartData[]>([]);
   const [totalExpense, setTotalExpense] = useState(0);
 
   async function loadData(month?: number, year?: number) {
     setIsLoading(true);
+    setError(null);
     try {
       const ym = getDefaultYearMonth();
       const m = month ?? ym.month;
@@ -79,10 +82,14 @@ export function useExpenseByCategory() {
 
       setChartData(data);
       setTotalExpense(total);
+    } catch (err: unknown) {
+      setChartData([]);
+      setTotalExpense(0);
+      setError(getErrorMessage(err, "Não foi possível carregar os gastos por categoria."));
     } finally {
       setIsLoading(false);
     }
   }
 
-  return { isLoading, chartData, totalExpense, loadData };
+  return { isLoading, error, chartData, totalExpense, loadData };
 }

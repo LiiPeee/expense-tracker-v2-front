@@ -2,13 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 198 43% 97%;
     --foreground: 210 24% 16%;
 
     --card: 0 0% 100%;
@@ -19,11 +21,11 @@ All colors MUST be HSL.
 
     --primary: 162 63% 41%;
     --primary-foreground: 0 0% 100%;
-    
+
     --secondary: 210 100% 48%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96%;
+    --muted: 210 40% 94%;
     --muted-foreground: 210 16% 46%;
 
     --accent: 162 63% 41%;
@@ -31,23 +33,28 @@ All colors MUST be HSL.
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    
+
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --border: 213 34% 88%;
+    --input: 213 34% 88%;
     --ring: 162 63% 41%;
 
     --radius: 0.75rem;
-    
-    --gradient-hero: linear-gradient(135deg, hsl(162 63% 41%) 0%, hsl(210 100% 48%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 40% 98%) 100%);
-    
+
+    --gradient-hero: linear-gradient(120deg, hsl(168 66% 41%) 0%, hsl(206 87% 52%) 52%, hsl(219 85% 58%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(200 50% 98%) 100%);
+    --gradient-background:
+      radial-gradient(circle at 18% 20%, hsl(189 89% 90% / 0.65), transparent 35%),
+      radial-gradient(circle at 83% 14%, hsl(218 85% 90% / 0.8), transparent 38%),
+      radial-gradient(circle at 65% 80%, hsl(154 73% 89% / 0.65), transparent 35%),
+      linear-gradient(180deg, hsl(198 43% 97%) 0%, hsl(204 57% 98%) 100%);
+
     --shadow-soft: 0 2px 8px -2px hsl(210 24% 16% / 0.08);
     --shadow-medium: 0 8px 16px -4px hsl(210 24% 16% / 0.12);
     --shadow-strong: 0 16px 32px -8px hsl(210 24% 16% / 0.16);
-    
+
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -63,7 +70,7 @@ All colors MUST be HSL.
 
     --primary: 162 63% 45%;
     --primary-foreground: 0 0% 100%;
-    
+
     --secondary: 210 100% 52%;
     --secondary-foreground: 0 0% 100%;
 
@@ -75,17 +82,22 @@ All colors MUST be HSL.
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
-    
+
     --success: 142 71% 48%;
     --success-foreground: 0 0% 100%;
 
     --border: 217 33% 20%;
     --input: 217 33% 20%;
     --ring: 162 63% 45%;
-    
-    --gradient-hero: linear-gradient(135deg, hsl(162 63% 35%) 0%, hsl(210 100% 42%) 100%);
+
+    --gradient-hero: linear-gradient(120deg, hsl(164 62% 38%) 0%, hsl(206 84% 45%) 50%, hsl(222 77% 52%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(222 47% 15%) 0%, hsl(222 47% 18%) 100%);
-    
+    --gradient-background:
+      radial-gradient(circle at 18% 20%, hsl(186 70% 26% / 0.35), transparent 35%),
+      radial-gradient(circle at 83% 14%, hsl(219 67% 28% / 0.38), transparent 38%),
+      radial-gradient(circle at 65% 80%, hsl(162 56% 24% / 0.34), transparent 35%),
+      linear-gradient(180deg, hsl(223 42% 10%) 0%, hsl(220 39% 12%) 100%);
+
     --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.2);
     --shadow-medium: 0 8px 16px -4px hsl(0 0% 0% / 0.3);
     --shadow-strong: 0 16px 32px -8px hsl(0 0% 0% / 0.4);
@@ -98,6 +110,122 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    background-image: var(--gradient-background);
+    background-attachment: fixed;
+    font-family: "Outfit", "Segoe UI", sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Space Grotesk", "Outfit", sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  @keyframes reveal-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    }
+    50% {
+      box-shadow: 0 0 0 8px hsl(var(--primary) / 0.08);
+    }
+  }
+
+  @keyframes route-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .surface-card {
+    @apply border border-white/45 bg-white/80 backdrop-blur-md shadow-medium transition-all duration-300;
+  }
+
+  .surface-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-strong);
+  }
+
+  .page-shell {
+    @apply relative min-h-screen;
+  }
+
+  .page-shell::before {
+    content: "";
+    @apply pointer-events-none absolute inset-x-0 top-0 h-40;
+    background: linear-gradient(180deg, hsl(var(--primary) / 0.08) 0%, transparent 100%);
+  }
+
+  .reveal-up {
+    opacity: 0;
+    animation: reveal-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .stagger-1 {
+    animation-delay: 0.06s;
+  }
+
+  .stagger-2 {
+    animation-delay: 0.12s;
+  }
+
+  .stagger-3 {
+    animation-delay: 0.18s;
+  }
+
+  .table-row-lift {
+    @apply transition-all duration-200;
+  }
+
+  .table-row-lift:hover {
+    transform: translateX(2px);
+  }
+
+  .focus-premium:focus-within {
+    animation: pulse-glow 1.6s ease-out;
+  }
+
+  .empty-state {
+    @apply flex min-h-40 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border/70 bg-muted/35 p-6 text-center;
+  }
+
+  .route-transition {
+    animation: route-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .route-transition,
+    .reveal-up,
+    .surface-card,
+    .table-row-lift {
+      animation: none !important;
+      transition: none !important;
+      transform: none !important;
+    }
   }
 }

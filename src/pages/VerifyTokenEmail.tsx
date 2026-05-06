@@ -1,16 +1,32 @@
+import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
 import { MailCheck } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function VerifyTokenEmail() {
   const { isLoading, code, setCode, handleVerifyEmailToken } = useAuthForm();
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    setErrorMessage(null);
+    const result = await handleVerifyEmailToken(e);
+    if (!result.ok) {
+      setErrorMessage(result.message ?? "Não foi possível verificar o código informado.");
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero px-4">
-      <Card className="w-full max-w-md shadow-strong">
+    <div className="page-shell relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
+      <div className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
+
+      <Card className="w-full max-w-md border-white/60 bg-white/80 shadow-strong reveal-up">
         <CardHeader className="text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-4">
             <MailCheck className="text-white w-8 h-8" />
@@ -21,7 +37,9 @@ export default function VerifyTokenEmail() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form onSubmit={handleVerifyEmailToken} className="space-y-4">
+          {errorMessage ? <ErrorStateCard message={errorMessage} onRetry={() => setErrorMessage(null)} /> : null}
+
+          <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="code">Código de verificação</Label>
               <Input
@@ -40,6 +58,9 @@ export default function VerifyTokenEmail() {
               {isLoading ? "Verificando..." : "Verificar código"}
             </Button>
           </form>
+
+          {isLoading ? <LoadingStateCard lines={2} /> : null}
+
           <div className="text-center">
             <Link
               to="/auth"

@@ -1,11 +1,9 @@
 import { ContactRequest } from "@/helper/contact";
-import { authFetch, BASE_URL } from "@/lib/api";
+import { authFetch, BASE_URL, readJsonOrThrow } from "@/lib/api";
 
 export async function getAllContacts() {
   const response = await authFetch(`${BASE_URL}/Contact/GetAll`);
-  if (!response.ok) throw new Error("Falha ao buscar contatos");
-
-  const data = await response.json();
+  const data = await readJsonOrThrow<unknown>(response, "Falha ao buscar contatos");
   return Array.isArray(data) ? data : [];
 }
 

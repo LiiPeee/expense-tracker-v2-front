@@ -78,3 +78,38 @@ export function isTokenValid(token: string): boolean {
     return false;
   }
 }
+
+type ApiErrorLike = {
+  message?: string;
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+};
+
+type ApiErrorBody = {
+  message?: string;
+};
+
+export function getErrorMessage(error: unknown, fallback: string): string {
+  const typed = error as ApiErrorLike;
+  return typed?.response?.data?.message ?? typed?.message ?? fallback;
+}
+
+export async function getResponseErrorMessage(response: Response, fallback: string): Promise<string> {
+  try {
+    const payload = (await response.json()) as ApiErrorBody;
+    return payload.message?.trim() || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export async function readJsonOrThrow<T>(response: Response, fallbackMessage: string): Promise<T> {
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response, fallbackMessage));
+  }
+
+  return (await response.json()) as T;
+}

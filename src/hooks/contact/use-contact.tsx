@@ -7,6 +7,7 @@ import {
   validateContactForm,
 } from "@/helper/contact";
 import { useCepLookup } from "@/hooks/contact/use-cep";
+import { getErrorMessage } from "@/lib/api";
 import { createContact, editContact, getAllContacts } from "@/services/contact";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -14,13 +15,12 @@ import { toast } from "sonner";
 export function useContact() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [editingContact, isEditingContact] = useState(false);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState<ContactForm>(contactFormDefaults);
   const { lookupCep } = useCepLookup();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setIsRefreshing(false);
     e.preventDefault();
 
     const errors = validateContactForm(formData);
@@ -29,26 +29,40 @@ export function useContact() {
       return;
     }
 
-    const newContact = mapContactFormToRequest(formData);
+    try {
+      const contactPayload = mapContactFormToRequest(formData, editingContact?.id);
 
-    if (await createContact(newContact)) toast.success("Contato criado com sucesso!");
-    else toast.error("Contato não foi criado!");
+      if (editingContact) {
+        const updated = await editContact(contactPayload);
+        if (!updated) {
+          toast.error("Contato não foi atualizado!");
+          return;
+        }
 
-    setIsDialogOpen(false);
-    setFormData(contactFormDefaults);
+        toast.success("Contato editado com sucesso!");
+      } else {
+        const created = await createContact(contactPayload);
+        if (!created) {
+          toast.error("Contato não foi criado!");
+          return;
+        }
+
+        toast.success("Contato criado com sucesso!");
+      }
+
+      await getAllContact();
+      setIsDialogOpen(false);
+      setEditingContact(null);
+      setFormData(contactFormDefaults);
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Erro inesperado ao salvar contato."));
+    }
   };
 
-  const handleEdit = async (contact: Contact) => {
-    isEditingContact(true);
+  const handleEdit = (contact: Contact) => {
+    setEditingContact(contact);
     setFormData(mapContactToForm(contact));
-
-    const editedContact = mapContactFormToRequest(formData);
-
-    if (await editContact(editedContact)) toast.success("Contato editado com sucesso!");
-
     setIsDialogOpen(true);
-
-    isEditingContact(false);
   };
 
   const handleDelete = (id: number) => {
@@ -58,6 +72,7 @@ export function useContact() {
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
+    setEditingContact(null);
     setFormData(contactFormDefaults);
   };
 
@@ -74,14 +89,14 @@ export function useContact() {
     }));
   };
   const getAllContact = useCallback(async () => {
-    setContacts([]);
-    setIsRefreshing(false);
+    setIsRefreshing(true);
     try {
       const data = await getAllContacts();
       setContacts(data);
-      setIsRefreshing(false);
-    } catch {
+    } catch (error: unknown) {
       setContacts([]);
+      toast.error(getErrorMessage(error, "Erro ao carregar contatos."));
+    } finally {
       setIsRefreshing(false);
     }
   }, []);
@@ -89,7 +104,6 @@ export function useContact() {
   return {
     handleDialogClose,
     handleDelete,
-    isEditingContact,
     handleEdit,
     handleSubmit,
     handleZipCodeBlur,
@@ -97,7 +111,7 @@ export function useContact() {
     setFormData,
     setContacts,
     getAllContact,
-    editingContact,
+    editingContact: Boolean(editingContact),
     contacts,
     isRefreshing,
     isDialogOpen,
