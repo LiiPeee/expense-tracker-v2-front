@@ -110,9 +110,9 @@ const TransactionsList = () => {
       await getAllContact();
       setActiveQuery({ kind: "all" });
       await getAllTransaction(1);
-      toast.success("Sucesso ao atualizar a pagina!");
+      toast.success("Sucesso ao atualizar a página!");
     } catch {
-      toast.error("Erro ao atualizar a pagina!");
+      toast.error("Erro ao atualizar a página!");
     }
   };
 
@@ -122,8 +122,8 @@ const TransactionsList = () => {
 
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="mb-8 rounded-3xl border border-white/50 bg-white/70 backdrop-blur-md px-6 py-6 shadow-medium">
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Todas as Transacoes</h2>
-          <p className="text-muted-foreground text-base">Visualize, filtre e gerencie suas transacoes com agilidade</p>
+          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Todas as Transações</h2>
+          <p className="text-muted-foreground text-base">Visualize, filtre e gerencie suas transações com agilidade</p>
         </div>
 
         <TransactionsSummaryCards

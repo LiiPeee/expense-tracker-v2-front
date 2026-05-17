@@ -4,10 +4,10 @@ import { BarChart2, LayoutDashboard, List, LogOut, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 interface HeaderProps {
-  user?: { email?: string } | string;
+  user?: { email?: string } | string | null;
 }
 
-export const Header = ({ user }: HeaderProps) => {
+export const Header = ({ user: _user }: HeaderProps) => {
   const { handleLogOut, isLoading } = useAuthForm();
   const location = useLocation();
 
@@ -60,18 +60,16 @@ export const Header = ({ user }: HeaderProps) => {
           </nav>
         </div>
 
-        {user && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2 rounded-full border-white/70 bg-white/70 hover:bg-white"
-            onClick={handleLogOut}
-            disabled={isLoading}
-          >
-            <LogOut className="w-4 h-4" />
-            {isLoading ? "Saindo..." : "Sair"}
-          </Button>
-        )}
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 rounded-full border-white/70 bg-white/70 hover:bg-white"
+          onClick={handleLogOut}
+          disabled={isLoading}
+        >
+          <LogOut className="w-4 h-4" />
+          {isLoading ? "Saindo..." : "Sair"}
+        </Button>
       </div>
     </header>
   );
