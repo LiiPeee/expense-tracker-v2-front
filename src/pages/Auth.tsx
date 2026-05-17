@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getPasswordStrength, isStrongPassword, PasswordStrengthIndicator } from "@/components/ui/password-strength";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
 import useAuth from "@/hooks/useAuth";
@@ -17,6 +18,9 @@ export default function Auth() {
   const [signupData, setSignupData] = useState({ lastName: "", firstName: "", email: "", password: "" });
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
+
+  const signupPasswordStrength = getPasswordStrength(signupData.password);
+  const isSignupPasswordValid = isStrongPassword(signupPasswordStrength);
 
   const onLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -178,8 +182,9 @@ export default function Auth() {
                       {showSignupPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
+                  <PasswordStrengthIndicator password={signupData.password} />
                 </div>
-                <Button type="submit" className="w-full rounded-xl" disabled={isFormLoading}>
+                <Button type="submit" className="w-full rounded-xl" disabled={isFormLoading || !isSignupPasswordValid}>
                   {isLoading ? "Criando conta..." : "Criar Conta"}
                 </Button>
               </form>

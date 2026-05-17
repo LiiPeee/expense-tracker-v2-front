@@ -1,5 +1,5 @@
 import { ContactRequest } from "@/helper/contact";
-import { authFetch, BASE_URL, readJsonOrThrow } from "@/lib/api";
+import { authFetch, BASE_URL, getResponseErrorMessage, readJsonOrThrow } from "@/lib/api";
 
 export async function getAllContacts() {
   const response = await authFetch(`${BASE_URL}/Contact/GetAll`);
@@ -7,18 +7,22 @@ export async function getAllContacts() {
   return Array.isArray(data) ? data : [];
 }
 
-export async function createContact(input: ContactRequest): Promise<boolean> {
+export async function createContact(input: ContactRequest): Promise<void> {
   const response = await authFetch(`${BASE_URL}/Contact/Create`, {
     method: "POST",
     body: JSON.stringify(input),
   });
-  return response.ok;
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response, "Falha ao criar contato"));
+  }
 }
 
-export async function editContact(input: ContactRequest): Promise<boolean> {
+export async function editContact(input: ContactRequest): Promise<void> {
   const response = await authFetch(`${BASE_URL}/Contact/EditContact`, {
     method: "POST",
     body: JSON.stringify(input),
   });
-  return response.ok;
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response, "Falha ao editar contato"));
+  }
 }

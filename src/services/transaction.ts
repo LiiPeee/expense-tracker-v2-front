@@ -1,21 +1,25 @@
 import { PagedTransactionsResponse, TransactionRequest } from "@/helper/transaction";
 import { getDefaultYearMonth } from "@/helper/utils";
-import { authFetch, BASE_URL, readJsonOrThrow } from "@/lib/api";
+import { authFetch, BASE_URL, getResponseErrorMessage, readJsonOrThrow } from "@/lib/api";
 
-export async function createTransaction(data: TransactionRequest): Promise<boolean> {
+export async function createTransaction(data: TransactionRequest): Promise<void> {
   const response = await authFetch(`${BASE_URL}/Transaction/Create`, {
     method: "POST",
     body: JSON.stringify(data),
   });
-  return response.ok;
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response, "Falha ao criar transação"));
+  }
 }
 
-export async function updateTransaction(id: number, data: TransactionRequest): Promise<boolean> {
+export async function updateTransaction(id: number, data: TransactionRequest): Promise<void> {
   const response = await authFetch(`${BASE_URL}/Transaction/EditTransaction?id=${encodeURIComponent(id)}`, {
     method: "POST",
     body: JSON.stringify(data),
   });
-  return response.ok;
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response, "Falha ao editar transação"));
+  }
 }
 
 export async function getExpenseValue(): Promise<number> {
@@ -101,9 +105,11 @@ export async function getTransactionsByMonthAndYear(month: number, year: number,
   return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações");
 }
 
-export async function deleteTransactions(id: number): Promise<boolean> {
+export async function deleteTransactions(id: number): Promise<void> {
   const url = `${BASE_URL}/Transaction/DeleteTransaction?id=${encodeURIComponent(id)}`;
 
   const response = await authFetch(url);
-  return response.ok;
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response, "Falha ao excluir transação"));
+  }
 }

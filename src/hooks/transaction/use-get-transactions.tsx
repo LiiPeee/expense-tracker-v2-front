@@ -76,9 +76,9 @@ export function useGetAll() {
       setExpenseMonthTotal(Number(expense) || 0);
       setIncomeMonthTotal(Number(income) || 0);
       setEconomyMonthTotal(Number(economy) || 0);
-    } catch (error) {
-      console.error("Erro no service:", error);
-      throw error;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Erro ao carregar resumo financeiro.";
+      toast.error(message);
     } finally {
       setIsRefreshing(false);
     }

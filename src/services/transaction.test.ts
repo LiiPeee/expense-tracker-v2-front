@@ -52,21 +52,22 @@ describe("transaction service", () => {
     await expect(getExpenseValue()).rejects.toThrow("Falha ao buscar despesas");
   });
 
-  it("update transaction by id", async () => {
+  it("update transaction by id without error", async () => {
     mockedAuthFetch.mockResolvedValueOnce(createResponse({}, true, 200));
 
-    const result = await updateTransaction(10, {
-      transactionName: "Internet",
-      paid: true,
-      contactName: "Contato A",
-      recurrence: 4,
-      description: "Conta mensal",
-      amount: 120,
-      type: "Expense",
-      category: "Moradia",
-    });
+    await expect(
+      updateTransaction(10, {
+        transactionName: "Internet",
+        paid: true,
+        contactName: "Contato A",
+        recurrence: 4,
+        description: "Conta mensal",
+        amount: 120,
+        type: "Expense",
+        category: "Moradia",
+      }),
+    ).resolves.toBeUndefined();
 
-    expect(result).toBe(true);
     expect(mockedAuthFetch).toHaveBeenCalledWith(
       `${BASE_URL}/Transaction/EditTransaction?id=10`,
       expect.objectContaining({ method: "POST" }),
