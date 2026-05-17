@@ -1,5 +1,5 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "budget-tracker",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -44,7 +44,6 @@
     "@react-oauth/google": "^0.13.4",
     "@supabase/supabase-js": "^2.76.1",
     "@tanstack/react-query": "^5.83.0",
-    "@types/axios": "^0.9.36",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

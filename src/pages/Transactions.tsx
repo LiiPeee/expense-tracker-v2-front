@@ -1,6 +1,6 @@
-﻿import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
+﻿import { Header } from "@/components/layout/Header";
+import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
 import { TransactionsTable } from "@/components/transactions/TransactionsTable";
-import { Header } from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { useContact } from "@/hooks/contact/use-contact";
@@ -53,8 +53,8 @@ const Transactions = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-foreground">Transacoes</h2>
-            <p className="text-muted-foreground">Gerencie suas transacoes financeiras</p>
+            <h2 className="text-3xl font-bold text-foreground">Transações</h2>
+            <p className="text-muted-foreground">Gerencie suas transações financeiras</p>
           </div>
 
           <TransactionFormDialog
