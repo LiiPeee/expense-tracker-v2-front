@@ -34,23 +34,13 @@ export function useTransaction() {
         }
 
         if (editingTransaction) {
-          const updated = await updateTransaction(editingTransaction.id, mapTransactionFormToRequest(formData));
-          if (!updated) {
-            toast.error("Erro ao atualizar a transação!");
-            return;
-          }
-
+          await updateTransaction(editingTransaction.id, mapTransactionFormToRequest(formData));
           toast.success("Transação atualizada com sucesso!");
           resetFormState();
           return;
         }
 
-        const created = await createTransaction(mapTransactionFormToRequest(formData));
-        if (!created) {
-          toast.error("Erro ao criar a transação!");
-          return;
-        }
-
+        await createTransaction(mapTransactionFormToRequest(formData));
         toast.success("Transação criada com sucesso!");
         resetFormState();
       } catch (error: unknown) {
@@ -68,13 +58,8 @@ export function useTransaction() {
 
   const handleDelete = useCallback(async (id: number) => {
     try {
-      const backendTransactions = await deleteTransactions(id);
-
-      if (backendTransactions) {
-        toast.success("Transação excluída com sucesso!");
-      } else {
-        toast.error("Erro ao excluir a transação");
-      }
+      await deleteTransactions(id);
+      toast.success("Transação excluída com sucesso!");
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "Erro inesperado ao excluir transação."));
     }

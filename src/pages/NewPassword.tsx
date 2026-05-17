@@ -3,42 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getPasswordStrength, isStrongPassword, PasswordStrengthIndicator } from "@/components/ui/password-strength";
 import { useToast } from "@/hooks/use-toast";
 import { getErrorMessage } from "@/lib/api";
 import { resetPassword } from "@/services/auth";
-import { Check, Eye, EyeOff, LockKeyhole, X } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
-interface PasswordStrength {
-  minLength: boolean;
-  uppercase: boolean;
-  lowercase: boolean;
-  number: boolean;
-  special: boolean;
-}
-
-function getPasswordStrength(password: string): PasswordStrength {
-  return {
-    minLength: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    lowercase: /[a-z]/.test(password),
-    number: /[0-9]/.test(password),
-    special: /[^A-Za-z0-9]/.test(password),
-  };
-}
-
-function isStrongPassword(strength: PasswordStrength): boolean {
-  return Object.values(strength).every(Boolean);
-}
-
-const requirements = [
-  { key: "minLength" as const, label: "Mínimo 8 caracteres" },
-  { key: "uppercase" as const, label: "Letra maiúscula" },
-  { key: "lowercase" as const, label: "Letra minúscula" },
-  { key: "number" as const, label: "Número" },
-  { key: "special" as const, label: "Caractere especial (!@#$...)" },
-];
 
 export default function NewPassword() {
   const navigate = useNavigate();
@@ -151,14 +122,7 @@ export default function NewPassword() {
             </div>
 
             {password.length > 0 && (
-              <ul className="space-y-1 text-sm">
-                {requirements.map(({ key, label }) => (
-                  <li key={key} className={`flex items-center gap-2 ${strength[key] ? "text-green-600" : "text-muted-foreground"}`}>
-                    {strength[key] ? <Check className="w-3.5 h-3.5 shrink-0" /> : <X className="w-3.5 h-3.5 shrink-0" />}
-                    {label}
-                  </li>
-                ))}
-              </ul>
+              <PasswordStrengthIndicator password={password} />
             )}
 
             <div className="space-y-2">

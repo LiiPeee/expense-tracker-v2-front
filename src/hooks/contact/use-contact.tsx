@@ -33,20 +33,10 @@ export function useContact() {
       const contactPayload = mapContactFormToRequest(formData, editingContact?.id);
 
       if (editingContact) {
-        const updated = await editContact(contactPayload);
-        if (!updated) {
-          toast.error("Contato não foi atualizado!");
-          return;
-        }
-
+        await editContact(contactPayload);
         toast.success("Contato editado com sucesso!");
       } else {
-        const created = await createContact(contactPayload);
-        if (!created) {
-          toast.error("Contato não foi criado!");
-          return;
-        }
-
+        await createContact(contactPayload);
         toast.success("Contato criado com sucesso!");
       }
 

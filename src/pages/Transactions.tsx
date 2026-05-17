@@ -9,18 +9,18 @@ import { useGetAll } from "@/hooks/transaction/use-get-transactions";
 import { useEffect, useRef } from "react";
 
 const CATEGORY_OPTIONS = [
-  "Alimenta\u00E7\u00E3o",
+  "Alimentação",
   "Conforto",
   "Moradia",
   "Transporte",
-  "Sa\u00FAde",
-  "Educa\u00E7\u00E3o",
+  "Saúde",
+  "Educação",
   "Lazer",
   "Bens Pessoais",
   "Investimento",
-  "Renda Vari\u00E1vel",
-  "Benef\u00EDcios",
-  "Sal\u00E1rio",
+  "Renda Variável",
+  "Benefícios",
+  "Salário",
   "Outros",
 ] as const;
 
