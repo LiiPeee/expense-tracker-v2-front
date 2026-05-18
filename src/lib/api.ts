@@ -83,24 +83,27 @@ type ApiErrorLike = {
   message?: string;
   response?: {
     data?: {
+      error?: { message?: string };
       message?: string;
     };
   };
 };
 
 type ApiErrorBody = {
+  error?: { message?: string };
   message?: string;
 };
 
 export function getErrorMessage(error: unknown, fallback: string): string {
   const typed = error as ApiErrorLike;
-  return typed?.response?.data?.message ?? typed?.message ?? fallback;
+  return typed?.response?.data?.error?.message ?? typed?.response?.data?.message ?? typed?.message ?? fallback;
 }
 
 export async function getResponseErrorMessage(response: Response, fallback: string): Promise<string> {
   try {
     const payload = (await response.json()) as ApiErrorBody;
-    return payload.message?.trim() || fallback;
+    const message = payload.error?.message?.trim() || payload.message?.trim();
+    return message || fallback;
   } catch {
     return fallback;
   }
