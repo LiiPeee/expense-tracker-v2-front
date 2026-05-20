@@ -78,7 +78,7 @@ export function TransactionFormDialog({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Sim">Sim</SelectItem>
-                <SelectItem value="N\u00E3o">N\u00E3o</SelectItem>
+                <SelectItem value="Não">Não</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -129,7 +129,7 @@ export function TransactionFormDialog({
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="N\u00E3o">N\u00E3o</SelectItem>
+                <SelectItem value="Nao">Não</SelectItem>
                 <SelectItem value="Semanal">Semanal</SelectItem>
                 <SelectItem value="Quinzenal">Quinzenal</SelectItem>
                 <SelectItem value="Mensal">Mensal</SelectItem>

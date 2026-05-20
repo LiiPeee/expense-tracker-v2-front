@@ -1,15 +1,34 @@
 import { ExpensePieChart } from "@/components/charts/ExpensePieChart";
 import { Header } from "@/components/layout/Header";
+import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
 import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
+import { useContact } from "@/hooks/contact/use-contact";
+import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
 import { useGetAll } from "@/hooks/transaction/use-get-transactions";
 import { useIncomeByCategory } from "@/hooks/transaction/use-income-by-category";
-import { DollarSign, Receipt, TrendingDown, TrendingUp, Users } from "lucide-react";
+import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+
+const CATEGORY_OPTIONS = [
+  "Alimentação",
+  "Conforto",
+  "Moradia",
+  "Transporte",
+  "Saúde",
+  "Educação",
+  "Lazer",
+  "Bens Pessoais",
+  "Investimento",
+  "Renda Variável",
+  "Benefícios",
+  "Salário",
+  "Outros",
+] as const;
 
 const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
@@ -23,6 +42,10 @@ const Dashboard = () => {
     totalIncome,
     loadData: loadIncomeData,
   } = useIncomeByCategory();
+
+  const { handleDialogClose, handleSubmit, setIsDialogOpen, setFormData, editingTransaction, isDialogOpen, formData } = useTransaction();
+  const { contacts, getAllContact } = useContact();
+
   const didFetchRef = useRef(false);
 
   useEffect(() => {
@@ -37,10 +60,28 @@ const Dashboard = () => {
     <div className="page-shell">
       <Header user={null} />
       <main className="container mx-auto px-4 py-8 lg:py-10">
-        <div className="mb-8 rounded-3xl border border-white/50 bg-white/70 backdrop-blur-md px-6 py-6 shadow-medium reveal-up">
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Dashboard</h2>
-          <p className="text-muted-foreground text-base">Visão geral das suas finanças em tempo real</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="rounded-3xl border border-white/50 bg-white/70 backdrop-blur-md px-6 py-6 shadow-medium reveal-up flex-1 mr-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Dashboard</h2>
+            <p className="text-muted-foreground text-base">Visão geral das suas finanças em tempo real</p>
+          </div>
+
+          <TransactionFormDialog
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            onPrepareNew={() => {
+              handleDialogClose();
+              void getAllContact();
+            }}
+            onSubmit={handleSubmit}
+            contacts={contacts}
+            formData={formData}
+            setFormData={setFormData}
+            editingTransaction={editingTransaction}
+            categoryOptions={CATEGORY_OPTIONS}
+          />
         </div>
+
         <RefreshAllButton isRefreshing={isRefreshing} onRefresh={getAllExpenseAndIncome} />
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
@@ -116,34 +157,6 @@ const Dashboard = () => {
               ) : (
                 <ExpensePieChart data={incomeChartData} totalExpense={totalIncome} compact />
               )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-2 mb-8">
-          <Card className="surface-card rounded-2xl reveal-up stagger-3">
-            <CardHeader>
-              <CardTitle>Acesso Rápido</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              <Link to="/transactions">
-                <Button
-                  variant="outline"
-                  className="w-full h-20 flex-col gap-2 rounded-2xl border-white/70 bg-white/70 hover:bg-white hover:scale-[1.01] transition-transform"
-                >
-                  <Receipt className="w-6 h-6" />
-                  <span>Nova Transação</span>
-                </Button>
-              </Link>
-              <Link to="/contacts">
-                <Button
-                  variant="outline"
-                  className="w-full h-20 flex-col gap-2 rounded-2xl border-white/70 bg-white/70 hover:bg-white hover:scale-[1.01] transition-transform"
-                >
-                  <Users className="w-6 h-6" />
-                  <span>Gerenciar Contatos</span>
-                </Button>
-              </Link>
             </CardContent>
           </Card>
         </div>
