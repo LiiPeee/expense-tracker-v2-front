@@ -1,4 +1,5 @@
-﻿import { Header } from "@/components/layout/Header";
+import { Header } from "@/components/layout/Header";
+import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
 import { TransactionsFiltersCard } from "@/components/transactions/TransactionsFiltersCard";
 import { TransactionsPaginatedTable } from "@/components/transactions/TransactionsPaginatedTable";
 import { TransactionsSummaryCards } from "@/components/transactions/TransactionsSummaryCards";
@@ -6,8 +7,24 @@ import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useGetAll } from "@/hooks/transaction/use-get-transactions";
-import { useEffect, useRef, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
+const CATEGORY_OPTIONS = [
+  "Alimentação",
+  "Conforto",
+  "Moradia",
+  "Transporte",
+  "Saúde",
+  "Educação",
+  "Lazer",
+  "Bens Pessoais",
+  "Investimento",
+  "Renda Variável",
+  "Benefícios",
+  "Salário",
+  "Outros",
+] as const;
 
 type ActiveQuery =
   | { kind: "all" }
@@ -16,7 +33,7 @@ type ActiveQuery =
   | { kind: "contactType"; contactId: string; typeName: string };
 
 const TransactionsList = () => {
-  const { handleDelete, handleEdit } = useTransaction();
+  const { handleDelete, handleEdit, handleDialogClose, handleSubmit, setIsDialogOpen, setFormData, editingTransaction, isDialogOpen, formData } = useTransaction();
   const { contacts, getAllContact } = useContact();
 
   const {
@@ -116,14 +133,36 @@ const TransactionsList = () => {
     }
   };
 
+  const handleSubmitAndRefresh = async (e: FormEvent) => {
+    await handleSubmit(e);
+    void getAllTransaction(1);
+  };
+
   return (
     <div className="page-shell">
       <Header user={null} />
 
       <main className="container mx-auto px-4 py-8 lg:py-10">
-        <div className="mb-8 rounded-3xl border border-white/50 bg-white/70 backdrop-blur-md px-6 py-6 shadow-medium">
-          <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Todas as Transações</h2>
-          <p className="text-muted-foreground text-base">Visualize, filtre e gerencie suas transações com agilidade</p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="rounded-3xl border border-white/50 bg-white/70 backdrop-blur-md px-6 py-6 shadow-medium flex-1 mr-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Todas as Transações</h2>
+            <p className="text-muted-foreground text-base">Visualize, filtre e gerencie suas transações com agilidade</p>
+          </div>
+
+          <TransactionFormDialog
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            onPrepareNew={() => {
+              handleDialogClose();
+              void getAllContact();
+            }}
+            onSubmit={handleSubmitAndRefresh}
+            contacts={contacts}
+            formData={formData}
+            setFormData={setFormData}
+            editingTransaction={editingTransaction}
+            categoryOptions={CATEGORY_OPTIONS}
+          />
         </div>
 
         <TransactionsSummaryCards

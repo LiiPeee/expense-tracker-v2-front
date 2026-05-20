@@ -58,11 +58,12 @@ const Contacts = () => {
                 Novo Contato
               </Button>
             </DialogTrigger>
-            <DialogContent className="border-white/60 bg-white/90 backdrop-blur-md sm:max-w-[560px]">
+            <DialogContent className="border-white/60 bg-white/90 backdrop-blur-md sm:max-w-[560px] flex flex-col max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>{editingContact ? "Editar Contato" : "Novo Contato"}</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+              <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+              <div className="space-y-4 overflow-y-auto flex-1 pr-1">
                 <div className="space-y-2">
                   <Label htmlFor="name">Nome</Label>
                   <Input
@@ -178,7 +179,8 @@ const Contacts = () => {
                     onCheckedChange={(value) => setFormData({ ...formData, isPrimary: value })}
                   />
                 </div>
-                <Button type="submit" className="w-full rounded-xl">
+              </div>
+                <Button type="submit" className="w-full rounded-xl mt-4">
                   {editingContact ? "Atualizar" : "Criar"}
                 </Button>
               </form>
