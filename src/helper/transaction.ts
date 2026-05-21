@@ -1,7 +1,6 @@
 import { Category } from "@/helper/category";
 import { Contact } from "@/helper/contact";
 
-export type RecurrenceLabel = "Não" | "Semanal" | "Quinzenal" | "Mensal" | "-";
 export type PaidValue = "Sim" | "Não" | "";
 export type TransactionType = "Income" | "Expense";
 
@@ -12,7 +11,7 @@ export interface TransactionRequest {
   dateOfInstallment?: number | null;
   paid: boolean;
   contactName: string;
-  recurrence: number;
+  recurrence: string;
   description: string;
   amount: number;
   type: TransactionType;
@@ -28,7 +27,7 @@ export interface TransactionForm {
   dateOfInstallment: string;
   paid: PaidValue;
   contactName: string;
-  recurrence: RecurrenceLabel;
+  recurrence: string;
   description: string;
   amount: string;
   type: TransactionType;
@@ -45,7 +44,7 @@ export interface TransactionResponse {
   dateOfInstallment?: string;
   paid?: string;
   contact: Contact;
-  recurrence: RecurrenceLabel;
+  recurrence: string;
   description: string;
   amount: string;
   typeTransaction: number;
@@ -60,7 +59,7 @@ export type PagedTransactionsResponse = {
 };
 
 export const transactionFormDefaults: TransactionForm = {
-  recurrence: "Não",
+  recurrence: "NONE",
   contactName: "",
   dateOfInstallment: "",
   numberOfInstallment: "",
@@ -74,23 +73,6 @@ export const transactionFormDefaults: TransactionForm = {
   date: new Date().toISOString().split("T")[0],
   id: 0,
 };
-
-function mapRecurrenceLabelToValue(rec: RecurrenceLabel): number {
-  switch (rec) {
-    case "Não":
-      return 1;
-    case "Semanal":
-      return 2;
-    case "Quinzenal":
-      return 3;
-    case "Mensal":
-      return 4;
-    default: {
-      const _exhaustive: string = rec;
-      return _exhaustive as never;
-    }
-  }
-}
 
 export function mapTransactionFormToRequest(form: TransactionForm): TransactionRequest {
   const amount = Number.parseFloat(form.amount.replace(",", "."));
@@ -107,7 +89,7 @@ export function mapTransactionFormToRequest(form: TransactionForm): TransactionR
     paid: form.paid === "Sim",
     numberOfInstallment,
     dateOfInstallment,
-    recurrence: mapRecurrenceLabelToValue(form.recurrence),
+    recurrence: form.recurrence,
     contactName: form.contactName.trim(),
     date: form.date,
   };
@@ -138,7 +120,7 @@ export function mapTransactionResponseToForm(transaction: TransactionResponse): 
     paid: transaction.paid === "true" ? "Sim" : transaction.paid === "false" ? "Não" : "",
     numberOfInstallment: transaction.numberOfInstallment ?? "",
     dateOfInstallment: transaction.dateOfInstallment ?? "",
-    recurrence: transaction.recurrence ?? "Não",
+    recurrence: transaction.recurrence ?? "NONE",
     contactName: transaction.contact?.name ?? "",
     date: transaction.date,
     id: transaction.id,
