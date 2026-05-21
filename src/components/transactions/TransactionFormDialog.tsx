@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Contact } from "@/helper/contact";
-import { type PaidValue, type RecurrenceLabel, type TransactionForm, type TransactionResponse } from "@/helper/transaction";
+import { type PaidValue, type TransactionForm, type TransactionResponse } from "@/helper/transaction";
 import { Plus } from "lucide-react";
 import type { Dispatch, FormEvent, SetStateAction } from "react";
 
@@ -121,18 +121,16 @@ export function TransactionFormDialog({
 
           <div className="space-y-2">
             <Label htmlFor="recurrence">Recorrencia</Label>
-            <Select
-              value={formData.recurrence}
-              onValueChange={(value) => setFormData({ ...formData, recurrence: value as RecurrenceLabel })}
-            >
+            <Select value={formData.recurrence} onValueChange={(value) => setFormData({ ...formData, recurrence: value })}>
               <SelectTrigger id="recurrence">
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Nao">Não</SelectItem>
-                <SelectItem value="Semanal">Semanal</SelectItem>
-                <SelectItem value="Quinzenal">Quinzenal</SelectItem>
-                <SelectItem value="Mensal">Mensal</SelectItem>
+                <SelectItem value="NONE">Não</SelectItem>
+                <SelectItem value="DAILY">Diario</SelectItem>
+                <SelectItem value="BIWEEKLY">Quinzenal</SelectItem>
+                <SelectItem value="MONTHLY">Mensal</SelectItem>
+                <SelectItem value="OCCASIONALLY">Ocasionalmente</SelectItem>
               </SelectContent>
             </Select>
           </div>
