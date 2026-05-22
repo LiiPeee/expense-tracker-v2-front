@@ -1,6 +1,5 @@
 import {
   AuthResponse,
-  ForgotPasswordRequest,
   RefreshTokenRequest,
   ResetPasswordRequest,
   SignInRequest,
@@ -80,8 +79,8 @@ export async function verifyToken(input: VerifyTokenRequest): Promise<void> {
   await postVoid(`${BASE_URL}/Auth/VerifyToken?${params.toString()}`, undefined, "Código inválido ou expirado");
 }
 
-export async function forgotPassword(input: ForgotPasswordRequest): Promise<void> {
-  await postVoid(`${BASE_URL}/Auth/EmailVerifycation`, input, "Falha ao enviar email de recuperação");
+export async function forgotPassword(email: string): Promise<void> {
+  await postVoid(`${BASE_URL}/Auth/EmailVerifycation`, email, "Falha ao enviar email de recuperação");
 }
 
 export async function validateResetCode(input: ValidateResetCodeRequest): Promise<void> {
