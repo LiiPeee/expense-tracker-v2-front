@@ -179,7 +179,7 @@ export function useAuthForm() {
 
     try {
       setIsLoading(true);
-      await forgotPassword({ email: normalizedEmail });
+      await forgotPassword(normalizedEmail);
       toast({
         title: "Email enviado!",
         description: "Verifique sua caixa de entrada e insira o código recebido.",
