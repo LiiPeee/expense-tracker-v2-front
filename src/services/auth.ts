@@ -81,7 +81,7 @@ export async function verifyToken(input: VerifyTokenRequest): Promise<void> {
 }
 
 export async function forgotPassword(input: ForgotPasswordRequest): Promise<void> {
-  await postVoid(`${BASE_URL}/Auth/ForgotPassword`, input, "Falha ao enviar email de recuperação");
+  await postVoid(`${BASE_URL}/Auth/EmailVerifycation`, input, "Falha ao enviar email de recuperação");
 }
 
 export async function validateResetCode(input: ValidateResetCodeRequest): Promise<void> {
