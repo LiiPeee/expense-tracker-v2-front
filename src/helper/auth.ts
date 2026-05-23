@@ -4,12 +4,11 @@ export interface ForgotPasswordRequest {
 
 export interface ValidateResetCodeRequest {
   email: string;
-  code: string;
+  token: string;
 }
 
 export interface ResetPasswordRequest {
   email: string;
-  code: string;
   newPassword: string;
 }
 
