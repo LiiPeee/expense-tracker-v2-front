@@ -1,8 +1,9 @@
 import { SignInRequest, SignUpRequest } from "@/helper/auth";
+import { getPasswordStrength, isStrongPassword } from "@/components/ui/password-strength";
 import { getErrorMessage, REFRESH_TOKEN_KEY, TOKEN_KEY } from "@/lib/api";
-import { forgotPassword, logOut, signIn, signUp, validateResetCode, verifyToken } from "@/services/auth";
-import { type FormEvent, useCallback, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { forgotPassword, logOut, resetPassword, signIn, signUp, validateResetCode, verifyToken } from "@/services/auth";
+import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useToast } from "../use-toast";
 
 const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value.trim());
@@ -14,14 +15,27 @@ type AuthActionResult = {
 
 export function useAuthForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [code, setCode] = useState("");
   const { toast } = useToast();
   const [emailForgot, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email") ?? "";
   const { id = "" } = useParams<{ id: string }>();
+
+  const strength = getPasswordStrength(password);
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+
+  useEffect(() => {
+    const state = location.state as { email?: string } | null;
+    if (location.pathname === "/new-password" && !state?.email) {
+      navigate("/forgot-password", { replace: true });
+    }
+  }, [navigate, location]);
 
   const handleSignIn = useCallback(
     async (data: SignInRequest) => {
@@ -101,8 +115,8 @@ export function useAuthForm() {
 
       try {
         setIsLoading(true);
-        await validateResetCode({ email, code: normalizedCode });
-        navigate("/new-password", { state: { email, code: normalizedCode } });
+        await validateResetCode({ email, token: normalizedCode });
+        navigate("/new-password", { state: { email } });
         return { ok: true };
       } catch (error: unknown) {
         const message = getErrorMessage(error, "O código informado é inválido ou expirou. Verifique seu email e tente novamente.");
@@ -199,13 +213,59 @@ export function useAuthForm() {
     }
   }, [emailForgot, navigate, toast]);
 
+  const handleResetPassword = useCallback(
+    async (e: FormEvent): Promise<AuthActionResult> => {
+      e.preventDefault();
+
+      if (!isStrongPassword(strength)) {
+        const message = "A senha não atende todos os requisitos de segurança.";
+        toast({ title: "Senha fraca", description: message, variant: "destructive" });
+        return { ok: false, message };
+      }
+
+      if (!passwordsMatch) {
+        const message = "As senhas digitadas não conferem.";
+        toast({ title: "Senhas diferentes", description: message, variant: "destructive" });
+        return { ok: false, message };
+      }
+
+      const state = location.state as { email?: string } | null;
+      if (!state?.email) {
+        navigate("/forgot-password", { replace: true });
+        return { ok: false, message: "Sessão expirada. Solicite um novo código." };
+      }
+
+      try {
+        setIsLoading(true);
+        await resetPassword({ email: state.email, newPassword: password });
+        toast({ title: "Senha redefinida com sucesso!", description: "Faça login com sua nova senha." });
+        navigate("/auth", { replace: true });
+        return { ok: true };
+      } catch (error: unknown) {
+        const message = getErrorMessage(error, "Não foi possível redefinir sua senha. Tente o processo novamente.");
+        toast({ title: "Erro ao redefinir senha", description: message, variant: "destructive" });
+        return { ok: false, message };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [strength, passwordsMatch, password, location.state, navigate, toast],
+  );
+
   return {
     isLoading,
     code,
     emailForgot,
+    password,
+    confirmPassword,
+    strength,
+    passwordsMatch,
     setEmail,
     setCode,
+    setPassword,
+    setConfirmPassword,
     handleForgotPassword,
+    handleResetPassword,
     handleSignIn,
     handleSignUp,
     handleLogOut,

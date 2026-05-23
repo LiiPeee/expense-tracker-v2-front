@@ -30,11 +30,23 @@ const queryClient = new QueryClient({
   },
 });
 
+const NormalizeSlashes = () => {
+  const location = useLocation();
+
+  if (location.pathname.includes("//")) {
+    const normalized = location.pathname.replace(/\/+/g, "/");
+    return <Navigate to={normalized + location.search} replace />;
+  }
+
+  return null;
+};
+
 const AppRoutes = () => {
   const location = useLocation();
 
   return (
     <div key={location.pathname} className="route-transition">
+      <NormalizeSlashes />
       <Routes location={location}>
         <Route path="/" element={<Navigate to="/auth" replace />} />
         <Route path="/auth" element={<Auth />} />

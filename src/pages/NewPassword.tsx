@@ -3,80 +3,32 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getPasswordStrength, isStrongPassword, PasswordStrengthIndicator } from "@/components/ui/password-strength";
-import { useToast } from "@/hooks/use-toast";
-import { getErrorMessage } from "@/lib/api";
-import { resetPassword } from "@/services/auth";
+import { isStrongPassword, PasswordStrengthIndicator } from "@/components/ui/password-strength";
+import { useAuthForm } from "@/hooks/auth/use-auth-form";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function NewPassword() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { toast } = useToast();
+  const {
+    password,
+    confirmPassword,
+    strength,
+    passwordsMatch,
+    isLoading,
+    setPassword,
+    setConfirmPassword,
+    handleResetPassword,
+  } = useAuthForm();
 
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const strength = getPasswordStrength(password);
-  const passwordsMatch = password === confirm && confirm.length > 0;
-
-  useEffect(() => {
-    const state = location.state as { email?: string; code?: string } | null;
-    if (!state?.email || !state?.code) {
-      navigate("/forgot-password", { replace: true });
-    }
-  }, [navigate, location.state]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (e: React.FormEvent) => {
     setErrorMessage(null);
-
-    if (!isStrongPassword(strength)) {
-      toast({
-        title: "Senha fraca",
-        description: "A senha não atende todos os requisitos de segurança.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!passwordsMatch) {
-      toast({
-        title: "Senhas diferentes",
-        description: "As senhas digitadas não conferem.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const state = location.state as { email?: string; code?: string } | null;
-    if (!state?.email || !state?.code) {
-      navigate("/forgot-password", { replace: true });
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const { email, code } = state as { email: string; code: string };
-      await resetPassword({ email, code, newPassword: password });
-      toast({ title: "Senha redefinida com sucesso!", description: "Faça login com sua nova senha." });
-      navigate("/auth", { replace: true });
-    } catch (error: unknown) {
-      const message = getErrorMessage(error, "Não foi possível redefinir sua senha. Tente o processo novamente.");
-      setErrorMessage(message);
-      toast({
-        title: "Erro ao redefinir senha",
-        description: message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    const result = await handleResetPassword(e);
+    if (!result.ok) {
+      setErrorMessage(result.message ?? "Não foi possível redefinir sua senha. Tente o processo novamente.");
     }
   };
 
@@ -96,7 +48,7 @@ export default function NewPassword() {
         <CardContent className="space-y-4">
           {errorMessage ? <ErrorStateCard message={errorMessage} onRetry={() => setErrorMessage(null)} /> : null}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="new-password">Nova senha</Label>
               <div className="relative">
@@ -121,9 +73,7 @@ export default function NewPassword() {
               </div>
             </div>
 
-            {password.length > 0 && (
-              <PasswordStrengthIndicator password={password} />
-            )}
+            {password.length > 0 && <PasswordStrengthIndicator password={password} />}
 
             <div className="space-y-2">
               <Label htmlFor="confirm-password">Confirmar senha</Label>
@@ -132,11 +82,11 @@ export default function NewPassword() {
                   id="confirm-password"
                   type={showConfirm ? "text" : "password"}
                   placeholder="••••••••"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  className={`pr-10 ${confirm.length > 0 ? (passwordsMatch ? "border-green-500 focus-visible:ring-green-500" : "border-destructive focus-visible:ring-destructive") : ""}`}
+                  className={`pr-10 ${confirmPassword.length > 0 ? (passwordsMatch ? "border-green-500 focus-visible:ring-green-500" : "border-destructive focus-visible:ring-destructive") : ""}`}
                 />
                 <button
                   type="button"
@@ -147,7 +97,7 @@ export default function NewPassword() {
                   {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
-              {confirm.length > 0 && !passwordsMatch && <p className="text-xs text-destructive">As senhas não conferem.</p>}
+              {confirmPassword.length > 0 && !passwordsMatch && <p className="text-xs text-destructive">As senhas não conferem.</p>}
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading || !isStrongPassword(strength) || !passwordsMatch}>

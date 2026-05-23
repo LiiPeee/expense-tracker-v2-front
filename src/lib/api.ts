@@ -1,3 +1,5 @@
+import { translateBackendError } from "@/helper/errors";
+
 // Centralized keys — never scatter these strings across the codebase
 export const TOKEN_KEY = "accessToken";
 export const REFRESH_TOKEN_KEY = "refreshToken";
@@ -96,14 +98,15 @@ type ApiErrorBody = {
 
 export function getErrorMessage(error: unknown, fallback: string): string {
   const typed = error as ApiErrorLike;
-  return typed?.response?.data?.error?.message ?? typed?.response?.data?.message ?? typed?.message ?? fallback;
+  const raw = typed?.response?.data?.error?.message ?? typed?.response?.data?.message ?? typed?.message;
+  return translateBackendError(raw, fallback);
 }
 
 export async function getResponseErrorMessage(response: Response, fallback: string): Promise<string> {
   try {
     const payload = (await response.json()) as ApiErrorBody;
-    const message = payload.error?.message?.trim() || payload.message?.trim();
-    return message || fallback;
+    const raw = payload.error?.message?.trim() || payload.message?.trim();
+    return translateBackendError(raw, fallback);
   } catch {
     return fallback;
   }

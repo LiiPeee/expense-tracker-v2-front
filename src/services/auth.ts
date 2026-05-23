@@ -84,7 +84,7 @@ export async function forgotPassword(email: string): Promise<void> {
 }
 
 export async function validateResetCode(input: ValidateResetCodeRequest): Promise<void> {
-  await postVoid(`${BASE_URL}/Auth/ValidateResetCode`, input, "Código inválido ou expirado");
+  await postVoid(`${BASE_URL}/Auth/ValidateResetCode?email=${encodeURIComponent(input.email)}`, input.token, "Código inválido ou expirado");
 }
 
 export async function resetPassword(input: ResetPasswordRequest): Promise<void> {
