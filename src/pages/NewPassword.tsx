@@ -9,16 +9,8 @@ import { Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { useState } from "react";
 
 export default function NewPassword() {
-  const {
-    password,
-    confirmPassword,
-    strength,
-    passwordsMatch,
-    isLoading,
-    setPassword,
-    setConfirmPassword,
-    handleResetPassword,
-  } = useAuthForm();
+  const { password, confirmPassword, strength, passwordsMatch, isLoading, setPassword, setConfirmPassword, handleResetPassword } =
+    useAuthForm();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
