@@ -33,7 +33,17 @@ type ActiveQuery =
   | { kind: "contactType"; contactId: string; typeName: string };
 
 const TransactionsList = () => {
-  const { handleDelete, handleEdit, handleDialogClose, handleSubmit, setIsDialogOpen, setFormData, editingTransaction, isDialogOpen, formData } = useTransaction();
+  const {
+    handleDelete,
+    handleEdit,
+    handleDialogClose,
+    handleSubmit,
+    setIsDialogOpen,
+    setFormData,
+    editingTransaction,
+    isDialogOpen,
+    formData,
+  } = useTransaction();
   const { contacts, getAllContact } = useContact();
 
   const {
