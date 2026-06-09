@@ -1,3 +1,4 @@
+import { QUERY_STALE_TIME } from "@/constants/query";
 import { budgetFormDefaults, type BudgetLimit, type BudgetLimitForm, mapBudgetFormToRequest, validateBudgetForm } from "@/helper/budget";
 import { getErrorMessage } from "@/lib/api";
 import { createBudgetLimit, getBudgetLimitsByAccountPage } from "@/services/budget";
@@ -28,7 +29,7 @@ export function useBudgetLimits() {
   const query = useQuery({
     queryKey: ["budgetLimits"],
     queryFn: fetchAllBudgetLimits,
-    staleTime: 60_000,
+    staleTime: QUERY_STALE_TIME,
   });
 
   const createMutation = useMutation({

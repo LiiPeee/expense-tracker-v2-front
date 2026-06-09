@@ -1,3 +1,4 @@
+import { QUERY_STALE_TIME } from "@/constants/query";
 import type { Contact } from "@/helper/contact";
 import { getAllContacts } from "@/services/contact";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ export function useContactsQuery(options: UseContactsQueryOptions = {}) {
   const query = useQuery({
     queryKey: ["contacts"],
     queryFn: getAllContacts,
-    staleTime: 60_000,
+    staleTime: QUERY_STALE_TIME,
     enabled: options.enabled ?? true,
   });
 

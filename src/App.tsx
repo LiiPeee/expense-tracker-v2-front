@@ -2,6 +2,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { QUERY_GC_TIME, QUERY_STALE_TIME } from "@/constants/query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -21,8 +22,8 @@ const VerifyTokenEmail = lazy(() => import("./pages/VerifyTokenEmail"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60_000,
-      gcTime: 5 * 60_000,
+      staleTime: QUERY_STALE_TIME,
+      gcTime: QUERY_GC_TIME,
       retry: 1,
       refetchOnWindowFocus: false,
       refetchOnMount: false,

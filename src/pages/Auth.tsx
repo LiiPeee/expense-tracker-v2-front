@@ -80,6 +80,7 @@ export default function Auth() {
                     <button
                       type="button"
                       onClick={() => setShowLoginPassword(!showLoginPassword)}
+                      aria-label={showLoginPassword ? "Ocultar senha" : "Mostrar senha"}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       disabled={isLoading}
                     >
@@ -153,6 +154,7 @@ export default function Auth() {
                     <button
                       type="button"
                       onClick={() => setShowSignupPassword(!showSignupPassword)}
+                      aria-label={showSignupPassword ? "Ocultar senha" : "Mostrar senha"}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       disabled={isLoading}
                     >

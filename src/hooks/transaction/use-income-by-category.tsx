@@ -1,3 +1,4 @@
+import { QUERY_STALE_TIME } from "@/constants/query";
 import { getDefaultYearMonth } from "@/helper/utils";
 import { getErrorMessage } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +12,7 @@ export function useIncomeByCategory(month?: number, year?: number) {
   const query = useQuery({
     queryKey: ["transactions", "categoryBreakdown", "Income", resolvedMonth, resolvedYear],
     queryFn: () => getCategoryBreakdown("Income", resolvedMonth, resolvedYear),
-    staleTime: 60_000,
+    staleTime: QUERY_STALE_TIME,
   });
 
   return {

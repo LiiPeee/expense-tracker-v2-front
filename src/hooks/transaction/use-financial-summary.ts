@@ -1,3 +1,4 @@
+import { QUERY_STALE_TIME } from "@/constants/query";
 import { getEconomy, getExpenseValue, getIncomeValue } from "@/services/transaction";
 import { useQuery } from "@tanstack/react-query";
 
@@ -19,7 +20,7 @@ export function useFinancialSummary() {
   const query = useQuery({
     queryKey: ["transactions", "summary"],
     queryFn: getFinancialSummary,
-    staleTime: 60_000,
+    staleTime: QUERY_STALE_TIME,
   });
 
   return {

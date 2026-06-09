@@ -1,4 +1,4 @@
-import { type PagedTransactionsResponse, type TransactionResponse } from "@/helper/transaction";
+import { type PagedTransactionsResponse, type RecurrenceLabel, type TransactionResponse } from "@/helper/transaction";
 import { getDefaultYearMonth, monthResponse, recurrenceResponse } from "@/helper/utils";
 import {
   getAllTransactionsPaged,
@@ -7,8 +7,8 @@ import {
   getTransactionsByTypePaged,
 } from "@/services/transaction";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { QUERY_STALE_TIME } from "@/constants/query";
 
-type RecurrenceLabel = "Não" | "Semanal" | "Quinzenal" | "Mensal" | "-";
 type BackendItem = Omit<TransactionResponse, "recurrence"> & { recurrence: number | string | null };
 type BackendPage = Omit<PagedTransactionsResponse, "items"> & { items: BackendItem[] };
 
@@ -53,7 +53,7 @@ export function useTransactionsList(query: TransactionListQuery, page: number) {
   const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["transactions", "list", query, page],
     queryFn: () => fetchTransactions(query, page),
-    staleTime: 60_000,
+    staleTime: QUERY_STALE_TIME,
     placeholderData: keepPreviousData,
   });
 

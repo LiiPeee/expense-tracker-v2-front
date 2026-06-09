@@ -70,7 +70,7 @@ export const Header = ({ user: _user }: HeaderProps) => {
           {/* Mobile menu */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden rounded-xl">
+              <Button variant="ghost" size="icon" className="md:hidden rounded-xl" aria-label="Abrir menu de navegação">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
