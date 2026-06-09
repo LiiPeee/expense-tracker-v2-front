@@ -13,6 +13,7 @@ vi.mock("@/services/contact", () => ({
   getAllContacts: vi.fn(async () => []),
   createContact: vi.fn(async () => true),
   editContact: vi.fn(async () => true),
+  deleteContact: vi.fn(async () => undefined),
 }));
 
 vi.mock("@/services/transaction", async () => {

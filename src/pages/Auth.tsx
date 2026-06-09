@@ -5,13 +5,11 @@ import { Label } from "@/components/ui/label";
 import { getPasswordStrength, isStrongPassword, PasswordStrengthIndicator } from "@/components/ui/password-strength";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
-import useAuth from "@/hooks/useAuth";
-import { Chrome, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function Auth() {
-  const { isLoading: isGoogleLoading, handleGoogleSignIn } = useAuth();
   const { isLoading, handleSignIn, handleSignUp } = useAuthForm();
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -32,8 +30,6 @@ export default function Auth() {
     handleSignUp(signupData);
   };
 
-  const isFormLoading = isLoading || isGoogleLoading;
-
   return (
     <div className="page-shell relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
       <div className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
@@ -48,25 +44,6 @@ export default function Auth() {
           <CardDescription className="text-sm">Gerencie suas finanças com clareza e controle</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button
-            variant="outline"
-            className="w-full gap-2 h-11 rounded-xl border-white/70 bg-white/75 hover:bg-white"
-            disabled={isFormLoading}
-            onClick={() => handleGoogleSignIn()}
-          >
-            <Chrome className="w-5 h-5" />
-            {isGoogleLoading ? "Conectando..." : "Continuar com Google"}
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-3 text-muted-foreground rounded-full">ou</span>
-            </div>
-          </div>
-
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2 rounded-xl bg-muted/70 p-1">
               <TabsTrigger value="login">Login</TabsTrigger>
@@ -84,7 +61,7 @@ export default function Auth() {
                     value={loginData.email}
                     onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                     required
-                    disabled={isFormLoading}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -97,20 +74,20 @@ export default function Auth() {
                       value={loginData.password}
                       onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                       required
-                      disabled={isFormLoading}
+                      disabled={isLoading}
                       className="pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowLoginPassword(!showLoginPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      disabled={isFormLoading}
+                      disabled={isLoading}
                     >
                       {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full rounded-xl" disabled={isFormLoading}>
+                <Button type="submit" className="w-full rounded-xl" disabled={isLoading}>
                   {isLoading ? "Entrando..." : "Entrar"}
                 </Button>
                 <div className="text-center">
@@ -132,19 +109,19 @@ export default function Auth() {
                     value={signupData.firstName}
                     onChange={(e) => setSignupData({ ...signupData, firstName: e.target.value })}
                     required
-                    disabled={isFormLoading}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-name">Sobrenome</Label>
+                  <Label htmlFor="signup-lastname">Sobrenome</Label>
                   <Input
-                    id="signup-name"
+                    id="signup-lastname"
                     type="text"
                     placeholder="Seu sobrenome"
                     value={signupData.lastName}
                     onChange={(e) => setSignupData({ ...signupData, lastName: e.target.value })}
                     required
-                    disabled={isFormLoading}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -156,7 +133,7 @@ export default function Auth() {
                     value={signupData.email}
                     onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
                     required
-                    disabled={isFormLoading}
+                    disabled={isLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -170,21 +147,21 @@ export default function Auth() {
                       onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
                       required
                       minLength={8}
-                      disabled={isFormLoading}
+                      disabled={isLoading}
                       className="pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowSignupPassword(!showSignupPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      disabled={isFormLoading}
+                      disabled={isLoading}
                     >
                       {showSignupPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   <PasswordStrengthIndicator password={signupData.password} />
                 </div>
-                <Button type="submit" className="w-full rounded-xl" disabled={isFormLoading || !isSignupPasswordValid}>
+                <Button type="submit" className="w-full rounded-xl" disabled={isLoading || !isSignupPasswordValid}>
                   {isLoading ? "Criando conta..." : "Criar Conta"}
                 </Button>
               </form>
@@ -199,3 +176,5 @@ export default function Auth() {
     </div>
   );
 }
+
+

@@ -9,6 +9,7 @@ vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
   useParams: () => ({ id: "user-id" }),
   useSearchParams: () => [new URLSearchParams("email=dev@test.com")],
+  useLocation: () => ({ pathname: "/reset-code", state: null }),
 }));
 
 vi.mock("../use-toast", () => ({
@@ -63,7 +64,7 @@ describe("useAuthForm", () => {
 
     expect(validateResetCode).toHaveBeenCalledWith({
       email: "dev@test.com",
-      code: "123456",
+      token: "123456",
     });
   });
 });

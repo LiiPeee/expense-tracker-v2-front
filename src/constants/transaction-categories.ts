@@ -1,0 +1,15 @@
+export const TRANSACTION_CATEGORY_OPTIONS = [
+  "Alimentação",
+  "Conforto",
+  "Moradia",
+  "Transporte",
+  "Saúde",
+  "Educação",
+  "Lazer",
+  "Bens Pessoais",
+  "Investimento",
+  "Renda Variável",
+  "Benefícios",
+  "Salário",
+  "Outros",
+] as const;

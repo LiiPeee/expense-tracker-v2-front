@@ -1,6 +1,6 @@
 import { getPasswordStrength, isStrongPassword } from "@/components/ui/password-strength";
 import { SignInRequest, SignUpRequest } from "@/helper/auth";
-import { getErrorMessage, REFRESH_TOKEN_KEY, TOKEN_KEY } from "@/lib/api";
+import { getErrorMessage, REFRESH_TOKEN_KEY, TOKEN_KEY, USER_KEY } from "@/lib/api";
 import { forgotPassword, logOut, resetPassword, signIn, signUp, validateResetCode, verifyToken } from "@/services/auth";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -45,6 +45,7 @@ export function useAuthForm() {
 
         localStorage.setItem(TOKEN_KEY, response.accessToken);
         localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+        localStorage.setItem(USER_KEY, JSON.stringify(response.user));
 
         toast({ title: "Login realizado com sucesso!" });
         navigate("/dashboard");

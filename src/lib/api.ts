@@ -1,10 +1,15 @@
 import { translateBackendError } from "@/helper/errors";
+import { parseJwtPayload } from "@/lib/session";
 
 // Centralized keys — never scatter these strings across the codebase
 export const TOKEN_KEY = "accessToken";
 export const REFRESH_TOKEN_KEY = "refreshToken";
 export const USER_KEY = "user";
 export const GOOGLE_AUTH_KEY = "auth";
+
+// Re-export session helpers so existing callers keep working
+export type { StoredUser } from "@/lib/session";
+export { getCurrentAccountId, getStoredUser } from "@/lib/session";
 
 const _apiUrl = import.meta.env.VITE_API_URL as string | undefined;
 if (!_apiUrl) throw new Error("[Config] VITE_API_URL is not set. All API calls will fail.");
@@ -29,6 +34,7 @@ export function onAuthUnauthorized(handler: () => void): () => void {
 export function getAccessToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
+
 
 export function clearAuth(): void {
   localStorage.removeItem(TOKEN_KEY);
@@ -70,15 +76,11 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
  * Falls back to true when the token has no "exp" claim.
  */
 export function isTokenValid(token: string): boolean {
-  try {
-    const parts = token.split(".");
-    if (parts.length !== 3) return false;
-    const payload = JSON.parse(atob(parts[1]));
-    if (!payload.exp) return true;
-    return payload.exp * 1000 > Date.now();
-  } catch {
-    return false;
-  }
+  const payload = parseJwtPayload(token);
+  if (!payload) return false;
+
+  if (typeof payload.exp !== "number") return true;
+  return payload.exp * 1000 > Date.now();
 }
 
 type ApiErrorLike = {

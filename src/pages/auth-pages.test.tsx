@@ -49,7 +49,7 @@ describe("auth pages", () => {
     fireEvent.submit(form);
 
     await waitFor(() => {
-      expect(mockedForgotPassword).toHaveBeenCalledWith({ email: "new@mail.com" });
+      expect(mockedForgotPassword).toHaveBeenCalledWith("new@mail.com");
     });
 
     expect(await screen.findByText("Inserir Código")).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe("auth pages", () => {
     await waitFor(() => {
       expect(mockedValidateResetCode).toHaveBeenCalledWith({
         email: "dev@mail.com",
-        code: "123456",
+        token: "123456",
       });
     });
 

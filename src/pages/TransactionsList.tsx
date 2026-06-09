@@ -4,35 +4,24 @@ import { TransactionsFiltersCard } from "@/components/transactions/TransactionsF
 import { TransactionsPaginatedTable } from "@/components/transactions/TransactionsPaginatedTable";
 import { TransactionsSummaryCards } from "@/components/transactions/TransactionsSummaryCards";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
+import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories";
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
-import { useGetAll } from "@/hooks/transaction/use-get-transactions";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
+import { resolveQueryPeriod, type TransactionListQuery, useTransactionsList } from "@/hooks/transaction/use-get-transactions";
+import { useQueryClient } from "@tanstack/react-query";
+import { type FormEvent, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-const CATEGORY_OPTIONS = [
-  "Alimentação",
-  "Conforto",
-  "Moradia",
-  "Transporte",
-  "Saúde",
-  "Educação",
-  "Lazer",
-  "Bens Pessoais",
-  "Investimento",
-  "Renda Variável",
-  "Benefícios",
-  "Salário",
-  "Outros",
-] as const;
-
-type ActiveQuery =
+type ActiveQueryKind =
   | { kind: "all" }
   | { kind: "type"; typeName: string }
   | { kind: "categoryType"; category: string; typeName: string }
   | { kind: "contactType"; contactId: string; typeName: string };
 
 const TransactionsList = () => {
+  const queryClient = useQueryClient();
+
   const {
     handleDelete,
     handleEdit,
@@ -44,99 +33,93 @@ const TransactionsList = () => {
     isDialogOpen,
     formData,
   } = useTransaction();
+
   const { contacts, getAllContact } = useContact();
 
-  const {
-    transactions,
-    expenseMonthTotal,
-    incomeMonthTotal,
-    economyMonthTotal,
-    isRefreshing,
-    year,
-    month,
-    setYear,
-    setMonth,
-    getAllTransaction,
-    getByType,
-    getByContactAndType,
-    getAllExpenseAndIncome,
-    getByCategoryAndType,
-    currentPage: serverPage,
-    totalPages: serverTotalPages,
-    totalRecords: serverTotalRecords,
-    pageSize: serverPageSize,
-  } = useGetAll();
+  const { expenseMonthTotal, incomeMonthTotal, economyMonthTotal, isFetching: isSummaryFetching } = useFinancialSummary();
 
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
   const [filterContact, setFilterContact] = useState<string>("all");
-  const [activeQuery, setActiveQuery] = useState<ActiveQuery>({ kind: "all" });
+  const [activeQueryKind, setActiveQueryKind] = useState<ActiveQueryKind>({ kind: "all" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [month, setMonth] = useState<string>("all");
+  const [year, setYear] = useState<string>("");
 
-  const didFetchRef = useRef(false);
+  // Committed period — only updates when user clicks "Consulta por Filtros" or on page load
+  const [activePeriod, setActivePeriod] = useState<{ month: number; year: number }>(() => resolveQueryPeriod("all", ""));
 
-  useEffect(() => {
-    if (didFetchRef.current) return;
-    didFetchRef.current = true;
-
-    setActiveQuery({ kind: "all" });
-    void getAllTransaction(1);
-  }, [getAllTransaction]);
-
-  const goToPage = (page: number) => {
-    if (activeQuery.kind === "all") {
-      void getAllTransaction(page);
-      return;
+  const transactionQuery = useMemo((): TransactionListQuery => {
+    if (activeQueryKind.kind === "type") {
+      return { kind: "type", typeName: activeQueryKind.typeName, month: activePeriod.month, year: activePeriod.year };
     }
-
-    if (activeQuery.kind === "type") {
-      void getByType(activeQuery.typeName, page);
-      return;
+    if (activeQueryKind.kind === "categoryType") {
+      return {
+        kind: "categoryType",
+        category: activeQueryKind.category,
+        typeName: activeQueryKind.typeName,
+        month: activePeriod.month,
+        year: activePeriod.year,
+      };
     }
-
-    if (activeQuery.kind === "categoryType") {
-      void getByCategoryAndType(activeQuery.category, activeQuery.typeName, page);
-      return;
+    if (activeQueryKind.kind === "contactType") {
+      return {
+        kind: "contactType",
+        contactId: activeQueryKind.contactId,
+        typeName: activeQueryKind.typeName,
+        month: activePeriod.month,
+        year: activePeriod.year,
+      };
     }
+    return { kind: "all", month: activePeriod.month, year: activePeriod.year };
+  }, [activeQueryKind, activePeriod]);
 
-    if (activeQuery.kind === "contactType") {
-      void getByContactAndType(activeQuery.contactId, activeQuery.typeName, page);
-    }
-  };
+  const {
+    transactions,
+    currentPage: serverPage,
+    totalPages,
+    totalRecords,
+    pageSize,
+    isRefreshing,
+  } = useTransactionsList(transactionQuery, currentPage);
 
   const handleApplyFilters = () => {
+    const committed = resolveQueryPeriod(month, year);
+
     if (filterCategory === "all" && filterType === "all") {
-      setActiveQuery({ kind: "all" });
-      void getAllTransaction(1);
+      setActivePeriod(committed);
+      setActiveQueryKind({ kind: "all" });
+      setCurrentPage(1);
       return;
     }
 
     if (filterContact !== "all" && filterType !== "all") {
-      setActiveQuery({ kind: "contactType", contactId: filterContact, typeName: filterType });
-      void getByContactAndType(filterContact, filterType, 1);
+      setActivePeriod(committed);
+      setActiveQueryKind({ kind: "contactType", contactId: filterContact, typeName: filterType });
+      setCurrentPage(1);
       return;
     }
 
     if (filterCategory === "all" && filterType !== "all") {
-      setActiveQuery({ kind: "type", typeName: filterType });
-      void getByType(filterType, 1);
+      setActivePeriod(committed);
+      setActiveQueryKind({ kind: "type", typeName: filterType });
+      setCurrentPage(1);
       return;
     }
 
     if (filterCategory !== "all" && filterType !== "all") {
-      setActiveQuery({ kind: "categoryType", category: filterCategory, typeName: filterType });
-      void getByCategoryAndType(filterCategory, filterType, 1);
+      setActivePeriod(committed);
+      setActiveQueryKind({ kind: "categoryType", category: filterCategory, typeName: filterType });
+      setCurrentPage(1);
       return;
     }
 
-    toast.error("Selecione tambem o tipo para filtrar.");
+    toast.error("Selecione também o tipo para filtrar.");
   };
 
   const handleRefresh = async () => {
     try {
-      await getAllExpenseAndIncome();
-      await getAllContact();
-      setActiveQuery({ kind: "all" });
-      await getAllTransaction(1);
+      await Promise.all([queryClient.invalidateQueries({ queryKey: ["transactions"] }), getAllContact()]);
       toast.success("Sucesso ao atualizar a página!");
     } catch {
       toast.error("Erro ao atualizar a página!");
@@ -145,7 +128,7 @@ const TransactionsList = () => {
 
   const handleSubmitAndRefresh = async (e: FormEvent) => {
     await handleSubmit(e);
-    void getAllTransaction(1);
+    setCurrentPage(1);
   };
 
   return (
@@ -171,7 +154,7 @@ const TransactionsList = () => {
             formData={formData}
             setFormData={setFormData}
             editingTransaction={editingTransaction}
-            categoryOptions={CATEGORY_OPTIONS}
+            categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
           />
         </div>
 
@@ -181,7 +164,7 @@ const TransactionsList = () => {
           economyMonthTotal={economyMonthTotal}
         />
 
-        <RefreshAllButton isRefreshing={isRefreshing} onRefresh={handleRefresh} />
+        <RefreshAllButton isRefreshing={isRefreshing || isSummaryFetching} onRefresh={handleRefresh} />
 
         <TransactionsFiltersCard
           month={month}
@@ -201,11 +184,11 @@ const TransactionsList = () => {
         <TransactionsPaginatedTable
           transactions={transactions}
           currentPage={serverPage}
-          totalPages={serverTotalPages}
-          totalRecords={serverTotalRecords}
-          pageSize={serverPageSize}
+          totalPages={totalPages}
+          totalRecords={totalRecords}
+          pageSize={pageSize}
           isLoading={isRefreshing}
-          onPageChange={goToPage}
+          onPageChange={setCurrentPage}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

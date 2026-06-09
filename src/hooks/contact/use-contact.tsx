@@ -7,18 +7,44 @@ import {
   validateContactForm,
 } from "@/helper/contact";
 import { useCepLookup } from "@/hooks/contact/use-cep";
+import { useContactsQuery } from "@/hooks/contact/use-contacts-query";
 import { getErrorMessage } from "@/lib/api";
-import { createContact, editContact, getAllContacts } from "@/services/contact";
-import { useCallback, useState } from "react";
+import { createContact, deleteContact, editContact } from "@/services/contact";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export function useContact() {
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState<ContactForm>(contactFormDefaults);
   const { lookupCep } = useCepLookup();
+  const { contacts, error, isFetching, refetch } = useContactsQuery();
+  const lastErrorMessageRef = useRef<string | null>(null);
+
+  const createContactMutation = useMutation({
+    mutationFn: createContact,
+  });
+  const editContactMutation = useMutation({
+    mutationFn: editContact,
+  });
+  const deleteContactMutation = useMutation({
+    mutationFn: deleteContact,
+  });
+
+  useEffect(() => {
+    if (!error) {
+      lastErrorMessageRef.current = null;
+      return;
+    }
+
+    const message = getErrorMessage(error, "Erro ao carregar contatos.");
+    if (message === lastErrorMessageRef.current) return;
+
+    lastErrorMessageRef.current = message;
+    toast.error(message);
+  }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,14 +59,14 @@ export function useContact() {
       const contactPayload = mapContactFormToRequest(formData, editingContact?.id);
 
       if (editingContact) {
-        await editContact(contactPayload);
+        await editContactMutation.mutateAsync(contactPayload);
         toast.success("Contato editado com sucesso!");
       } else {
-        await createContact(contactPayload);
+        await createContactMutation.mutateAsync(contactPayload);
         toast.success("Contato criado com sucesso!");
       }
 
-      await getAllContact();
+      await queryClient.invalidateQueries({ queryKey: ["contacts"] });
       setIsDialogOpen(false);
       setEditingContact(null);
       setFormData(contactFormDefaults);
@@ -55,9 +81,14 @@ export function useContact() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    setContacts(contacts.filter((contact) => contact.id !== id));
-    toast.success("Contato excluído com sucesso!");
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteContactMutation.mutateAsync(id);
+      await queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      toast.success("Contato excluído com sucesso!");
+    } catch (error: unknown) {
+      toast.error(getErrorMessage(error, "Erro inesperado ao excluir contato."));
+    }
   };
 
   const handleDialogClose = () => {
@@ -78,18 +109,17 @@ export function useContact() {
       country: prev.country || "Brasil",
     }));
   };
+
   const getAllContact = useCallback(async () => {
-    setIsRefreshing(true);
-    try {
-      const data = await getAllContacts();
-      setContacts(data);
-    } catch (error: unknown) {
-      setContacts([]);
-      toast.error(getErrorMessage(error, "Erro ao carregar contatos."));
-    } finally {
-      setIsRefreshing(false);
+    const result = await refetch();
+    if (result.error) {
+      const message = getErrorMessage(result.error, "Erro ao carregar contatos.");
+      toast.error(message);
+      throw result.error;
     }
-  }, []);
+
+    return result.data ?? [];
+  }, [refetch]);
 
   return {
     handleDialogClose,
@@ -99,11 +129,14 @@ export function useContact() {
     handleZipCodeBlur,
     setIsDialogOpen,
     setFormData,
-    setContacts,
     getAllContact,
     editingContact: Boolean(editingContact),
     contacts,
-    isRefreshing,
+    isRefreshing:
+      isFetching ||
+      createContactMutation.isPending ||
+      editContactMutation.isPending ||
+      deleteContactMutation.isPending,
     isDialogOpen,
     formData,
   };
