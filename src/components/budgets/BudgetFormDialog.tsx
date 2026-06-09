@@ -36,7 +36,7 @@ export function BudgetFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="border-white/60 bg-white/90 backdrop-blur-md sm:max-w-[520px]">
+      <DialogContent className="border-white/60 dark:border-white/10 bg-card/90 backdrop-blur-md sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Novo Orçamento</DialogTitle>
           <DialogDescription>Defina um limite por categoria para acompanhar o orçamento da conta atual.</DialogDescription>

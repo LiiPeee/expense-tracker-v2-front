@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
@@ -30,7 +31,7 @@ export const Header = ({ user: _user }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/40 bg-white/70 backdrop-blur-xl shadow-soft">
+    <header className="sticky top-0 z-40 border-b border-white/40 dark:border-white/10 bg-card/70 backdrop-blur-xl shadow-soft">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-8">
           <Link to="/dashboard" className="flex items-center gap-2">
@@ -43,7 +44,7 @@ export const Header = ({ user: _user }: HeaderProps) => {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1 p-1 rounded-xl border border-white/60 bg-white/60 backdrop-blur-md">
+          <nav className="hidden md:flex items-center gap-1 p-1 rounded-xl border border-white/60 dark:border-white/10 bg-card/60 backdrop-blur-md">
             {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
               <Link key={to} to={to}>
                 <Button variant="ghost" size="sm" className={navLinkClass(to)}>
@@ -56,10 +57,12 @@ export const Header = ({ user: _user }: HeaderProps) => {
         </div>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle className="rounded-xl" />
+
           <Button
             variant="outline"
             size="sm"
-            className="gap-2 rounded-xl border-white/70 bg-white/70 hover:bg-white hidden sm:flex"
+            className="gap-2 rounded-xl border-white/70 dark:border-white/10 bg-card/70 hover:bg-card hidden sm:flex"
             onClick={handleLogOut}
             disabled={isLoading}
           >
@@ -74,7 +77,7 @@ export const Header = ({ user: _user }: HeaderProps) => {
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 bg-white/95 backdrop-blur-xl">
+            <SheetContent side="left" className="w-72 bg-card/95 backdrop-blur-xl">
               <div className="flex items-center gap-2 mb-8 mt-2">
                 <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-soft">
                   <span className="text-white font-bold text-xl">F</span>
@@ -99,10 +102,11 @@ export const Header = ({ user: _user }: HeaderProps) => {
                 ))}
               </nav>
 
-              <div className="absolute bottom-6 left-4 right-4">
+              <div className="absolute bottom-6 left-4 right-4 flex items-center gap-2">
+                <ThemeToggle className="rounded-xl border border-border" />
                 <Button
                   variant="outline"
-                  className="w-full gap-2 rounded-xl"
+                  className="flex-1 gap-2 rounded-xl"
                   onClick={() => { setMobileOpen(false); handleLogOut(); }}
                   disabled={isLoading}
                 >

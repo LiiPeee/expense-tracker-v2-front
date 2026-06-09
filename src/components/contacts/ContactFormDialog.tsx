@@ -36,7 +36,7 @@ export function ContactFormDialog({
           Novo Contato
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-white/60 bg-white/90 backdrop-blur-md sm:max-w-[560px] flex flex-col max-h-[90vh] overflow-hidden">
+      <DialogContent className="border-white/60 dark:border-white/10 bg-card/90 backdrop-blur-md sm:max-w-[560px] flex flex-col max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{editingContact ? "Editar Contato" : "Novo Contato"}</DialogTitle>
         </DialogHeader>

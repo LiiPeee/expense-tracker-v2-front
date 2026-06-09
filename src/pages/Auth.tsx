@@ -35,7 +35,7 @@ export default function Auth() {
       <div className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
 
-      <Card className="w-full max-w-md border-white/60 bg-white/80 shadow-strong">
+      <Card className="w-full max-w-md border-white/60 dark:border-white/10 bg-card/80 shadow-strong">
         <CardHeader className="text-center space-y-3">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-3 shadow-medium">
             <span className="text-white font-bold text-2xl">F</span>

@@ -163,7 +163,7 @@ All colors MUST be HSL.
   }
 
   .surface-card {
-    @apply border border-white/45 bg-white/80 backdrop-blur-md shadow-medium transition-all duration-300;
+    @apply border border-white/45 dark:border-white/10 bg-card/80 backdrop-blur-md shadow-medium transition-all duration-300;
   }
 
   .surface-card:hover {

@@ -131,7 +131,7 @@ export function TransactionsFiltersCard({
 
       <Button
         variant="outline"
-        className="w-full h-16 flex-col gap-2 rounded-b-2xl border-0 border-t border-white/60 bg-white/45"
+        className="w-full h-16 flex-col gap-2 rounded-b-2xl border-0 border-t border-white/60 dark:border-white/10 bg-card/45"
         onClick={onApplyFilters}
       >
         Consulta por Filtros
