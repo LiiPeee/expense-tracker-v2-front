@@ -9,49 +9,27 @@ import { Label } from "@/components/ui/label";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories";
-import { getBudgetCategoryName } from "@/helper/budget";
+import { useBudgetFilters } from "@/hooks/budget/use-budget-filters";
 import { useBudgetLimits } from "@/hooks/budget/use-budget-limits";
 import { Filter, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-
-const PAGE_SIZE = 10;
 
 const Budgets = () => {
   const { budgets, error, formData, isDialogOpen, isRefreshing, refetchBudgets, handleDialogClose, handleSubmit, setFormData, setIsDialogOpen } =
     useBudgetLimits();
 
-  const [filterName, setFilterName] = useState("");
-  const [filterCategory, setFilterCategory] = useState("all");
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const filteredBudgets = useMemo(() => {
-    const normalizedFilter = filterName.trim().toLowerCase();
-    return budgets.filter((budget) => {
-      const categoryName = getBudgetCategoryName(budget);
-      const matchesName = !normalizedFilter || categoryName.toLowerCase().includes(normalizedFilter);
-      const matchesCategory = filterCategory === "all" || categoryName === filterCategory;
-      return matchesName && matchesCategory;
-    });
-  }, [budgets, filterCategory, filterName]);
-
-  const totalRecords = filteredBudgets.length;
-  const totalPages = Math.max(1, Math.ceil(totalRecords / PAGE_SIZE));
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-
-  const paginatedBudgets = useMemo(() => {
-    const start = (safeCurrentPage - 1) * PAGE_SIZE;
-    return filteredBudgets.slice(start, start + PAGE_SIZE);
-  }, [filteredBudgets, safeCurrentPage]);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterCategory, filterName]);
-
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  const {
+    filterName,
+    filterCategory,
+    setFilterName,
+    setFilterCategory,
+    clearFilters,
+    paginatedBudgets,
+    currentPage,
+    totalPages,
+    totalRecords,
+    pageSize,
+    goToPage,
+  } = useBudgetFilters(budgets);
 
   async function handleRefresh() {
     await refetchBudgets();
@@ -127,10 +105,7 @@ const Budgets = () => {
                 type="button"
                 variant="outline"
                 className="rounded-xl"
-                onClick={() => {
-                  setFilterName("");
-                  setFilterCategory("all");
-                }}
+                onClick={clearFilters}
                 disabled={!filterName && filterCategory === "all"}
               >
                 Limpar filtro
@@ -144,12 +119,12 @@ const Budgets = () => {
         ) : (
           <BudgetsPaginatedTable
             budgets={paginatedBudgets}
-            currentPage={safeCurrentPage}
+            currentPage={currentPage}
             totalPages={totalPages}
             totalRecords={totalRecords}
-            pageSize={PAGE_SIZE}
+            pageSize={pageSize}
             isLoading={isRefreshing}
-            onPageChange={setCurrentPage}
+            onPageChange={goToPage}
           />
         )}
       </main>

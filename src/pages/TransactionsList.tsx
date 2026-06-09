@@ -8,16 +8,11 @@ import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
-import { resolveQueryPeriod, type TransactionListQuery, useTransactionsList } from "@/hooks/transaction/use-get-transactions";
+import { useTransactionsList } from "@/hooks/transaction/use-get-transactions";
+import { useTransactionFilters } from "@/hooks/transaction/use-transaction-filters";
 import { useQueryClient } from "@tanstack/react-query";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent } from "react";
 import { toast } from "sonner";
-
-type ActiveQueryKind =
-  | { kind: "all" }
-  | { kind: "type"; typeName: string }
-  | { kind: "categoryType"; category: string; typeName: string }
-  | { kind: "contactType"; contactId: string; typeName: string };
 
 const TransactionsList = () => {
   const queryClient = useQueryClient();
@@ -39,41 +34,23 @@ const TransactionsList = () => {
 
   const { expenseMonthTotal, incomeMonthTotal, economyMonthTotal, isFetching: isSummaryFetching } = useFinancialSummary();
 
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterContact, setFilterContact] = useState<string>("all");
-  const [activeQueryKind, setActiveQueryKind] = useState<ActiveQueryKind>({ kind: "all" });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [month, setMonth] = useState<string>("all");
-  const [year, setYear] = useState<string>("");
-
-  // Committed period — only updates when user clicks "Consulta por Filtros" or on page load
-  const [activePeriod, setActivePeriod] = useState<{ month: number; year: number }>(() => resolveQueryPeriod("all", ""));
-
-  const transactionQuery = useMemo((): TransactionListQuery => {
-    if (activeQueryKind.kind === "type") {
-      return { kind: "type", typeName: activeQueryKind.typeName, month: activePeriod.month, year: activePeriod.year };
-    }
-    if (activeQueryKind.kind === "categoryType") {
-      return {
-        kind: "categoryType",
-        category: activeQueryKind.category,
-        typeName: activeQueryKind.typeName,
-        month: activePeriod.month,
-        year: activePeriod.year,
-      };
-    }
-    if (activeQueryKind.kind === "contactType") {
-      return {
-        kind: "contactType",
-        contactId: activeQueryKind.contactId,
-        typeName: activeQueryKind.typeName,
-        month: activePeriod.month,
-        year: activePeriod.year,
-      };
-    }
-    return { kind: "all", month: activePeriod.month, year: activePeriod.year };
-  }, [activeQueryKind, activePeriod]);
+  const {
+    month,
+    year,
+    filterCategory,
+    filterType,
+    filterContact,
+    setMonth,
+    setYear,
+    setFilterCategory,
+    setFilterType,
+    setFilterContact,
+    transactionQuery,
+    currentPage,
+    applyFilters,
+    goToPage,
+    resetToFirstPage,
+  } = useTransactionFilters();
 
   const {
     transactions,
@@ -83,40 +60,6 @@ const TransactionsList = () => {
     pageSize,
     isRefreshing,
   } = useTransactionsList(transactionQuery, currentPage);
-
-  const handleApplyFilters = () => {
-    const committed = resolveQueryPeriod(month, year);
-
-    if (filterCategory === "all" && filterType === "all") {
-      setActivePeriod(committed);
-      setActiveQueryKind({ kind: "all" });
-      setCurrentPage(1);
-      return;
-    }
-
-    if (filterContact !== "all" && filterType !== "all") {
-      setActivePeriod(committed);
-      setActiveQueryKind({ kind: "contactType", contactId: filterContact, typeName: filterType });
-      setCurrentPage(1);
-      return;
-    }
-
-    if (filterCategory === "all" && filterType !== "all") {
-      setActivePeriod(committed);
-      setActiveQueryKind({ kind: "type", typeName: filterType });
-      setCurrentPage(1);
-      return;
-    }
-
-    if (filterCategory !== "all" && filterType !== "all") {
-      setActivePeriod(committed);
-      setActiveQueryKind({ kind: "categoryType", category: filterCategory, typeName: filterType });
-      setCurrentPage(1);
-      return;
-    }
-
-    toast.error("Selecione também o tipo para filtrar.");
-  };
 
   const handleRefresh = async () => {
     try {
@@ -129,7 +72,7 @@ const TransactionsList = () => {
 
   const handleSubmitAndRefresh = async (e: FormEvent) => {
     await handleSubmit(e);
-    setCurrentPage(1);
+    resetToFirstPage();
   };
 
   return (
@@ -180,7 +123,7 @@ const TransactionsList = () => {
           onChangeCategory={setFilterCategory}
           onChangeType={setFilterType}
           onChangeContact={setFilterContact}
-          onApplyFilters={handleApplyFilters}
+          onApplyFilters={applyFilters}
         />
 
         <TransactionsPaginatedTable
@@ -190,7 +133,7 @@ const TransactionsList = () => {
           totalRecords={totalRecords}
           pageSize={pageSize}
           isLoading={isRefreshing}
-          onPageChange={setCurrentPage}
+          onPageChange={goToPage}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
