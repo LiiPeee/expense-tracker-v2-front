@@ -70,6 +70,7 @@ export function useBudgetLimits() {
     error: query.error ? getErrorMessage(query.error, "Não foi possível carregar os orçamentos.") : null,
     formData,
     isDialogOpen,
+    isSubmitting: createMutation.isPending,
     isRefreshing: query.isFetching || createMutation.isPending,
     refetchBudgets: () => query.refetch(),
     handleDialogClose,

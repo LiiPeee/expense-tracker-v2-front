@@ -14,7 +14,7 @@ import { useBudgetLimits } from "@/hooks/budget/use-budget-limits";
 import { Filter, Search } from "lucide-react";
 
 const Budgets = () => {
-  const { budgets, error, formData, isDialogOpen, isRefreshing, refetchBudgets, handleDialogClose, handleSubmit, setFormData, setIsDialogOpen } =
+  const { budgets, error, formData, isDialogOpen, isSubmitting, isRefreshing, refetchBudgets, handleDialogClose, handleSubmit, setFormData, setIsDialogOpen } =
     useBudgetLimits();
 
   const {
@@ -41,7 +41,7 @@ const Budgets = () => {
 
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="mb-8 flex items-center justify-between">
-          <div className="mr-4 flex-1 rounded-3xl border border-white/50 dark:border-white/10 bg-card/70 px-6 py-6 shadow-medium backdrop-blur-md">
+          <div className="mr-4 flex-1 rounded-3xl border border-glass bg-card/70 px-6 py-6 shadow-medium backdrop-blur-md">
             <h2 className="mb-2 text-3xl font-bold text-foreground lg:text-4xl">Orçamentos</h2>
             <p className="text-base text-muted-foreground">Acompanhe os limites da conta, filtre por nome e navegue pelos orçamentos com paginação.</p>
           </div>
@@ -54,6 +54,7 @@ const Budgets = () => {
             formData={formData}
             setFormData={setFormData}
             categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
+            isSubmitting={isSubmitting}
           />
         </div>
 

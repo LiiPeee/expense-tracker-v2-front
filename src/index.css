@@ -41,6 +41,9 @@ All colors MUST be HSL.
     --input: 213 34% 88%;
     --ring: 162 63% 41%;
 
+    /* Borda translúcida das superfícies de vidro (glassmorphism) */
+    --glass-border: 0 0% 100% / 0.5;
+
     --radius: 0.75rem;
 
     --gradient-hero: linear-gradient(120deg, hsl(168 66% 41%) 0%, hsl(206 87% 52%) 52%, hsl(219 85% 58%) 100%);
@@ -89,6 +92,8 @@ All colors MUST be HSL.
     --border: 217 33% 20%;
     --input: 217 33% 20%;
     --ring: 162 63% 45%;
+
+    --glass-border: 0 0% 100% / 0.1;
 
     --gradient-hero: linear-gradient(120deg, hsl(164 62% 38%) 0%, hsl(206 84% 45%) 50%, hsl(222 77% 52%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(222 47% 15%) 0%, hsl(222 47% 18%) 100%);
@@ -163,7 +168,7 @@ All colors MUST be HSL.
   }
 
   .surface-card {
-    @apply border border-white/45 dark:border-white/10 bg-card/80 backdrop-blur-md shadow-medium transition-all duration-300;
+    @apply border border-glass bg-card/80 backdrop-blur-md shadow-medium transition-all duration-300;
   }
 
   .surface-card:hover {

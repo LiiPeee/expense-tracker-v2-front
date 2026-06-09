@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { BudgetLimitForm } from "@/helper/budget";
 import { monthNames } from "@/helper/utils";
@@ -16,6 +17,7 @@ type BudgetFormDialogProps = {
   formData: BudgetLimitForm;
   setFormData: Dispatch<SetStateAction<BudgetLimitForm>>;
   categoryOptions: readonly string[];
+  isSubmitting?: boolean;
 };
 
 export function BudgetFormDialog({
@@ -26,9 +28,15 @@ export function BudgetFormDialog({
   formData,
   setFormData,
   categoryOptions,
+  isSubmitting = false,
 }: BudgetFormDialogProps) {
+  const handleOpenChange = (next: boolean) => {
+    if (isSubmitting) return;
+    onOpenChange(next);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="gap-2 rounded-xl" onClick={onPrepareNew}>
           <Plus className="h-4 w-4" />
@@ -36,7 +44,7 @@ export function BudgetFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="border-white/60 dark:border-white/10 bg-card/90 backdrop-blur-md sm:max-w-[520px]">
+      <DialogContent className="border-glass bg-card/90 backdrop-blur-md sm:max-w-[520px]">
         <DialogHeader>
           <DialogTitle>Novo Orçamento</DialogTitle>
           <DialogDescription>Defina um limite por categoria para acompanhar o orçamento da conta atual.</DialogDescription>
@@ -105,9 +113,9 @@ export function BudgetFormDialog({
             />
           </div>
 
-          <Button type="submit" className="w-full rounded-xl">
+          <LoadingButton type="submit" className="w-full rounded-xl" isLoading={isSubmitting} loadingText="Salvando...">
             Criar
-          </Button>
+          </LoadingButton>
         </form>
       </DialogContent>
     </Dialog>

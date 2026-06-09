@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { ContactForm, ContactTypeValue } from "@/helper/contact";
@@ -16,6 +17,7 @@ interface ContactFormDialogProps {
   handleDialogClose: () => void;
   handleZipCodeBlur: () => void;
   setFormData: (data: ContactForm) => void;
+  isSubmitting?: boolean;
 }
 
 export function ContactFormDialog({
@@ -27,16 +29,22 @@ export function ContactFormDialog({
   handleDialogClose,
   handleZipCodeBlur,
   setFormData,
+  isSubmitting = false,
 }: ContactFormDialogProps) {
+  const handleOpenChange = (next: boolean) => {
+    if (isSubmitting) return;
+    setIsDialogOpen(next);
+  };
+
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="gap-2 rounded-xl" onClick={handleDialogClose}>
           <Plus className="w-4 h-4" />
           Novo Contato
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-white/60 dark:border-white/10 bg-card/90 backdrop-blur-md sm:max-w-[560px] flex flex-col max-h-[90vh] overflow-hidden">
+      <DialogContent className="border-glass bg-card/90 backdrop-blur-md sm:max-w-[560px] flex flex-col max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{editingContact ? "Editar Contato" : "Novo Contato"}</DialogTitle>
         </DialogHeader>
@@ -158,9 +166,9 @@ export function ContactFormDialog({
               />
             </div>
           </div>
-          <Button type="submit" className="w-full rounded-xl mt-4">
+          <LoadingButton type="submit" className="w-full rounded-xl mt-4" isLoading={isSubmitting} loadingText="Salvando...">
             {editingContact ? "Atualizar" : "Criar"}
-          </Button>
+          </LoadingButton>
         </form>
       </DialogContent>
     </Dialog>

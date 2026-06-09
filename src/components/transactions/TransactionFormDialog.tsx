@@ -50,7 +50,7 @@ export function TransactionFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="border-glass bg-card/90 backdrop-blur-md">
         <DialogHeader>
           <DialogTitle>{editingTransaction ? "Editar Transacao" : "Nova Transacao"}</DialogTitle>
           <DialogDescription>

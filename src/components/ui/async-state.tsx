@@ -10,7 +10,7 @@ type LoadingStateCardProps = {
 
 export function LoadingStateCard({ className, lines = 4 }: LoadingStateCardProps) {
   return (
-    <div className={cn("rounded-2xl border border-white/60 dark:border-white/10 bg-card/65 p-4 backdrop-blur-sm", className)}>
+    <div className={cn("rounded-2xl border border-glass bg-card/65 p-4 backdrop-blur-sm", className)}>
       <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
         Carregando dados...
@@ -34,7 +34,7 @@ type TableLoadingStateProps = {
 
 export function TableLoadingState({ className, columns = 6, rows = 6 }: TableLoadingStateProps) {
   return (
-    <div className={cn("rounded-xl border border-white/60 dark:border-white/10 bg-card/65 p-3 backdrop-blur-sm", className)}>
+    <div className={cn("rounded-xl border border-glass bg-card/65 p-3 backdrop-blur-sm", className)}>
       <div className="mb-2 grid gap-3" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
         {Array.from({ length: columns }).map((_, index) => (
           <Skeleton key={index} className="h-4 w-4/5 rounded-lg" />

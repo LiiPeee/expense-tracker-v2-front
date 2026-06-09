@@ -25,7 +25,7 @@ export default function ResetCode() {
       <div className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
 
-      <Card className="w-full max-w-md border-white/60 dark:border-white/10 bg-card/80 shadow-strong reveal-up">
+      <Card className="w-full max-w-md border-glass bg-card/80 shadow-strong reveal-up">
         <CardHeader className="text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-4">
             <KeyRound className="text-white w-8 h-8" />

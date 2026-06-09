@@ -60,7 +60,7 @@ const Dashboard = () => {
       <Header user={null} />
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="flex items-center justify-between mb-8">
-          <div className="rounded-3xl border border-white/50 dark:border-white/10 bg-card/70 backdrop-blur-md px-6 py-6 shadow-medium reveal-up flex-1 mr-4">
+          <div className="rounded-3xl border border-glass bg-card/70 backdrop-blur-md px-6 py-6 shadow-medium reveal-up flex-1 mr-4">
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Dashboard</h2>
             <p className="text-muted-foreground text-base">Visão geral das suas finanças em tempo real</p>
           </div>

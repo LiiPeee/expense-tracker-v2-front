@@ -132,6 +132,7 @@ export function useContact() {
     getAllContact,
     editingContact: Boolean(editingContact),
     contacts,
+    isSubmitting: createContactMutation.isPending || editContactMutation.isPending,
     isRefreshing:
       isFetching ||
       createContactMutation.isPending ||

@@ -31,7 +31,7 @@ export const Header = ({ user: _user }: HeaderProps) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/40 dark:border-white/10 bg-card/70 backdrop-blur-xl shadow-soft">
+    <header className="sticky top-0 z-40 border-b border-glass bg-card/70 backdrop-blur-xl shadow-soft">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-8">
           <Link to="/dashboard" className="flex items-center gap-2">
@@ -44,7 +44,7 @@ export const Header = ({ user: _user }: HeaderProps) => {
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1 p-1 rounded-xl border border-white/60 dark:border-white/10 bg-card/60 backdrop-blur-md">
+          <nav className="hidden md:flex items-center gap-1 p-1 rounded-xl border border-glass bg-card/60 backdrop-blur-md">
             {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
               <Link key={to} to={to}>
                 <Button variant="ghost" size="sm" className={navLinkClass(to)}>
@@ -62,7 +62,7 @@ export const Header = ({ user: _user }: HeaderProps) => {
           <Button
             variant="outline"
             size="sm"
-            className="gap-2 rounded-xl border-white/70 dark:border-white/10 bg-card/70 hover:bg-card hidden sm:flex"
+            className="gap-2 rounded-xl border-glass bg-card/70 hover:bg-card hidden sm:flex"
             onClick={handleLogOut}
             disabled={isLoading}
           >
