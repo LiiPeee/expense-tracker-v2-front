@@ -31,6 +31,7 @@ const TransactionsList = () => {
     setFormData,
     editingTransaction,
     isDialogOpen,
+    isSubmitting,
     formData,
   } = useTransaction();
 
@@ -155,6 +156,7 @@ const TransactionsList = () => {
             setFormData={setFormData}
             editingTransaction={editingTransaction}
             categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
+            isSubmitting={isSubmitting}
           />
         </div>
 

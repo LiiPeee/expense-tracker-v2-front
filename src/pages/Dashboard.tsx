@@ -40,7 +40,8 @@ const Dashboard = () => {
     refetch: refetchIncomeChart,
   } = useIncomeByCategory();
 
-  const { handleDialogClose, handleSubmit, setIsDialogOpen, setFormData, editingTransaction, isDialogOpen, formData } = useTransaction();
+  const { handleDialogClose, handleSubmit, setIsDialogOpen, setFormData, editingTransaction, isDialogOpen, isSubmitting, formData } =
+    useTransaction();
   const { contacts, getAllContact } = useContact();
 
   const isRefreshing = isRefreshingSummary || isLoadingChart || isLoadingIncomeChart;
@@ -77,6 +78,7 @@ const Dashboard = () => {
             setFormData={setFormData}
             editingTransaction={editingTransaction}
             categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
+            isSubmitting={isSubmitting}
           />
         </div>
 
