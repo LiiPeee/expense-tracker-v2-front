@@ -1,5 +1,5 @@
-import { USER_KEY } from "@/lib/api";
-import { createBudgetLimit, getAllBudgetLimitsByAccount } from "@/services/budget";
+import type { BudgetLimit, PagedBudgetLimitsResponse } from "@/helper/budget";
+import { createBudgetLimit, getBudgetLimitsByAccountPage } from "@/services/budget";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactElement } from "react";
@@ -8,11 +8,34 @@ import Budgets from "./Budgets";
 
 vi.mock("@/services/budget", () => ({
   createBudgetLimit: vi.fn(async () => undefined),
-  getAllBudgetLimitsByAccount: vi.fn(),
+  getBudgetLimitsByAccountPage: vi.fn(),
 }));
 
 const mockedCreateBudgetLimit = vi.mocked(createBudgetLimit);
-const mockedGetAllBudgetLimitsByAccount = vi.mocked(getAllBudgetLimitsByAccount);
+const mockedGetBudgetLimitsByAccountPage = vi.mocked(getBudgetLimitsByAccountPage);
+
+const budgetItems: BudgetLimit[] = Array.from({ length: 11 }, (_, index) => ({
+  id: index + 1,
+  month: index === 10 ? 2 : 1,
+  year: 2026,
+  accountId: 7,
+  limitAmount: index === 10 ? 999 : 100 + index,
+  percentage: index + 1,
+  isLimit: index % 2 === 0,
+  category: {
+    id: index + 1,
+    name: index === 10 ? "Saúde" : index === 0 ? "Alimentação" : `Moradia ${index + 1}`,
+  },
+}));
+
+function createPaged(items: BudgetLimit[], pageNumber = 1): PagedBudgetLimitsResponse {
+  return {
+    pageNumber,
+    pageSize: items.length,
+    totalRecords: items.length,
+    items,
+  };
+}
 
 function renderWithProviders(ui: ReactElement) {
   const queryClient = new QueryClient({
@@ -40,34 +63,14 @@ function renderWithProviders(ui: ReactElement) {
 describe("budgets page flows", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.setItem(USER_KEY, JSON.stringify({ id: "7", email: "dev@test.com", name: "Dev" }));
-
-    mockedGetAllBudgetLimitsByAccount.mockResolvedValue(
-      Array.from({ length: 11 }, (_, index) => ({
-        id: index + 1,
-        month: index === 10 ? 2 : 1,
-        year: 2026,
-        accountId: 7,
-        limitAmount: index === 10 ? 999 : 100 + index,
-        percentage: index + 1,
-        isLimit: index % 2 === 0,
-        category: {
-          id: index + 1,
-          name: index === 10 ? "Saúde" : index === 0 ? "Alimentação" : `Moradia ${index + 1}`,
-        },
-      })),
-    );
+    mockedGetBudgetLimitsByAccountPage.mockResolvedValue(createPaged(budgetItems));
   });
 
-  afterEach(() => {
-    localStorage.clear();
-  });
-
-  it("loads budgets by account, filters by name and category, and paginates", async () => {
+  it("loads budgets, filters by name and category, and paginates", async () => {
     renderWithProviders(<Budgets />);
 
     await waitFor(() => {
-      expect(mockedGetAllBudgetLimitsByAccount).toHaveBeenCalledWith(7);
+      expect(mockedGetBudgetLimitsByAccountPage).toHaveBeenCalledWith(1);
     });
 
     expect(await screen.findByText("Alimentação")).toBeInTheDocument();
@@ -88,11 +91,12 @@ describe("budgets page flows", () => {
 
     fireEvent.change(screen.getByLabelText("Filtrar por nome"), { target: { value: "" } });
     fireEvent.click(screen.getByRole("combobox", { name: "Filtrar por categoria" }));
-    fireEvent.click(await screen.findByText("Alimentação"));
+    fireEvent.click(await screen.findByRole("option", { name: "Alimentação" }));
 
+    // "Alimentação" também aparece no trigger do Select, então verificamos a célula da tabela.
     await waitFor(() => {
-      expect(screen.getByText("Alimentação")).toBeInTheDocument();
-      expect(screen.queryByText("Saúde")).not.toBeInTheDocument();
+      expect(screen.getByRole("cell", { name: "Alimentação" })).toBeInTheDocument();
+      expect(screen.queryByRole("cell", { name: "Saúde" })).not.toBeInTheDocument();
     });
   });
 
@@ -100,7 +104,7 @@ describe("budgets page flows", () => {
     renderWithProviders(<Budgets />);
 
     await waitFor(() => {
-      expect(mockedGetAllBudgetLimitsByAccount).toHaveBeenCalledWith(7);
+      expect(mockedGetBudgetLimitsByAccountPage).toHaveBeenCalledWith(1);
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Novo Orçamento" }));
