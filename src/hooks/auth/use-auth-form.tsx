@@ -1,6 +1,6 @@
 import { getPasswordStrength, isStrongPassword } from "@/components/ui/password-strength";
 import { SignInRequest, SignUpRequest } from "@/helper/auth";
-import { getErrorMessage, markBootstrapDone, setSession } from "@/lib/api";
+import { getErrorMessage, setSession } from "@/lib/api";
 import { forgotPassword, logOut, resetPassword, signIn, signUp, validateResetCode, verifyToken } from "@/services/auth";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -44,7 +44,6 @@ export function useAuthForm() {
         const response = await signIn(data);
 
         setSession(response);
-        markBootstrapDone();
 
         toast({ title: "Login realizado com sucesso!" });
         navigate("/dashboard");

@@ -35,14 +35,6 @@ export interface SignInRequest {
 
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
-}
-
-export interface RefreshTokenRequest {
-  refreshToken: string;
+  // O backend (TokenResponseDto) retorna apenas accessToken/refreshToken; não envia user.
+  refreshToken?: string;
 }

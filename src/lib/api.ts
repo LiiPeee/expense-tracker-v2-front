@@ -1,8 +1,8 @@
 import { translateBackendError } from "@/helper/errors";
-import { clearAuth, getAccessToken, getRefreshToken, hasRefreshToken, setSession } from "@/lib/token-store";
+import { clearAuth, getAccessToken } from "@/lib/token-store";
 
 // Re-export da fonte única de token, para manter a superfície pública estável.
-export { clearAuth, getAccessToken, hasRefreshToken, isBootstrapDone, markBootstrapDone, setSession } from "@/lib/token-store";
+export { clearAuth, getAccessToken, setSession } from "@/lib/token-store";
 
 const _apiUrl = import.meta.env.VITE_API_URL as string | undefined;
 if (!_apiUrl) throw new Error("[Config] VITE_API_URL is not set. All API calls will fail.");
@@ -31,59 +31,19 @@ export function getAuthHeaders(): Record<string, string> {
   return headers;
 }
 
-// Garante uma única renovação em voo: N requisições que recebem 401 ao mesmo
-// tempo compartilham a mesma Promise de refresh em vez de disparar N chamadas.
-let refreshInFlight: Promise<boolean> | null = null;
-
-async function runRefresh(): Promise<boolean> {
-  const refresh = getRefreshToken();
-  if (!refresh) return false;
-
-  try {
-    // Import dinâmico evita ciclo de import no topo (services/auth importa daqui).
-    const { refreshToken } = await import("@/services/auth");
-    const auth = await refreshToken({ refreshToken: refresh });
-    setSession(auth);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/** Renova a sessão a partir do refreshToken. Idempotente enquanto em voo. */
-export function refreshSession(): Promise<boolean> {
-  if (!refreshInFlight) {
-    refreshInFlight = runRefresh().finally(() => {
-      refreshInFlight = null;
-    });
-  }
-  return refreshInFlight;
-}
-
 /**
  * Wrapper around fetch that:
- * - Injects the Authorization header automatically (access token from memory)
- * - On 401, renews the session once via refresh token and retries the request
- * - If renewal fails, clears auth state and fires "auth:unauthorized"
+ * - Injects the Authorization header automatically (access token from sessionStorage)
+ * - Clears auth state and fires "auth:unauthorized" on 401
  */
 export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const doFetch = () =>
-    fetch(url, {
-      ...options,
-      headers: {
-        ...getAuthHeaders(),
-        ...((options.headers as Record<string, string>) ?? {}),
-      },
-    });
-
-  let response = await doFetch();
-
-  if (response.status === 401 && hasRefreshToken()) {
-    const renewed = await refreshSession();
-    if (renewed) {
-      response = await doFetch(); // retenta uma vez com o novo access token
-    }
-  }
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...getAuthHeaders(),
+      ...((options.headers as Record<string, string>) ?? {}),
+    },
+  });
 
   if (response.status === 401) {
     clearAuth();
