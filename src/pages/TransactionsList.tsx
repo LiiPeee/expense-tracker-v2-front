@@ -70,6 +70,14 @@ const TransactionsList = () => {
     }
   };
 
+  // "Consulta por Filtros" é ação explícita do usuário: além de aplicar os
+  // filtros, invalida a lista para sempre buscar dados frescos — mesmo quando
+  // o filtro repete um já consultado (que o cache do React Query serviria).
+  const handleApplyFilters = () => {
+    applyFilters();
+    void queryClient.invalidateQueries({ queryKey: ["transactions", "list"] });
+  };
+
   const handleSubmitAndRefresh = async (e: FormEvent) => {
     await handleSubmit(e);
     resetToFirstPage();
@@ -123,7 +131,7 @@ const TransactionsList = () => {
           onChangeCategory={setFilterCategory}
           onChangeType={setFilterType}
           onChangeContact={setFilterContact}
-          onApplyFilters={applyFilters}
+          onApplyFilters={handleApplyFilters}
         />
 
         <TransactionsPaginatedTable
