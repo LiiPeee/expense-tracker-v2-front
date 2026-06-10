@@ -1,5 +1,5 @@
 import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -54,9 +54,9 @@ export default function VerifyTokenEmail() {
                 className="tracking-widest text-center text-lg font-mono"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading || code.length < 6}>
-              {isLoading ? "Verificando..." : "Verificar código"}
-            </Button>
+            <LoadingButton type="submit" className="w-full" isLoading={isLoading} loadingText="Verificando..." disabled={code.length < 6}>
+              Verificar código
+            </LoadingButton>
           </form>
 
           {isLoading ? <LoadingStateCard lines={2} /> : null}

@@ -1,5 +1,5 @@
 import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,9 +50,9 @@ export default function ForgotPassword() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Enviando..." : "Enviar código de recuperação"}
-            </Button>
+            <LoadingButton type="submit" className="w-full" isLoading={isLoading} loadingText="Enviando...">
+              Enviar código de recuperação
+            </LoadingButton>
           </form>
 
           {isLoading ? <LoadingStateCard lines={2} /> : null}

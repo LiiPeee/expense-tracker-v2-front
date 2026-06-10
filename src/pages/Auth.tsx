@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -88,9 +88,9 @@ export default function Auth() {
                     </button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full rounded-xl" disabled={isLoading}>
-                  {isLoading ? "Entrando..." : "Entrar"}
-                </Button>
+                <LoadingButton type="submit" className="w-full rounded-xl" isLoading={isLoading} loadingText="Entrando...">
+                  Entrar
+                </LoadingButton>
                 <div className="text-center">
                   <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                     Esqueceu sua senha?
@@ -163,9 +163,15 @@ export default function Auth() {
                   </div>
                   <PasswordStrengthIndicator password={signupData.password} />
                 </div>
-                <Button type="submit" className="w-full rounded-xl" disabled={isLoading || !isSignupPasswordValid}>
-                  {isLoading ? "Criando conta..." : "Criar Conta"}
-                </Button>
+                <LoadingButton
+                  type="submit"
+                  className="w-full rounded-xl"
+                  isLoading={isLoading}
+                  loadingText="Criando conta..."
+                  disabled={!isSignupPasswordValid}
+                >
+                  Criar Conta
+                </LoadingButton>
               </form>
             </TabsContent>
           </Tabs>
