@@ -1,7 +1,7 @@
 import { getPasswordStrength, isStrongPassword } from "@/components/ui/password-strength";
 import { SignInRequest, SignUpRequest } from "@/helper/auth";
 import { getErrorMessage, setSession } from "@/lib/api";
-import { forgotPassword, logOut, resetPassword, signIn, signUp, validateResetCode, verifyToken } from "@/services/auth";
+import { forgotPassword, logOut, resetPassword, signIn, signInWithGoogle, signUp, validateResetCode, verifyToken } from "@/services/auth";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useToast } from "../use-toast";
@@ -51,6 +51,29 @@ export function useAuthForm() {
         toast({
           title: "Erro ao fazer login",
           description: getErrorMessage(error, "Email ou senha incorretos. Tente novamente."),
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [navigate, toast],
+  );
+
+  const handleGoogleSignIn = useCallback(
+    async (idToken: string) => {
+      try {
+        setIsLoading(true);
+        const response = await signInWithGoogle(idToken);
+
+        setSession(response);
+
+        toast({ title: "Login realizado com sucesso!" });
+        navigate("/dashboard");
+      } catch (error: unknown) {
+        toast({
+          title: "Erro ao entrar com Google",
+          description: getErrorMessage(error, "Não foi possível entrar com o Google. Tente novamente."),
           variant: "destructive",
         });
       } finally {
@@ -266,6 +289,7 @@ export function useAuthForm() {
     handleForgotPassword,
     handleResetPassword,
     handleSignIn,
+    handleGoogleSignIn,
     handleSignUp,
     handleLogOut,
     handleSendCode,
