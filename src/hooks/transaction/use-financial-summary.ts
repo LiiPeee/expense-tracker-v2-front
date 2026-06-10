@@ -2,11 +2,11 @@ import { QUERY_STALE_TIME } from "@/constants/query";
 import { getEconomy, getExpenseValue, getIncomeValue } from "@/services/transaction";
 import { useQuery } from "@tanstack/react-query";
 
-async function getFinancialSummary() {
+async function getFinancialSummary(month?: number, year?: number) {
   const [expenseMonthTotal, incomeMonthTotal, economyMonthTotal] = await Promise.all([
-    getExpenseValue(),
-    getIncomeValue(),
-    getEconomy(),
+    getExpenseValue(month, year),
+    getIncomeValue(month, year),
+    getEconomy(month, year),
   ]);
 
   return {
@@ -16,10 +16,10 @@ async function getFinancialSummary() {
   };
 }
 
-export function useFinancialSummary() {
+export function useFinancialSummary(month?: number, year?: number) {
   const query = useQuery({
-    queryKey: ["transactions", "summary"],
-    queryFn: getFinancialSummary,
+    queryKey: ["transactions", "summary", month, year],
+    queryFn: () => getFinancialSummary(month, year),
     staleTime: QUERY_STALE_TIME,
   });
 

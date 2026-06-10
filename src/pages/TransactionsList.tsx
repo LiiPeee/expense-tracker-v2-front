@@ -32,8 +32,6 @@ const TransactionsList = () => {
 
   const { contacts, getAllContact } = useContact();
 
-  const { expenseMonthTotal, incomeMonthTotal, economyMonthTotal, isFetching: isSummaryFetching } = useFinancialSummary();
-
   const {
     month,
     year,
@@ -47,10 +45,16 @@ const TransactionsList = () => {
     setFilterContact,
     transactionQuery,
     currentPage,
+    activePeriod,
     applyFilters,
     goToPage,
     resetToFirstPage,
   } = useTransactionFilters();
+
+  const { expenseMonthTotal, incomeMonthTotal, economyMonthTotal, isFetching: isSummaryFetching } = useFinancialSummary(
+    activePeriod.month,
+    activePeriod.year,
+  );
 
   const {
     transactions,
@@ -71,11 +75,11 @@ const TransactionsList = () => {
   };
 
   // "Consulta por Filtros" é ação explícita do usuário: além de aplicar os
-  // filtros, invalida a lista para sempre buscar dados frescos — mesmo quando
-  // o filtro repete um já consultado (que o cache do React Query serviria).
+  // filtros, invalida lista e resumo para sempre buscar dados frescos — mesmo
+  // quando o filtro repete um já consultado (que o cache do React Query serviria).
   const handleApplyFilters = () => {
     applyFilters();
-    void queryClient.invalidateQueries({ queryKey: ["transactions", "list"] });
+    void queryClient.invalidateQueries({ queryKey: ["transactions"] });
   };
 
   const handleSubmitAndRefresh = async (e: FormEvent) => {
