@@ -1,12 +1,9 @@
 /**
- * Session helpers: stored-user access and account ID resolution.
+ * Session helpers: JWT parsing and account ID resolution.
  * Kept separate from api.ts so non-fetch code doesn't pull in the full
  * HTTP/auth infrastructure.
  */
-import { getAccessToken, getStoredUser, type StoredUser } from "@/lib/token-store";
-
-export type { StoredUser };
-export { getStoredUser };
+import { getAccessToken } from "@/lib/token-store";
 
 function normalizeBase64Url(value: string): string {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -40,16 +37,9 @@ function parsePositiveNumber(value: unknown): number | null {
 }
 
 /**
- * Resolves the current user's accountId by checking:
- * 1. Stored user object (accountId → id)
- * 2. JWT claim candidates in the access token
+ * Resolves the current user's accountId from the JWT claims in the access token.
  */
 export function getCurrentAccountId(): number | null {
-  const storedUser = getStoredUser();
-  const storedAccountId =
-    parsePositiveNumber(storedUser?.accountId) ?? parsePositiveNumber(storedUser?.id);
-  if (storedAccountId != null) return storedAccountId;
-
   const token = getAccessToken();
   if (!token) return null;
 
