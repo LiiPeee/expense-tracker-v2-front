@@ -22,6 +22,7 @@ export interface UseTransactionFiltersResult {
 
   transactionQuery: TransactionListQuery;
   currentPage: number;
+  activePeriod: { month: number; year: number };
 
   applyFilters: () => void;
   goToPage: (page: number) => void;
@@ -120,6 +121,7 @@ export function useTransactionFilters(): UseTransactionFiltersResult {
     setFilterContact,
     transactionQuery,
     currentPage,
+    activePeriod,
     applyFilters,
     goToPage,
     resetToFirstPage,

@@ -1,5 +1,4 @@
-import { onAuthUnauthorized } from "@/lib/api";
-import { useAuthBootstrap } from "@/hooks/auth/use-auth-bootstrap";
+import { getAccessToken, onAuthUnauthorized } from "@/lib/api";
 import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 
@@ -8,17 +7,15 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const status = useAuthBootstrap();
+  // O accessToken vive em sessionStorage, então sobrevive ao F5 e pode ser
+  // lido de forma síncrona — não há estado de "checando" a resolver.
+  const isAuthenticated = getAccessToken() != null;
 
   useEffect(() => {
     return onAuthUnauthorized(() => window.location.replace("/auth"));
   }, []);
 
-  if (status === "checking") {
-    return <div className="min-h-screen bg-background" />;
-  }
-
-  if (status === "unauthenticated") {
+  if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
 

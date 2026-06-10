@@ -85,7 +85,7 @@ const Contacts = () => {
                       <TableRow key={contact.id ?? contact.email ?? contact.name} className="table-row-lift">
                         <TableCell className="font-medium">{contact.name}</TableCell>
                         <TableCell>{contact.email}</TableCell>
-                        <TableCell>{maskPhone(contact.phone)}</TableCell>
+                        <TableCell>{maskPhone(contact.phone ?? "")}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-2">
                             <Button

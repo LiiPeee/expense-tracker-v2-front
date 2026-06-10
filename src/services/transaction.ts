@@ -22,8 +22,8 @@ export async function updateTransaction(id: number, data: TransactionRequest): P
   }
 }
 
-export async function getExpenseValue(): Promise<number> {
-  const ym = getDefaultYearMonth();
+export async function getExpenseValue(month?: number, year?: number): Promise<number> {
+  const ym = month != null && year != null ? { month, year } : getDefaultYearMonth();
   const url = `${BASE_URL}/Transaction/GetExpenseByMonthAndYear?month=${encodeURIComponent(ym.month)}&year=${encodeURIComponent(ym.year)}`;
 
   const response = await authFetch(url);
@@ -31,8 +31,8 @@ export async function getExpenseValue(): Promise<number> {
   return value ?? 0;
 }
 
-export async function getIncomeValue(): Promise<number> {
-  const ym = getDefaultYearMonth();
+export async function getIncomeValue(month?: number, year?: number): Promise<number> {
+  const ym = month != null && year != null ? { month, year } : getDefaultYearMonth();
   const url = `${BASE_URL}/Transaction/GetIncomeByMonthAndYear?month=${encodeURIComponent(ym.month)}&year=${encodeURIComponent(ym.year)}`;
 
   const response = await authFetch(url);
@@ -40,8 +40,8 @@ export async function getIncomeValue(): Promise<number> {
   return value ?? 0;
 }
 
-export async function getEconomy(): Promise<number> {
-  const ym = getDefaultYearMonth();
+export async function getEconomy(month?: number, year?: number): Promise<number> {
+  const ym = month != null && year != null ? { month, year } : getDefaultYearMonth();
   const url = `${BASE_URL}/Transaction/GetEconomy?month=${encodeURIComponent(ym.month)}&year=${encodeURIComponent(ym.year)}`;
 
   const response = await authFetch(url);

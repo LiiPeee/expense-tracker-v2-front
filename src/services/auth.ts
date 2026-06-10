@@ -1,6 +1,5 @@
 import {
   AuthResponse,
-  RefreshTokenRequest,
   ResetPasswordRequest,
   SignInRequest,
   SignUpRequest,
@@ -38,10 +37,6 @@ export async function signUp(input: SignUpRequest): Promise<void> {
 
 export async function signIn(input: SignInRequest): Promise<AuthResponse> {
   return postJson<AuthResponse>(`${BASE_URL}/Auth/SignIn`, input, "Email ou senha incorretos");
-}
-
-export async function refreshToken(input: RefreshTokenRequest): Promise<AuthResponse> {
-  return postJson<AuthResponse>(`${BASE_URL}/Auth/RefreshToken`, input, "Falha ao renovar token");
 }
 
 export async function logOut(): Promise<void> {
