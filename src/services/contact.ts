@@ -26,3 +26,10 @@ export async function editContact(input: ContactRequest): Promise<void> {
     throw new Error(await getResponseErrorMessage(response, "Falha ao editar contato"));
   }
 }
+
+export async function deleteContact(id: number): Promise<void> {
+  const response = await authFetch(`${BASE_URL}/Contact/DeleteContact?id=${id}`);
+  if (!response.ok) {
+    throw new Error(await getResponseErrorMessage(response, "Falha ao excluir contato"));
+  }
+}

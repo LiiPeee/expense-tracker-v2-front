@@ -49,17 +49,11 @@ export async function getEconomy(): Promise<number> {
   return value ?? 0;
 }
 
-export async function getAllTransactionsPaged(pageNumber: number): Promise<PagedTransactionsResponse> {
-  const ym = getDefaultYearMonth();
-  const url = `${BASE_URL}/Transaction/GetByMonthAndYear?month=${encodeURIComponent(ym.month)}&year=${encodeURIComponent(ym.year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
+export async function getAllTransactionsPaged(month: number, year: number, pageNumber: number): Promise<PagedTransactionsResponse> {
+  const url = `${BASE_URL}/Transaction/GetByMonthAndYear?month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);
   return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações");
-}
-
-export async function getAllTransactions(pageNumber: number) {
-  const paged = await getAllTransactionsPaged(pageNumber);
-  return Array.isArray(paged.items) ? paged.items : [];
 }
 
 export async function getTransactionsByCategoryPaged(
@@ -98,17 +92,10 @@ export async function getTransactionsByTypeAndContactPaged(
   const response = await authFetch(url);
   return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações por contato e tipo");
 }
-export async function getTransactionsByMonthAndYear(month: number, year: number, pageNumber: number): Promise<PagedTransactionsResponse> {
-  const url = `${BASE_URL}/Transaction/GetByMonthAndYear?month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
-
-  const response = await authFetch(url);
-  return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações");
-}
-
 export async function deleteTransactions(id: number): Promise<void> {
   const url = `${BASE_URL}/Transaction/DeleteTransaction?id=${encodeURIComponent(id)}`;
 
-  const response = await authFetch(url);
+  const response = await authFetch(url, { method: "DELETE" });
   if (!response.ok) {
     throw new Error(await getResponseErrorMessage(response, "Falha ao excluir transação"));
   }

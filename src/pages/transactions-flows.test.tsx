@@ -1,18 +1,19 @@
 import { type Contact } from "@/helper/contact";
 import type { PagedTransactionsResponse, TransactionResponse } from "@/helper/transaction";
+import { getDefaultYearMonth } from "@/helper/utils";
 import { getAllContacts } from "@/services/contact";
 import { deleteTransactions, getAllTransactionsPaged, getEconomy, getExpenseValue, getIncomeValue } from "@/services/transaction";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { MemoryRouter } from "react-router-dom";
-import Transactions from "./Transactions";
 import TransactionsList from "./TransactionsList";
 
 vi.mock("@/services/contact", () => ({
   getAllContacts: vi.fn(async () => []),
   createContact: vi.fn(async () => true),
   editContact: vi.fn(async () => true),
+  deleteContact: vi.fn(async () => undefined),
 }));
 
 vi.mock("@/services/transaction", async () => {
@@ -38,6 +39,8 @@ const mockedDeleteTransactions = vi.mocked(deleteTransactions);
 const mockedGetExpenseValue = vi.mocked(getExpenseValue);
 const mockedGetIncomeValue = vi.mocked(getIncomeValue);
 const mockedGetEconomy = vi.mocked(getEconomy);
+
+const { month: defaultMonth, year: defaultYear } = getDefaultYearMonth();
 
 const baseTransaction: TransactionResponse = {
   id: 1,
@@ -112,11 +115,11 @@ describe("transactions pages flows", () => {
     mockedGetEconomy.mockResolvedValue(200);
   });
 
-  it("Transactions new button triggers contact preload flow", async () => {
-    renderWithProviders(<Transactions />);
+  it("TransactionsList new button triggers contact preload flow", async () => {
+    renderWithProviders(<TransactionsList />);
 
     await waitFor(() => {
-      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(1);
+      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(defaultMonth, defaultYear, 1);
     });
 
     mockedGetAllContacts.mockClear();
@@ -128,11 +131,11 @@ describe("transactions pages flows", () => {
     });
   });
 
-  it("Transactions table supports edit and delete flows", async () => {
-    renderWithProviders(<Transactions />);
+  it("TransactionsList table supports edit and delete flows", async () => {
+    renderWithProviders(<TransactionsList />);
 
     await waitFor(() => {
-      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(1);
+      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(defaultMonth, defaultYear, 1);
     });
 
     fireEvent.click(screen.getByLabelText("Editar transacao"));
@@ -153,17 +156,17 @@ describe("transactions pages flows", () => {
     renderWithProviders(<TransactionsList />);
 
     await waitFor(() => {
-      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(1);
+      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(defaultMonth, defaultYear, 1);
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Consulta por Filtros" }));
     await waitFor(() => {
-      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(1);
+      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(defaultMonth, defaultYear, 1);
     });
 
     fireEvent.click(screen.getByRole("link", { name: "2" }));
     await waitFor(() => {
-      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(2);
+      expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(defaultMonth, defaultYear, 2);
     });
   });
 });

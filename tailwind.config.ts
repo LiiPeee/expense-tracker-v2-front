@@ -16,6 +16,7 @@ export default {
     extend: {
       colors: {
         border: "hsl(var(--border))",
+        glass: "hsl(var(--glass-border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",

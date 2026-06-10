@@ -2,6 +2,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Contact } from "@/helper/contact";
 import { type PaidValue, type TransactionForm, type TransactionResponse } from "@/helper/transaction";
@@ -18,6 +19,7 @@ type TransactionFormDialogProps = {
   setFormData: Dispatch<SetStateAction<TransactionForm>>;
   editingTransaction: TransactionResponse | null;
   categoryOptions: readonly string[];
+  isSubmitting?: boolean;
 };
 
 export function TransactionFormDialog({
@@ -30,9 +32,17 @@ export function TransactionFormDialog({
   setFormData,
   editingTransaction,
   categoryOptions,
+  isSubmitting = false,
 }: TransactionFormDialogProps) {
+  const submitLabel = editingTransaction ? "Atualizar" : "Criar";
+
+  const handleOpenChange = (next: boolean) => {
+    if (isSubmitting) return;
+    onOpenChange(next);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="gap-2" onClick={onPrepareNew}>
           <Plus className="w-4 h-4" />
@@ -40,7 +50,7 @@ export function TransactionFormDialog({
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="border-glass bg-card/90 backdrop-blur-md">
         <DialogHeader>
           <DialogTitle>{editingTransaction ? "Editar Transacao" : "Nova Transacao"}</DialogTitle>
           <DialogDescription>
@@ -188,9 +198,9 @@ export function TransactionFormDialog({
             />
           </div>
 
-          <Button type="submit" className="w-full">
-            {editingTransaction ? "Atualizar" : "Criar"}
-          </Button>
+          <LoadingButton type="submit" className="w-full" isLoading={isSubmitting} loadingText="Salvando...">
+            {submitLabel}
+          </LoadingButton>
         </form>
       </DialogContent>
     </Dialog>

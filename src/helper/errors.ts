@@ -30,12 +30,14 @@ const backendErrorMap: Record<string, string> = {
 
 /**
  * Translates a raw backend error message to a user-friendly Portuguese string.
- * If the message is not recognized, returns the provided fallback.
+ * If the message is empty or not recognized, returns the provided fallback —
+ * raw technical messages are never surfaced to the user.
  */
 export function translateBackendError(raw: string | undefined | null, fallback: string): string {
   if (!raw?.trim()) return fallback;
 
-  const lower = raw.trim().toLowerCase();
+  const normalized = raw.trim();
+  const lower = normalized.toLowerCase();
 
   for (const [key, value] of Object.entries(backendErrorMap)) {
     if (lower === key || lower.includes(key)) return value;

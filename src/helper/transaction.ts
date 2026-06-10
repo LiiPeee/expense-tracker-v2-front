@@ -3,6 +3,7 @@ import { Contact } from "@/helper/contact";
 
 export type PaidValue = "Sim" | "Não" | "";
 export type TransactionType = "Income" | "Expense";
+export type RecurrenceLabel = "Não" | "Semanal" | "Quinzenal" | "Mensal" | "-";
 
 export interface TransactionRequest {
   transactionName: string;
