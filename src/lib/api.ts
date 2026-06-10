@@ -1,15 +1,8 @@
 import { translateBackendError } from "@/helper/errors";
-import { parseJwtPayload } from "@/lib/session";
+import { clearAuth, getAccessToken, getRefreshToken, hasRefreshToken, setSession } from "@/lib/token-store";
 
-// Centralized keys — never scatter these strings across the codebase
-export const TOKEN_KEY = "accessToken";
-export const REFRESH_TOKEN_KEY = "refreshToken";
-export const USER_KEY = "user";
-export const GOOGLE_AUTH_KEY = "auth";
-
-// Re-export session helpers so existing callers keep working
-export type { StoredUser } from "@/lib/session";
-export { getCurrentAccountId, getStoredUser } from "@/lib/session";
+// Re-export da fonte única de token, para manter a superfície pública estável.
+export { clearAuth, getAccessToken, hasRefreshToken, isBootstrapDone, markBootstrapDone, setSession } from "@/lib/token-store";
 
 const _apiUrl = import.meta.env.VITE_API_URL as string | undefined;
 if (!_apiUrl) throw new Error("[Config] VITE_API_URL is not set. All API calls will fail.");
@@ -31,18 +24,6 @@ export function onAuthUnauthorized(handler: () => void): () => void {
   return () => window.removeEventListener("auth:unauthorized", listener);
 }
 
-export function getAccessToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-
-export function clearAuth(): void {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
-  localStorage.removeItem(GOOGLE_AUTH_KEY);
-}
-
 export function getAuthHeaders(): Record<string, string> {
   const token = getAccessToken();
   const headers: Record<string, string> = { "Content-Type": "application/json" };
@@ -50,18 +31,59 @@ export function getAuthHeaders(): Record<string, string> {
   return headers;
 }
 
+// Garante uma única renovação em voo: N requisições que recebem 401 ao mesmo
+// tempo compartilham a mesma Promise de refresh em vez de disparar N chamadas.
+let refreshInFlight: Promise<boolean> | null = null;
+
+async function runRefresh(): Promise<boolean> {
+  const refresh = getRefreshToken();
+  if (!refresh) return false;
+
+  try {
+    // Import dinâmico evita ciclo de import no topo (services/auth importa daqui).
+    const { refreshToken } = await import("@/services/auth");
+    const auth = await refreshToken({ refreshToken: refresh });
+    setSession(auth);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Renova a sessão a partir do refreshToken. Idempotente enquanto em voo. */
+export function refreshSession(): Promise<boolean> {
+  if (!refreshInFlight) {
+    refreshInFlight = runRefresh().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
+
 /**
  * Wrapper around fetch that:
- * - Injects the Authorization header automatically
- * - Clears local auth state and fires "auth:unauthorized" on 401
+ * - Injects the Authorization header automatically (access token from memory)
+ * - On 401, renews the session once via refresh token and retries the request
+ * - If renewal fails, clears auth state and fires "auth:unauthorized"
  */
 export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const mergedHeaders: Record<string, string> = {
-    ...getAuthHeaders(),
-    ...((options.headers as Record<string, string>) ?? {}),
-  };
+  const doFetch = () =>
+    fetch(url, {
+      ...options,
+      headers: {
+        ...getAuthHeaders(),
+        ...((options.headers as Record<string, string>) ?? {}),
+      },
+    });
 
-  const response = await fetch(url, { ...options, headers: mergedHeaders });
+  let response = await doFetch();
+
+  if (response.status === 401 && hasRefreshToken()) {
+    const renewed = await refreshSession();
+    if (renewed) {
+      response = await doFetch(); // retenta uma vez com o novo access token
+    }
+  }
 
   if (response.status === 401) {
     clearAuth();
@@ -69,18 +91,6 @@ export async function authFetch(url: string, options: RequestInit = {}): Promise
   }
 
   return response;
-}
-
-/**
- * Checks whether a JWT access token is still valid (not expired / not malformed).
- * Falls back to true when the token has no "exp" claim.
- */
-export function isTokenValid(token: string): boolean {
-  const payload = parseJwtPayload(token);
-  if (!payload) return false;
-
-  if (typeof payload.exp !== "number") return true;
-  return payload.exp * 1000 > Date.now();
 }
 
 type ApiErrorLike = {

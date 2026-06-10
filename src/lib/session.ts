@@ -3,13 +3,10 @@
  * Kept separate from api.ts so non-fetch code doesn't pull in the full
  * HTTP/auth infrastructure.
  */
+import { getAccessToken, getStoredUser, type StoredUser } from "@/lib/token-store";
 
-export type StoredUser = {
-  id?: string | number;
-  accountId?: string | number;
-  email?: string;
-  name?: string;
-};
+export type { StoredUser };
+export { getStoredUser };
 
 function normalizeBase64Url(value: string): string {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -42,17 +39,6 @@ function parsePositiveNumber(value: unknown): number | null {
   return null;
 }
 
-/** Reads the stored user object from localStorage, or null if absent/malformed. */
-export function getStoredUser(): StoredUser | null {
-  const raw = localStorage.getItem("user");
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as StoredUser;
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Resolves the current user's accountId by checking:
  * 1. Stored user object (accountId → id)
@@ -64,7 +50,7 @@ export function getCurrentAccountId(): number | null {
     parsePositiveNumber(storedUser?.accountId) ?? parsePositiveNumber(storedUser?.id);
   if (storedAccountId != null) return storedAccountId;
 
-  const token = localStorage.getItem("accessToken");
+  const token = getAccessToken();
   if (!token) return null;
 
   const payload = parseJwtPayload(token);
