@@ -40,10 +40,18 @@ describe("transaction service", () => {
     expect(mockedAuthFetch).toHaveBeenCalledWith(`${BASE_URL}/Transaction/GetByContact?id=12&type=Expense&month=5&year=2026&pageNumber=1`);
   });
 
-  it("throw backend message when request fails", async () => {
-    mockedAuthFetch.mockResolvedValueOnce(createResponse({ message: "Backend falhou" }, false, 400));
+  it("throw mapped backend message when request fails with a known error", async () => {
+    mockedAuthFetch.mockResolvedValueOnce(createResponse({ message: "we cannot find transactions" }, false, 400));
 
-    await expect(getTransactionsByTypeAndContactPaged("Income", "7", 1, 2026, 1)).rejects.toThrow("Backend falhou");
+    await expect(getTransactionsByTypeAndContactPaged("Income", "7", 1, 2026, 1)).rejects.toThrow("Nenhuma transação encontrada.");
+  });
+
+  it("throw fallback message when backend message is unknown", async () => {
+    mockedAuthFetch.mockResolvedValueOnce(createResponse({ message: "some untranslated error" }, false, 400));
+
+    await expect(getTransactionsByTypeAndContactPaged("Income", "7", 1, 2026, 1)).rejects.toThrow(
+      "Falha ao buscar transações por contato e tipo",
+    );
   });
 
   it("fallback to default error message when backend has no message", async () => {

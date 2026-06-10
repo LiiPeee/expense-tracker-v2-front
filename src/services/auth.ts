@@ -8,16 +8,7 @@ import {
   VerifyEmailRequest,
   VerifyTokenRequest,
 } from "@/helper/auth";
-import {
-  BASE_URL,
-  clearAuth,
-  getResponseErrorMessage,
-  GOOGLE_AUTH_KEY,
-  readJsonOrThrow,
-  REFRESH_TOKEN_KEY,
-  TOKEN_KEY,
-  USER_KEY,
-} from "@/lib/api";
+import { BASE_URL, clearAuth, getAccessToken, getResponseErrorMessage, readJsonOrThrow } from "@/lib/api";
 
 async function postVoid(url: string, body?: unknown, fallbackMessage = "Falha na requisição"): Promise<void> {
   const response = await fetch(url, {
@@ -54,7 +45,7 @@ export async function refreshToken(input: RefreshTokenRequest): Promise<AuthResp
 }
 
 export async function logOut(): Promise<void> {
-  const token = localStorage.getItem(TOKEN_KEY);
+  const token = getAccessToken();
 
   if (token) {
     // Best-effort server-side revocation — ignore failures
@@ -90,5 +81,3 @@ export async function validateResetCode(input: ValidateResetCodeRequest): Promis
 export async function resetPassword(input: ResetPasswordRequest): Promise<void> {
   await postVoid(`${BASE_URL}/Auth/ResetPassword`, input, "Falha ao redefinir senha");
 }
-
-export { GOOGLE_AUTH_KEY, REFRESH_TOKEN_KEY, TOKEN_KEY, USER_KEY };

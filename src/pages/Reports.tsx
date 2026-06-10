@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getDefaultYearMonth, monthNames } from "@/helper/utils";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
 import { PieChart, RefreshCw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
@@ -15,32 +15,25 @@ const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 const Reports = () => {
-  const { isLoading, error, chartData, totalExpense, loadData } = useExpenseByCategory();
-  const didFetchRef = useRef(false);
-
   const ym = getDefaultYearMonth();
-  const defaultMonth = ym.month;
-  const defaultYear = ym.year;
   const [selectedMonth, setSelectedMonth] = useState<string>(String(ym.month));
   const [selectedYear, setSelectedYear] = useState<string>(String(ym.year));
-
-  useEffect(() => {
-    if (didFetchRef.current) return;
-    didFetchRef.current = true;
-    void loadData(defaultMonth, defaultYear);
-  }, [defaultMonth, defaultYear, loadData]);
+  const [appliedMonth, setAppliedMonth] = useState(ym.month);
+  const [appliedYear, setAppliedYear] = useState(ym.year);
+  const { isLoading, error, chartData, totalExpense } = useExpenseByCategory(appliedMonth, appliedYear);
 
   function handleApplyFilter() {
-    void loadData(Number(selectedMonth), Number(selectedYear));
+    setAppliedMonth(Number(selectedMonth));
+    setAppliedYear(Number(selectedYear));
   }
 
-  const selectedMonthLabel = monthNames[Number(selectedMonth) - 1];
+  const selectedMonthLabel = monthNames[appliedMonth - 1];
 
   return (
     <div className="page-shell">
       <Header user={null} />
       <main className="container mx-auto px-4 py-8 lg:py-10">
-        <div className="mb-8 rounded-3xl border border-white/50 bg-white/70 backdrop-blur-md px-6 py-6 shadow-medium reveal-up">
+        <div className="mb-8 rounded-3xl border border-glass bg-card/70 backdrop-blur-md px-6 py-6 shadow-medium reveal-up">
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Relatórios</h2>
           <p className="text-muted-foreground">Análise detalhada dos seus gastos por categoria</p>
         </div>
@@ -95,7 +88,7 @@ const Reports = () => {
           <Card className="rounded-2xl reveal-up stagger-2">
             <CardHeader>
               <CardTitle className="text-base font-semibold">
-                Gastos por Categoria — {selectedMonthLabel} {selectedYear}
+                Gastos por Categoria — {selectedMonthLabel} {appliedYear}
               </CardTitle>
             </CardHeader>
             <CardContent>

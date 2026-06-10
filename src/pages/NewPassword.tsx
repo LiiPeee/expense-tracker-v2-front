@@ -1,5 +1,5 @@
 import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,7 +29,7 @@ export default function NewPassword() {
       <div className="pointer-events-none absolute -top-24 -left-20 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
 
-      <Card className="w-full max-w-md border-white/60 bg-white/80 shadow-strong reveal-up">
+      <Card className="w-full max-w-md border-glass bg-card/80 shadow-strong reveal-up">
         <CardHeader className="text-center space-y-2">
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-4">
             <LockKeyhole className="text-white w-8 h-8" />
@@ -92,9 +92,15 @@ export default function NewPassword() {
               {confirmPassword.length > 0 && !passwordsMatch && <p className="text-xs text-destructive">As senhas não conferem.</p>}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading || !isStrongPassword(strength) || !passwordsMatch}>
-              {isLoading ? "Salvando..." : "Salvar nova senha"}
-            </Button>
+            <LoadingButton
+              type="submit"
+              className="w-full"
+              isLoading={isLoading}
+              loadingText="Salvando..."
+              disabled={!isStrongPassword(strength) || !passwordsMatch}
+            >
+              Salvar nova senha
+            </LoadingButton>
           </form>
 
           {isLoading ? <LoadingStateCard lines={2} /> : null}
