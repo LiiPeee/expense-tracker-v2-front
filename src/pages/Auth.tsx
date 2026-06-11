@@ -5,12 +5,47 @@ import { Label } from "@/components/ui/label";
 import { getPasswordStrength, isStrongPassword, PasswordStrengthIndicator } from "@/components/ui/password-strength";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
+import { useToast } from "@/hooks/use-toast";
+import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+// O GoogleLogin só funciona dentro do GoogleOAuthProvider (montado em main.tsx
+// quando VITE_CLIENT_ID existe). Sem o clientId, o botão não é renderizado.
+const hasGoogleClientId = Boolean(import.meta.env.VITE_CLIENT_ID);
+
+function GoogleAuthButton({ onCredential }: { onCredential: (idToken: string) => void }) {
+  const { toast } = useToast();
+
+  if (!hasGoogleClientId) return null;
+
+  return (
+    <>
+      <div className="flex items-center gap-3 py-1">
+        <span className="h-px flex-1 bg-border" />
+        <span className="text-xs text-muted-foreground">ou</span>
+        <span className="h-px flex-1 bg-border" />
+      </div>
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={(credential) => {
+            if (credential.credential) onCredential(credential.credential);
+          }}
+          onError={() => toast({ title: "Erro ao entrar com Google", description: "Tente novamente.", variant: "destructive" })}
+          theme="outline"
+          size="large"
+          text="continue_with"
+          shape="rectangular"
+          locale="pt-BR"
+        />
+      </div>
+    </>
+  );
+}
+
 export default function Auth() {
-  const { isLoading, handleSignIn, handleSignUp } = useAuthForm();
+  const { isLoading, handleSignIn, handleGoogleSignIn, handleSignUp } = useAuthForm();
 
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [signupData, setSignupData] = useState({ lastName: "", firstName: "", email: "", password: "" });
@@ -97,6 +132,7 @@ export default function Auth() {
                   </Link>
                 </div>
               </form>
+              <GoogleAuthButton onCredential={handleGoogleSignIn} />
             </TabsContent>
 
             <TabsContent value="signup" className="space-y-4 mt-4">
@@ -173,6 +209,7 @@ export default function Auth() {
                   Criar Conta
                 </LoadingButton>
               </form>
+              <GoogleAuthButton onCredential={handleGoogleSignIn} />
             </TabsContent>
           </Tabs>
 

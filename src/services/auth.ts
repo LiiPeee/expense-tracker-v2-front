@@ -39,6 +39,19 @@ export async function signIn(input: SignInRequest): Promise<AuthResponse> {
   return postJson<AuthResponse>(`${BASE_URL}/Auth/SignIn`, input, "Email ou senha incorretos");
 }
 
+/**
+ * Login com Google. Envia o id_token (JWT OIDC obtido do GoogleLogin) ao backend.
+ *
+ * Contrato esperado do backend (a implementar):
+ *   POST /Auth/GoogleSignIn  body: { idToken: string }
+ *   - valida o id_token (assinatura + audience = VITE_CLIENT_ID),
+ *   - cria a conta já verificada/ativa se não existir (ou loga a existente por email),
+ *   - retorna { accessToken, refreshToken } (mesmo TokenResponseDto do SignIn).
+ */
+export async function signInWithGoogle(idToken: string): Promise<AuthResponse> {
+  return postJson<AuthResponse>(`${BASE_URL}/Auth/GoogleSignIn`, { idToken }, "Falha ao entrar com Google");
+}
+
 export async function logOut(): Promise<void> {
   const token = getAccessToken();
 
