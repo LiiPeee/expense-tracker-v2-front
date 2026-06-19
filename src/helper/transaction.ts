@@ -1,6 +1,8 @@
 import { Category } from "@/helper/category";
 import { Contact } from "@/helper/contact";
 
+export const TRANSACTION_TYPE = { EXPENSE: 1, INCOME: 2 } as const;
+
 export type PaidValue = "Sim" | "Não" | "";
 export type TransactionType = "Income" | "Expense";
 export type RecurrenceLabel = "Não" | "Semanal" | "Quinzenal" | "Mensal" | "-";
@@ -117,7 +119,7 @@ export function mapTransactionResponseToForm(transaction: TransactionResponse): 
     category: transaction.category?.name ?? "",
     subCategory: transaction.subCategory ?? "",
     amount: String(transaction.amount ?? ""),
-    type: transaction.typeTransaction === 1 ? "Expense" : "Income",
+    type: transaction.typeTransaction === TRANSACTION_TYPE.EXPENSE ? "Expense" : "Income",
     paid: transaction.paid === "true" ? "Sim" : transaction.paid === "false" ? "Não" : "",
     numberOfInstallment: transaction.numberOfInstallment ?? "",
     dateOfInstallment: transaction.dateOfInstallment ?? "",

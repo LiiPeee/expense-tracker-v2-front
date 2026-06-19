@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories";
+import { formatBRL } from "@/helper/utils";
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
@@ -14,8 +15,6 @@ import { useIncomeByCategory } from "@/hooks/transaction/use-income-by-category"
 import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
-
-const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 const Dashboard = () => {
   const {

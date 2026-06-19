@@ -1,8 +1,6 @@
+import { formatBRL } from "@/helper/utils";
 import { CategoryChartData } from "@/hooks/transaction/use-expense-by-category";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-
-const formatBRL = (value: number) =>
-  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 interface CustomTooltipProps {
   active?: boolean;
