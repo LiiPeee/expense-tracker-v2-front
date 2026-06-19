@@ -12,9 +12,8 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { BudgetLimit } from "@/helper/budget";
 import { formatBudgetMonthYear, getBudgetCategoryName } from "@/helper/budget";
+import { formatBRL } from "@/helper/utils";
 import { PiggyBank } from "lucide-react";
-
-const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 function parsePct(value: BudgetLimit["percentage"]): number | null {
   if (value == null || value === "") return null;

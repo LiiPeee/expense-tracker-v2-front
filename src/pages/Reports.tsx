@@ -4,12 +4,10 @@ import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getDefaultYearMonth, monthNames } from "@/helper/utils";
+import { formatBRL, getDefaultYearMonth, monthNames } from "@/helper/utils";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
 import { PieChart, RefreshCw } from "lucide-react";
 import { useState } from "react";
-
-const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => currentYear - i);

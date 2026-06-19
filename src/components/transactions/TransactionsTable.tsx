@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { TransactionResponse } from "@/helper/transaction";
+import { formatBRL } from "@/helper/utils";
 import { Pencil, Trash2 } from "lucide-react";
-
-const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 type TransactionsTableProps = {
   transactions: TransactionResponse[];
