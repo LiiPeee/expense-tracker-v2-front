@@ -39,6 +39,10 @@ export async function signIn(input: SignInRequest): Promise<AuthResponse> {
   return postJson<AuthResponse>(`${BASE_URL}/Auth/SignIn`, input, "Email ou senha incorretos");
 }
 
+export async function signInWithGoogle(idToken: string): Promise<AuthResponse> {
+  return postJson<AuthResponse>(`${BASE_URL}/Auth/SignInGoogle`, { idToken }, "Falha ao entrar com Google");
+}
+
 export async function logOut(): Promise<void> {
   const token = getAccessToken();
 
