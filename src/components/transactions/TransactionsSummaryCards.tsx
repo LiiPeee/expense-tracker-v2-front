@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatBRL } from "@/helper/utils";
 import { TrendingDown, TrendingUp } from "lucide-react";
-
-const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 type TransactionsSummaryCardsProps = {
   incomeMonthTotal: number;

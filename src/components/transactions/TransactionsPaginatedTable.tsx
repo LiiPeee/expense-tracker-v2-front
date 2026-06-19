@@ -10,10 +10,9 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { TransactionResponse } from "@/helper/transaction";
+import { TRANSACTION_TYPE, type TransactionResponse } from "@/helper/transaction";
+import { formatBRL } from "@/helper/utils";
 import { Pencil, ReceiptText, Trash2 } from "lucide-react";
-
-const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
 type TransactionsPaginatedTableProps = {
   transactions: TransactionResponse[];
@@ -32,7 +31,6 @@ export function TransactionsPaginatedTable({
   currentPage,
   totalPages,
   totalRecords,
-  pageSize,
   isLoading = false,
   onPageChange,
   onEdit,
@@ -90,10 +88,14 @@ export function TransactionsPaginatedTable({
                     <TableCell className="truncate">{transaction.description}</TableCell>
                     <TableCell className="truncate">{transaction.category?.name ?? "-"}</TableCell>
                     <TableCell className="truncate">
-                      {transaction.typeTransaction === 1 ? "Despesa" : transaction.typeTransaction === 2 ? "Receita" : "-"}
+                      {transaction.typeTransaction === TRANSACTION_TYPE.EXPENSE
+                        ? "Despesa"
+                        : transaction.typeTransaction === TRANSACTION_TYPE.INCOME
+                          ? "Receita"
+                          : "-"}
                     </TableCell>
                     <TableCell
-                      className={`text-right font-medium ${transaction.typeTransaction === 1 ? "text-destructive" : "text-success"}`}
+                      className={`text-right font-medium ${transaction.typeTransaction === TRANSACTION_TYPE.EXPENSE ? "text-destructive" : "text-success"}`}
                     >
                       {formatBRL(Number(transaction.amount) || 0)}
                     </TableCell>
@@ -135,8 +137,7 @@ export function TransactionsPaginatedTable({
             Pagina <span className="font-medium text-foreground">{currentPage}</span> de{" "}
             <span className="font-medium text-foreground">{totalPages}</span>
             <span className="ml-2">
-              (Total: <span className="font-medium text-foreground">{totalRecords}</span>, pageSize:{" "}
-              <span className="font-medium text-foreground">{pageSize}</span>)
+              (Total: <span className="font-medium text-foreground">{totalRecords}</span>)
             </span>
           </div>
 
