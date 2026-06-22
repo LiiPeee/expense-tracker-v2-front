@@ -87,7 +87,7 @@ export async function getTransactionsByTypeAndContactPaged(
   year: number,
   pageNumber: number,
 ): Promise<PagedTransactionsResponse> {
-  const url = `${BASE_URL}/Transaction/GetByContact?id=${encodeURIComponent(id)}&type=${encodeURIComponent(typeName)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
+  const url = `${BASE_URL}/Transaction/GetByContact?contactId=${encodeURIComponent(id)}&type=${encodeURIComponent(typeName)}&month=${encodeURIComponent(month)}&year=${encodeURIComponent(year)}&pageNumber=${encodeURIComponent(pageNumber)}`;
 
   const response = await authFetch(url);
   return readJsonOrThrow<PagedTransactionsResponse>(response, "Falha ao buscar transações por contato e tipo");

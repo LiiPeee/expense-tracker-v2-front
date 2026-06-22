@@ -16,7 +16,7 @@ export interface Contact {
 }
 
 export interface ContactRequest {
-  id?: string;
+  contactId?: string;
   name: string;
   email: string;
   phone: string;
@@ -59,7 +59,7 @@ export const contactFormDefaults: ContactForm = {
 
 export function mapContactFormToRequest(form: ContactForm, id?: number): ContactRequest {
   return {
-    id: id == null ? undefined : String(id),
+    contactId: id == null ? undefined : String(id),
     name: form.name.trim(),
     email: form.email.trim(),
     phone: form.phone.trim(),

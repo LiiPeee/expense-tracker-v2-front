@@ -37,7 +37,7 @@ describe("transaction service", () => {
     const result = await getTransactionsByTypeAndContactPaged("Expense", "12", 5, 2026, 1);
 
     expect(result).toEqual(payload);
-    expect(mockedAuthFetch).toHaveBeenCalledWith(`${BASE_URL}/Transaction/GetByContact?id=12&type=Expense&month=5&year=2026&pageNumber=1`);
+    expect(mockedAuthFetch).toHaveBeenCalledWith(`${BASE_URL}/Transaction/GetByContact?contactId=12&type=Expense&month=5&year=2026&pageNumber=1`);
   });
 
   it("throw mapped backend message when request fails with a known error", async () => {
@@ -68,7 +68,7 @@ describe("transaction service", () => {
         transactionName: "Internet",
         paid: true,
         contactName: "Contato A",
-        recurrence: 4,
+        recurrence: "MONTHLY",
         description: "Conta mensal",
         amount: 120,
         type: "Expense",
