@@ -1,7 +1,7 @@
-import { authFetch, BASE_URL, readJsonOrThrow } from "@/lib/api";
+import type { Category } from "@/helper/category";
+import { getJson } from "@/lib/api";
 
-export async function getAll() {
-  const response = await authFetch(`${BASE_URL}/Category/GetAll`);
-  const data = await readJsonOrThrow<unknown>(response, "Falha ao buscar categorias");
-  return Array.isArray(data) ? data : [];
+export async function getAll(): Promise<Category[]> {
+  const data = await getJson<unknown>("/Category/GetAll", undefined, "Falha ao buscar categorias");
+  return Array.isArray(data) ? (data as Category[]) : [];
 }
