@@ -1,14 +1,16 @@
-import { LoadingButton } from "@/components/ui/loading-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { getPasswordStrength, isStrongPassword, PasswordStrengthIndicator } from "@/components/ui/password-strength";
+import { Form } from "@/components/ui/form";
+import { FormTextField } from "@/components/ui/form-text-field";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { PasswordField } from "@/components/ui/password-field";
+import { PasswordStrengthIndicator } from "@/components/ui/password-strength";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { loginSchema, type SignInRequest, type SignUpRequest, signUpSchema } from "@/helper/auth";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
 import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { GoogleLogin } from "@react-oauth/google";
-import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
 // O GoogleLogin só funciona dentro do GoogleOAuthProvider (montado em main.tsx
@@ -45,25 +47,18 @@ function GoogleAuthButton({ onCredential }: { onCredential: (idToken: string) =>
 }
 
 export default function Auth() {
-  const { isLoading, handleSignIn, handleGoogleSignIn, handleSignUp } = useAuthForm();
+  const { handleSignIn, handleGoogleSignIn, handleSignUp } = useAuthForm();
 
-  const [loginData, setLoginData] = useState({ email: "", password: "" });
-  const [signupData, setSignupData] = useState({ lastName: "", firstName: "", email: "", password: "" });
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const loginForm = useForm<SignInRequest>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+  const signupForm = useForm<SignUpRequest>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: { firstName: "", lastName: "", email: "", password: "" },
+  });
 
-  const signupPasswordStrength = getPasswordStrength(signupData.password);
-  const isSignupPasswordValid = isStrongPassword(signupPasswordStrength);
-
-  const onLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSignIn(loginData);
-  };
-
-  const onSignupSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSignUp(signupData);
-  };
+  const signupPassword = signupForm.watch("password");
 
   return (
     <div className="page-shell relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
@@ -86,129 +81,41 @@ export default function Auth() {
             </TabsList>
 
             <TabsContent value="login" className="space-y-4 mt-4">
-              <form onSubmit={onLoginSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="login-email">Email</Label>
-                  <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={loginData.email}
-                    onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="login-password">Senha</Label>
-                  <div className="relative">
-                    <Input
-                      id="login-password"
-                      type={showLoginPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={loginData.password}
-                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                      required
-                      disabled={isLoading}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowLoginPassword(!showLoginPassword)}
-                      aria-label={showLoginPassword ? "Ocultar senha" : "Mostrar senha"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      disabled={isLoading}
-                    >
-                      {showLoginPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+              <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(handleSignIn)} className="space-y-4">
+                  <FormTextField control={loginForm.control} name="email" label="Email" type="email" placeholder="seu@email.com" />
+
+                  <PasswordField control={loginForm.control} name="password" label="Senha" placeholder="••••••••" />
+
+                  <LoadingButton type="submit" className="w-full rounded-xl" isLoading={loginForm.formState.isSubmitting} loadingText="Entrando...">
+                    Entrar
+                  </LoadingButton>
+                  <div className="text-center">
+                    <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                      Esqueceu sua senha?
+                    </Link>
                   </div>
-                </div>
-                <LoadingButton type="submit" className="w-full rounded-xl" isLoading={isLoading} loadingText="Entrando...">
-                  Entrar
-                </LoadingButton>
-                <div className="text-center">
-                  <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    Esqueceu sua senha?
-                  </Link>
-                </div>
-              </form>
+                </form>
+              </Form>
               <GoogleAuthButton onCredential={handleGoogleSignIn} />
             </TabsContent>
 
             <TabsContent value="signup" className="space-y-4 mt-4">
-              <form onSubmit={onSignupSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Nome</Label>
-                  <Input
-                    id="signup-name"
-                    type="text"
-                    placeholder="Seu nome"
-                    value={signupData.firstName}
-                    onChange={(e) => setSignupData({ ...signupData, firstName: e.target.value })}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-lastname">Sobrenome</Label>
-                  <Input
-                    id="signup-lastname"
-                    type="text"
-                    placeholder="Seu sobrenome"
-                    value={signupData.lastName}
-                    onChange={(e) => setSignupData({ ...signupData, lastName: e.target.value })}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={signupData.email}
-                    onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Senha</Label>
-                  <div className="relative">
-                    <Input
-                      id="signup-password"
-                      type={showSignupPassword ? "text" : "password"}
-                      placeholder="Mínimo 8 caracteres"
-                      value={signupData.password}
-                      onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
-                      required
-                      minLength={8}
-                      disabled={isLoading}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSignupPassword(!showSignupPassword)}
-                      aria-label={showSignupPassword ? "Ocultar senha" : "Mostrar senha"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      disabled={isLoading}
-                    >
-                      {showSignupPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <PasswordStrengthIndicator password={signupData.password} />
-                </div>
-                <LoadingButton
-                  type="submit"
-                  className="w-full rounded-xl"
-                  isLoading={isLoading}
-                  loadingText="Criando conta..."
-                  disabled={!isSignupPasswordValid}
-                >
-                  Criar Conta
-                </LoadingButton>
-              </form>
+              <Form {...signupForm}>
+                <form onSubmit={signupForm.handleSubmit(handleSignUp)} className="space-y-4">
+                  <FormTextField control={signupForm.control} name="firstName" label="Nome" placeholder="Seu nome" />
+                  <FormTextField control={signupForm.control} name="lastName" label="Sobrenome" placeholder="Seu sobrenome" />
+                  <FormTextField control={signupForm.control} name="email" label="Email" type="email" placeholder="seu@email.com" />
+
+                  <PasswordField control={signupForm.control} name="password" label="Senha" placeholder="Mínimo 8 caracteres">
+                    <PasswordStrengthIndicator password={signupPassword} />
+                  </PasswordField>
+
+                  <LoadingButton type="submit" className="w-full rounded-xl" isLoading={signupForm.formState.isSubmitting} loadingText="Criando conta...">
+                    Criar Conta
+                  </LoadingButton>
+                </form>
+              </Form>
               <GoogleAuthButton onCredential={handleGoogleSignIn} />
             </TabsContent>
           </Tabs>
@@ -221,5 +128,3 @@ export default function Auth() {
     </div>
   );
 }
-
-
