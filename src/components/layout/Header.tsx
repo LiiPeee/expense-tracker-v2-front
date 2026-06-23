@@ -6,10 +6,6 @@ import { BarChart2, LayoutDashboard, List, LogOut, Menu, PiggyBank, Users } from
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
-interface HeaderProps {
-  user?: { email?: string } | string | null;
-}
-
 const NAV_ITEMS = [
   { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { to: "/transactions-list", icon: List, label: "Transações" },
@@ -18,7 +14,7 @@ const NAV_ITEMS = [
   { to: "/reports", icon: BarChart2, label: "Relatórios" },
 ];
 
-export const Header = ({ user: _user }: HeaderProps) => {
+export const Header = () => {
   const { handleLogOut, isLoading } = useAuthForm();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);

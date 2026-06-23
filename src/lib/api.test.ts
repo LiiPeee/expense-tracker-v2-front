@@ -1,4 +1,4 @@
-import { BASE_URL, del, getJson, postJson, postVoid } from "@/lib/api";
+import { authFetch, BASE_URL, del, getAccessToken, getJson, getRefreshToken, postJson, postVoid } from "@/lib/api";
 import { createJsonResponse } from "@/test/response";
 
 const okJson = <T>(data: T): Response => createJsonResponse(data);
@@ -66,5 +66,73 @@ describe("api transport", () => {
     fetchMock.mockResolvedValueOnce(errJson({}, 500));
 
     await expect(postVoid("/Sample/Create", { name: "x" }, { fallback: "Falha custom" })).rejects.toThrow("Falha custom");
+  });
+});
+
+describe("authFetch reactive token refresh", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    vi.stubGlobal("fetch", fetchMock);
+    fetchMock.mockReset();
+    sessionStorage.setItem("accessToken", "expired-access");
+    sessionStorage.setItem("refreshToken", "stored-refresh");
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    sessionStorage.clear();
+  });
+
+  it("on 401 refreshes once, stores the new pair, and retries the original request", async () => {
+    let protectedHits = 0;
+    fetchMock.mockImplementation((url: string) => {
+      if (url.includes("/Auth/RefreshToken")) {
+        return Promise.resolve(createJsonResponse({ accessToken: "new-access", refreshToken: "new-refresh" }));
+      }
+      protectedHits += 1;
+      // First protected hit is 401, the retry succeeds.
+      return Promise.resolve(protectedHits === 1 ? createJsonResponse({}, false, 401) : createJsonResponse({ ok: true }));
+    });
+
+    const response = await authFetch(`${BASE_URL}/Protected/Get`);
+
+    expect(response.ok).toBe(true);
+    expect(getAccessToken()).toBe("new-access");
+    expect(getRefreshToken()).toBe("new-refresh");
+    const refreshCalls = fetchMock.mock.calls.filter((c) => String(c[0]).includes("/Auth/RefreshToken"));
+    expect(refreshCalls).toHaveLength(1);
+  });
+
+  it("clears auth when refresh fails", async () => {
+    fetchMock.mockImplementation((url: string) => {
+      if (url.includes("/Auth/RefreshToken")) return Promise.resolve(createJsonResponse({}, false, 401));
+      return Promise.resolve(createJsonResponse({}, false, 401));
+    });
+
+    const response = await authFetch(`${BASE_URL}/Protected/Get`);
+
+    expect(response.status).toBe(401);
+    expect(getAccessToken()).toBeNull();
+    expect(getRefreshToken()).toBeNull();
+  });
+
+  it("shares a single refresh across concurrent 401s (token rotation safe)", async () => {
+    let protectedHits = 0;
+    fetchMock.mockImplementation((url: string) => {
+      if (url.includes("/Auth/RefreshToken")) {
+        return Promise.resolve(createJsonResponse({ accessToken: "new-access", refreshToken: "new-refresh" }));
+      }
+      protectedHits += 1;
+      // First two concurrent hits 401; their retries succeed.
+      return Promise.resolve(protectedHits <= 2 ? createJsonResponse({}, false, 401) : createJsonResponse({ ok: true }));
+    });
+
+    const [a, b] = await Promise.all([authFetch(`${BASE_URL}/Protected/A`), authFetch(`${BASE_URL}/Protected/B`)]);
+
+    expect(a.ok).toBe(true);
+    expect(b.ok).toBe(true);
+    const refreshCalls = fetchMock.mock.calls.filter((c) => String(c[0]).includes("/Auth/RefreshToken"));
+    expect(refreshCalls).toHaveLength(1);
   });
 });

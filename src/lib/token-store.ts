@@ -1,25 +1,30 @@
 /**
- * Fonte única do token de autenticação.
+ * Fonte única dos tokens de autenticação.
  *
- * O accessToken fica em sessionStorage: sobrevive ao F5 (reload), mas some ao
- * fechar a aba — não persiste indefinidamente como o localStorage. Reduz a
- * janela/superfície de exposição (nenhuma abordagem só-front é imune a XSS).
+ * accessToken e refreshToken ficam em sessionStorage: sobrevivem ao F5 (reload),
+ * mas somem ao fechar a aba — não persistem indefinidamente como o localStorage.
+ * Reduz a janela/superfície de exposição (nenhuma abordagem só-front é imune a XSS).
  *
- * Não usamos refresh token: o endpoint de refresh do backend exige um
- * accessToken válido no header, o que o torna inviável após o reload — então
- * não há ganho em persistir o refreshToken.
+ * O refreshToken é persistido para o refresh reativo: ao receber 401, o front
+ * chama POST /Auth/RefreshToken com o accessToken (mesmo expirado) no header e o
+ * refreshToken no corpo, recebendo um novo par (o backend faz rotação do token).
  */
 import type { AuthResponse } from "@/helper/auth";
 
 const ACCESS_TOKEN_KEY = "accessToken";
+const REFRESH_TOKEN_KEY = "refreshToken";
 
 // Chaves legadas — limpas defensivamente (sessões anteriores guardavam tokens
-// no localStorage e o refreshToken/user no sessionStorage).
+// no localStorage e o user no sessionStorage).
 const LEGACY_LOCALSTORAGE_KEYS = ["accessToken", "refreshToken", "user", "auth"] as const;
-const LEGACY_SESSIONSTORAGE_KEYS = ["refreshToken", "user"] as const;
+const LEGACY_SESSIONSTORAGE_KEYS = ["user"] as const;
 
 export function getAccessToken(): string | null {
   return sessionStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+export function getRefreshToken(): string | null {
+  return sessionStorage.getItem(REFRESH_TOKEN_KEY);
 }
 
 export function setAccessToken(token: string | null): void {
@@ -30,14 +35,24 @@ export function setAccessToken(token: string | null): void {
   sessionStorage.setItem(ACCESS_TOKEN_KEY, token);
 }
 
-/** Persiste a sessão recém-obtida no login. */
-export function setSession(auth: AuthResponse): void {
-  setAccessToken(auth.accessToken);
+function setRefreshToken(token: string | null): void {
+  if (token == null) {
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+    return;
+  }
+  sessionStorage.setItem(REFRESH_TOKEN_KEY, token);
 }
 
-/** Limpa a sessão: accessToken + resíduos legados de session/localStorage. */
+/** Persiste a sessão recém-obtida (login ou rotação de refresh): accessToken + refreshToken. */
+export function setSession(auth: AuthResponse): void {
+  setAccessToken(auth.accessToken);
+  setRefreshToken(auth.refreshToken ?? null);
+}
+
+/** Limpa a sessão: accessToken + refreshToken + resíduos legados de session/localStorage. */
 export function clearAuth(): void {
   sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+  sessionStorage.removeItem(REFRESH_TOKEN_KEY);
   for (const key of LEGACY_SESSIONSTORAGE_KEYS) {
     sessionStorage.removeItem(key);
   }

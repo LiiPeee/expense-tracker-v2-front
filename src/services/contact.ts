@@ -15,5 +15,6 @@ export async function editContact(input: ContactRequest): Promise<void> {
 }
 
 export async function deleteContact(id: number): Promise<void> {
-  await del("/Contact/DeleteContact", { id }, "Falha ao excluir contato");
+  // Backend binds the query param as `contactId` (not `id`).
+  await del("/Contact/DeleteContact", { contactId: id }, "Falha ao excluir contato");
 }

@@ -14,18 +14,13 @@ describe("transaction service", () => {
     vi.unstubAllGlobals();
   });
 
-  it("request transactions by contact and type with id", async () => {
-    const payload = {
-      pageNumber: 1,
-      pageSize: 10,
-      totalRecords: 0,
-      items: [],
-    };
-    fetchMock.mockResolvedValueOnce(createJsonResponse(payload));
+  it("wraps the backend contact list into a single synthetic page", async () => {
+    const items = [{ id: 1 }, { id: 2 }];
+    fetchMock.mockResolvedValueOnce(createJsonResponse(items));
 
     const result = await getTransactionsByTypeAndContactPaged("Expense", "12", 5, 2026, 1);
 
-    expect(result).toEqual(payload);
+    expect(result).toEqual({ pageNumber: 1, pageSize: 2, totalRecords: 2, items });
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe(`${BASE_URL}/Transaction/GetByContact?contactId=12&type=Expense&month=5&year=2026&pageNumber=1`);
   });

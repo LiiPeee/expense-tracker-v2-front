@@ -29,7 +29,7 @@ const Reports = () => {
 
   return (
     <div className="page-shell">
-      <Header user={null} />
+      <Header />
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="mb-8 rounded-3xl border border-glass bg-card/70 backdrop-blur-md px-6 py-6 shadow-medium reveal-up">
           <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Relatórios</h2>
