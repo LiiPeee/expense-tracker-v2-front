@@ -116,4 +116,19 @@ describe("budgets page flows", () => {
     expect(screen.getByLabelText("Limite")).toBeInTheDocument();
     expect(mockedCreateBudgetLimit).not.toHaveBeenCalled();
   });
+
+  it("shows inline validation errors and blocks submit when required fields are empty", async () => {
+    renderWithProviders(<Budgets />);
+
+    await waitFor(() => {
+      expect(mockedGetBudgetLimitsByAccountPage).toHaveBeenCalledWith(1);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Novo Orçamento" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Criar" }));
+
+    expect(await screen.findByText("Categoria é obrigatória")).toBeInTheDocument();
+    expect(await screen.findByText("Limite deve ser maior que zero")).toBeInTheDocument();
+    expect(mockedCreateBudgetLimit).not.toHaveBeenCalled();
+  });
 });

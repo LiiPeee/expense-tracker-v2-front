@@ -10,25 +10,14 @@ import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { useTransactionsList } from "@/hooks/transaction/use-get-transactions";
 import { useTransactionFilters } from "@/hooks/transaction/use-transaction-filters";
+import type { TransactionForm } from "@/helper/transaction";
 import { useQueryClient } from "@tanstack/react-query";
-import { type FormEvent } from "react";
 import { toast } from "sonner";
 
 const TransactionsList = () => {
   const queryClient = useQueryClient();
 
-  const {
-    handleDelete,
-    handleEdit,
-    handleDialogClose,
-    handleSubmit,
-    setIsDialogOpen,
-    setFormData,
-    editingTransaction,
-    isDialogOpen,
-    isSubmitting,
-    formData,
-  } = useTransaction();
+  const { handleDelete, handleEdit, submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } = useTransaction();
 
   const { contacts, getAllContact } = useContact();
 
@@ -82,8 +71,8 @@ const TransactionsList = () => {
     void queryClient.invalidateQueries({ queryKey: ["transactions"] });
   };
 
-  const handleSubmitAndRefresh = async (e: FormEvent) => {
-    await handleSubmit(e);
+  const handleSubmitAndRefresh = async (data: TransactionForm) => {
+    await submitTransaction(data);
     resetToFirstPage();
   };
 
@@ -100,18 +89,13 @@ const TransactionsList = () => {
 
           <TransactionFormDialog
             open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onPrepareNew={() => {
-              handleDialogClose();
-              void getAllContact();
-            }}
+            onOpenChange={onOpenChange}
+            onPrepareNew={() => void getAllContact()}
             onSubmit={handleSubmitAndRefresh}
             contacts={contacts}
-            formData={formData}
-            setFormData={setFormData}
             editingTransaction={editingTransaction}
+            defaultValues={transactionDefaults}
             categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
-            isSubmitting={isSubmitting}
           />
         </div>
 

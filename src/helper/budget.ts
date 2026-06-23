@@ -1,5 +1,6 @@
 import type { Category } from "@/helper/category";
 import { getDefaultYearMonth, monthNames } from "@/helper/utils";
+import { z } from "zod";
 
 export interface BudgetLimit {
   id?: number;
@@ -54,19 +55,22 @@ export function mapBudgetFormToRequest(form: BudgetLimitForm): CreateBudgetLimit
   };
 }
 
-export function validateBudgetForm(form: BudgetLimitForm): string[] {
-  const errors: string[] = [];
-  const month = Number(form.month);
-  const year = Number(form.year);
-  const amount = Number.parseFloat(form.limitAmount.replace(",", "."));
-
-  if (!form.categoryName.trim()) errors.push("Categoria é obrigatória");
-  if (!Number.isInteger(month) || month < 1 || month > 12) errors.push("Mês inválido");
-  if (!Number.isInteger(year) || year < 2000) errors.push("Ano inválido");
-  if (!Number.isFinite(amount) || amount <= 0) errors.push("Limite deve ser maior que zero");
-
-  return errors;
-}
+// Mirrors the previous validateBudgetForm rules exactly — now surfaced inline via RHF.
+export const budgetFormSchema = z.object({
+  categoryName: z.string().trim().min(1, "Categoria é obrigatória"),
+  month: z.string().refine((value) => {
+    const month = Number(value);
+    return Number.isInteger(month) && month >= 1 && month <= 12;
+  }, "Mês inválido"),
+  year: z.string().refine((value) => {
+    const year = Number(value);
+    return Number.isInteger(year) && year >= 2000;
+  }, "Ano inválido"),
+  limitAmount: z.string().refine((value) => {
+    const amount = Number.parseFloat(value.replace(",", "."));
+    return Number.isFinite(amount) && amount > 0;
+  }, "Limite deve ser maior que zero"),
+});
 
 export function getBudgetCategoryName(budget: BudgetLimit): string {
   return budget.category?.name?.trim() || "Sem categoria";

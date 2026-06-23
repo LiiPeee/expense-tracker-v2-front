@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories";
+import type { TransactionForm } from "@/helper/transaction";
 import { formatBRL } from "@/helper/utils";
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
@@ -13,7 +14,6 @@ import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-categor
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { useIncomeByCategory } from "@/hooks/transaction/use-income-by-category";
 import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
-import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
@@ -39,8 +39,7 @@ const Dashboard = () => {
     refetch: refetchIncomeChart,
   } = useIncomeByCategory();
 
-  const { handleDialogClose, handleSubmit, setIsDialogOpen, setFormData, editingTransaction, isDialogOpen, isSubmitting, formData } =
-    useTransaction();
+  const { submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } = useTransaction();
   const { contacts, getAllContact } = useContact();
 
   const isRefreshing = isRefreshingSummary || isLoadingChart || isLoadingIncomeChart;
@@ -49,8 +48,8 @@ const Dashboard = () => {
     await Promise.all([refetchSummary(), refetchExpenseChart(), refetchIncomeChart()]);
   }
 
-  async function handleSubmitAndRefresh(event: FormEvent) {
-    await handleSubmit(event);
+  async function handleSubmitAndRefresh(data: TransactionForm) {
+    await submitTransaction(data);
     void handleRefresh();
   }
 
@@ -66,18 +65,13 @@ const Dashboard = () => {
 
           <TransactionFormDialog
             open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onPrepareNew={() => {
-              handleDialogClose();
-              void getAllContact();
-            }}
+            onOpenChange={onOpenChange}
+            onPrepareNew={() => void getAllContact()}
             onSubmit={handleSubmitAndRefresh}
             contacts={contacts}
-            formData={formData}
-            setFormData={setFormData}
             editingTransaction={editingTransaction}
+            defaultValues={transactionDefaults}
             categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
-            isSubmitting={isSubmitting}
           />
         </div>
 

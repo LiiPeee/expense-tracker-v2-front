@@ -12,18 +12,14 @@ import { Inbox, Pencil, Trash2 } from "lucide-react";
 const Contacts = () => {
   const {
     editingContact,
-    formData,
+    contactDefaults,
     isDialogOpen,
-    isSubmitting,
     isRefreshing,
     contacts,
-    setIsDialogOpen,
+    onOpenChange,
     getAllContact,
     handleEdit,
-    handleSubmit,
-    handleZipCodeBlur,
-    handleDialogClose,
-    setFormData,
+    submitContact,
     handleDelete,
   } = useContact();
 
@@ -40,14 +36,10 @@ const Contacts = () => {
 
           <ContactFormDialog
             editingContact={editingContact}
-            formData={formData}
             isDialogOpen={isDialogOpen}
-            setIsDialogOpen={setIsDialogOpen}
-            handleSubmit={handleSubmit}
-            handleDialogClose={handleDialogClose}
-            handleZipCodeBlur={handleZipCodeBlur}
-            setFormData={setFormData}
-            isSubmitting={isSubmitting}
+            onOpenChange={onOpenChange}
+            defaultValues={contactDefaults}
+            onSubmit={submitContact}
           />
         </div>
 

@@ -1,5 +1,6 @@
 import { Category } from "@/helper/category";
 import { Contact } from "@/helper/contact";
+import { z } from "zod";
 
 export const TRANSACTION_TYPE = { EXPENSE: 1, INCOME: 2 } as const;
 
@@ -102,18 +103,23 @@ export function mapTransactionFormToRequest(form: TransactionForm): TransactionR
   };
 }
 
-export function validateTransactionForm(form: TransactionForm): string[] {
-  const errors: string[] = [];
-
-  if (!form.transactionName.trim()) errors.push("Nome da transação é obrigatório");
-  if (!form.category.trim()) errors.push("Categoria é obrigatória");
-  if (!form.amount.trim() || Number.isNaN(Number(form.amount))) errors.push("Valor inválido");
-  if (!form.contactName.trim()) errors.push("Contato é obrigatório");
-  if (!form.recurrence) errors.push("Recorrência é obrigatória");
-  if (!form.paid) errors.push("Status de pagamento é obrigatório");
-
-  return errors;
-}
+// Mirrors the previous validateTransactionForm rules exactly — surfaced inline via RHF.
+// Unvalidated fields are kept in the schema as passthrough so RHF doesn't strip them from the submit payload.
+export const transactionFormSchema = z.object({
+  id: z.number(),
+  transactionName: z.string().trim().min(1, "Nome da transação é obrigatório"),
+  subCategory: z.string(),
+  numberOfInstallment: z.string(),
+  dateOfInstallment: z.string(),
+  paid: z.enum(["", "Sim", "Não"]).refine((value) => value !== "", "Status de pagamento é obrigatório"),
+  contactName: z.string().trim().min(1, "Contato é obrigatório"),
+  recurrence: z.string().min(1, "Recorrência é obrigatória"),
+  description: z.string(),
+  amount: z.string().refine((value) => value.trim() !== "" && !Number.isNaN(Number(value)), "Valor inválido"),
+  type: z.enum(["Income", "Expense"]),
+  category: z.string().trim().min(1, "Categoria é obrigatória"),
+  date: z.string().optional(),
+});
 
 export function mapTransactionResponseToForm(transaction: TransactionResponse): TransactionForm {
   return {

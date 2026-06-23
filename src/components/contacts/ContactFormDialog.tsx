@@ -1,45 +1,58 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { FormTextField } from "@/components/ui/form-text-field";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import type { ContactForm, ContactTypeValue } from "@/helper/contact";
+import { type ContactForm, contactFormSchema } from "@/helper/contact";
+import { useCepLookup } from "@/hooks/contact/use-cep";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 interface ContactFormDialogProps {
   editingContact: boolean;
-  formData: ContactForm;
   isDialogOpen: boolean;
-  setIsDialogOpen: (open: boolean) => void;
-  handleSubmit: (e: React.FormEvent) => void;
-  handleDialogClose: () => void;
-  handleZipCodeBlur: () => void;
-  setFormData: (data: ContactForm) => void;
-  isSubmitting?: boolean;
+  onOpenChange: (open: boolean) => void;
+  defaultValues: ContactForm;
+  onSubmit: (data: ContactForm) => Promise<void> | void;
 }
 
-export function ContactFormDialog({
-  editingContact,
-  formData,
-  isDialogOpen,
-  setIsDialogOpen,
-  handleSubmit,
-  handleDialogClose,
-  handleZipCodeBlur,
-  setFormData,
-  isSubmitting = false,
-}: ContactFormDialogProps) {
+export function ContactFormDialog({ editingContact, isDialogOpen, onOpenChange, defaultValues, onSubmit }: ContactFormDialogProps) {
+  const { lookupCep } = useCepLookup();
+  const form = useForm<ContactForm>({
+    resolver: zodResolver(contactFormSchema),
+    defaultValues,
+  });
+  const { isSubmitting } = form.formState;
+
+  useEffect(() => {
+    if (isDialogOpen) form.reset(defaultValues);
+  }, [isDialogOpen, defaultValues, form]);
+
   const handleOpenChange = (next: boolean) => {
     if (isSubmitting) return;
-    setIsDialogOpen(next);
+    onOpenChange(next);
+  };
+
+  // Auto-fill address from the CEP, but never overwrite fields the user already filled.
+  const handleZipBlur = async () => {
+    const address = await lookupCep(form.getValues("zipCode"));
+    if (!address) return;
+
+    const current = form.getValues();
+    if (!current.street) form.setValue("street", address.street, { shouldValidate: true });
+    if (!current.city) form.setValue("city", address.city, { shouldValidate: true });
+    if (!current.state) form.setValue("state", address.state, { shouldValidate: true });
+    if (!current.country) form.setValue("country", "Brasil", { shouldValidate: true });
   };
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="gap-2 rounded-xl" onClick={handleDialogClose}>
+        <Button className="gap-2 rounded-xl">
           <Plus className="w-4 h-4" />
           Novo Contato
         </Button>
@@ -48,128 +61,61 @@ export function ContactFormDialog({
         <DialogHeader>
           <DialogTitle>{editingContact ? "Editar Contato" : "Novo Contato"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="space-y-4 overflow-y-auto flex-1 pr-1">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Ex: João Silva"
-                required
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
+            <div className="space-y-4 overflow-y-auto flex-1 pr-1">
+              <FormTextField control={form.control} name="name" label="Nome" placeholder="Ex: João Silva" />
+              <FormTextField control={form.control} name="email" label="E-mail" type="email" placeholder="Ex: joao@email.com" />
+              <FormTextField control={form.control} name="phone" label="Telefone" placeholder="Ex: (11) 99999-9999" />
+              <FormTextField control={form.control} name="document" label="Documento" placeholder="Ex: 111.555.333-14" />
+
+              <FormField
+                control={form.control}
+                name="typeContact"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de Contato</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione tipo de contato" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="1">Pessoal</SelectItem>
+                        <SelectItem value="2">Empresa</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormTextField control={form.control} name="street" label="Rua" placeholder="Ex: Avenida Paulista" />
+              <FormTextField control={form.control} name="city" label="Cidade" placeholder="Ex: Sao Paulo" />
+              <FormTextField control={form.control} name="state" label="Estado" placeholder="Ex: SP" />
+              <FormTextField control={form.control} name="zipCode" label="CEP" placeholder="Ex: 01311-000" onBlur={() => void handleZipBlur()} />
+              <FormTextField control={form.control} name="country" label="País" placeholder="Ex: Brasil" />
+
+              <FormField
+                control={form.control}
+                name="isPrimary"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between rounded-md border px-3 py-2 space-y-0">
+                    <FormLabel>Contato principal</FormLabel>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="Ex: joao@email.com"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telefone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="Ex: (11) 99999-9999"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="document">Documento</Label>
-              <Input
-                id="document"
-                value={formData.document}
-                onChange={(e) => setFormData({ ...formData, document: e.target.value })}
-                placeholder="Ex: 111.555.333-14"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="typeContact">Tipo de Contato</Label>
-              <Select
-                value={formData.typeContact}
-                onValueChange={(value) => setFormData({ ...formData, typeContact: value as ContactTypeValue })}
-              >
-                <SelectTrigger id="typeContact">
-                  <SelectValue placeholder="Selecione tipo de contato" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Pessoal</SelectItem>
-                  <SelectItem value="2">Empresa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="street">Rua</Label>
-              <Input
-                id="street"
-                value={formData.street}
-                onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                placeholder="Ex: Avenida Paulista"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="city">Cidade</Label>
-              <Input
-                id="city"
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                placeholder="Ex: Sao Paulo"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="state">Estado</Label>
-              <Input
-                id="state"
-                value={formData.state}
-                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                placeholder="Ex: SP"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="zipCode">CEP</Label>
-              <Input
-                id="zipCode"
-                value={formData.zipCode}
-                onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                onBlur={handleZipCodeBlur}
-                placeholder="Ex: 01311-000"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="country">País</Label>
-              <Input
-                id="country"
-                value={formData.country}
-                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                placeholder="Ex: Brasil"
-                required
-              />
-            </div>
-            <div className="flex items-center justify-between rounded-md border px-3 py-2">
-              <Label htmlFor="isPrimary">Contato principal</Label>
-              <Switch
-                id="isPrimary"
-                checked={formData.isPrimary}
-                onCheckedChange={(value) => setFormData({ ...formData, isPrimary: value })}
-              />
-            </div>
-          </div>
-          <LoadingButton type="submit" className="w-full rounded-xl mt-4" isLoading={isSubmitting} loadingText="Salvando...">
-            {editingContact ? "Atualizar" : "Criar"}
-          </LoadingButton>
-        </form>
+            <LoadingButton type="submit" className="w-full rounded-xl mt-4" isLoading={isSubmitting} loadingText="Salvando...">
+              {editingContact ? "Atualizar" : "Criar"}
+            </LoadingButton>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
