@@ -37,7 +37,7 @@ const Budgets = () => {
 
   return (
     <div className="page-shell">
-      <Header user={null} />
+      <Header />
 
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="mb-8 flex items-center justify-between">

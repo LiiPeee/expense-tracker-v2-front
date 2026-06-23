@@ -1,4 +1,4 @@
-import { PagedTransactionsResponse, TransactionRequest } from "@/helper/transaction";
+import { PagedTransactionsResponse, TransactionRequest, TransactionResponse } from "@/helper/transaction";
 import { getDefaultYearMonth } from "@/helper/utils";
 import { del, getJson, postVoid } from "@/lib/api";
 
@@ -66,11 +66,15 @@ export async function getTransactionsByTypeAndContactPaged(
   year: number,
   pageNumber: number,
 ): Promise<PagedTransactionsResponse> {
-  return getJson<PagedTransactionsResponse>(
+  // Backend returns a bare list (no paging wrapper) for this endpoint, so we wrap it
+  // into a single synthetic page to keep the paged contract the hook/UI expect.
+  const items = await getJson<TransactionResponse[]>(
     "/Transaction/GetByContact",
     { contactId: id, type: typeName, month, year, pageNumber },
     "Falha ao buscar transações por contato e tipo",
   );
+  const list = Array.isArray(items) ? items : [];
+  return { pageNumber: 1, pageSize: Math.max(list.length, 1), totalRecords: list.length, items: list };
 }
 
 export async function deleteTransactions(id: number): Promise<void> {
