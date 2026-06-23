@@ -1,35 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { FormTextField } from "@/components/ui/form-text-field";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { BudgetLimitForm } from "@/helper/budget";
+import { budgetFormDefaults, budgetFormSchema, type BudgetLimitForm } from "@/helper/budget";
 import { monthNames } from "@/helper/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
-import type { Dispatch, FormEvent, SetStateAction } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
 
 type BudgetFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onPrepareNew: () => void;
-  onSubmit: (event: FormEvent) => Promise<void> | void;
-  formData: BudgetLimitForm;
-  setFormData: Dispatch<SetStateAction<BudgetLimitForm>>;
+  onSubmit: (data: BudgetLimitForm) => Promise<void> | void;
   categoryOptions: readonly string[];
-  isSubmitting?: boolean;
 };
 
-export function BudgetFormDialog({
-  open,
-  onOpenChange,
-  onPrepareNew,
-  onSubmit,
-  formData,
-  setFormData,
-  categoryOptions,
-  isSubmitting = false,
-}: BudgetFormDialogProps) {
+export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions }: BudgetFormDialogProps) {
+  const form = useForm<BudgetLimitForm>({
+    resolver: zodResolver(budgetFormSchema),
+    defaultValues: budgetFormDefaults,
+  });
+  const { isSubmitting } = form.formState;
+
+  useEffect(() => {
+    if (open) form.reset(budgetFormDefaults);
+  }, [open, form]);
+
   const handleOpenChange = (next: boolean) => {
     if (isSubmitting) return;
     onOpenChange(next);
@@ -38,7 +37,7 @@ export function BudgetFormDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="gap-2 rounded-xl" onClick={onPrepareNew}>
+        <Button className="gap-2 rounded-xl">
           <Plus className="h-4 w-4" />
           Novo Orçamento
         </Button>
@@ -50,73 +49,69 @@ export function BudgetFormDialog({
           <DialogDescription>Defina um limite por categoria para acompanhar o orçamento da conta atual.</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="budget-category">Categoria</Label>
-            <Select value={formData.categoryName} onValueChange={(value) => setFormData((current) => ({ ...current, categoryName: value }))}>
-              <SelectTrigger id="budget-category">
-                <SelectValue placeholder="Selecione a categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {categoryOptions.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="budget-month">Mês</Label>
-              <Select value={formData.month} onValueChange={(value) => setFormData((current) => ({ ...current, month: value }))}>
-                <SelectTrigger id="budget-month">
-                  <SelectValue placeholder="Selecione o mês" />
-                </SelectTrigger>
-                <SelectContent>
-                  {monthNames.map((monthLabel, index) => (
-                    <SelectItem key={monthLabel} value={String(index + 1)}>
-                      {monthLabel}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="budget-year">Ano</Label>
-              <Input
-                id="budget-year"
-                type="number"
-                min="2000"
-                step="1"
-                value={formData.year}
-                onChange={(event) => setFormData((current) => ({ ...current, year: event.target.value }))}
-                placeholder="Ex: 2026"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="budget-limit-amount">Limite</Label>
-            <Input
-              id="budget-limit-amount"
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.limitAmount}
-              onChange={(event) => setFormData((current) => ({ ...current, limitAmount: event.target.value }))}
-              placeholder="Ex: 1500.00"
-              required
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="categoryName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categoria</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a categoria" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categoryOptions.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <LoadingButton type="submit" className="w-full rounded-xl" isLoading={isSubmitting} loadingText="Salvando...">
-            Criar
-          </LoadingButton>
-        </form>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="month"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mês</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o mês" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {monthNames.map((monthLabel, index) => (
+                          <SelectItem key={monthLabel} value={String(index + 1)}>
+                            {monthLabel}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormTextField control={form.control} name="year" label="Ano" type="number" min="2000" step="1" placeholder="Ex: 2026" />
+            </div>
+
+            <FormTextField control={form.control} name="limitAmount" label="Limite" type="number" min="0" step="0.01" placeholder="Ex: 1500.00" />
+
+            <LoadingButton type="submit" className="w-full rounded-xl" isLoading={isSubmitting} loadingText="Salvando...">
+              Criar
+            </LoadingButton>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

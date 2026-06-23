@@ -1,9 +1,9 @@
 import { QUERY_STALE_TIME } from "@/constants/query";
-import { budgetFormDefaults, type BudgetLimit, type BudgetLimitForm, mapBudgetFormToRequest, validateBudgetForm } from "@/helper/budget";
+import { type BudgetLimit, type BudgetLimitForm, mapBudgetFormToRequest } from "@/helper/budget";
 import { getErrorMessage } from "@/lib/api";
 import { createBudgetLimit, getBudgetLimitsByAccountPage } from "@/services/budget";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { type FormEvent, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 async function fetchAllBudgetLimits(): Promise<BudgetLimit[]> {
@@ -24,7 +24,6 @@ export function useBudgetLimits() {
   const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<BudgetLimitForm>(budgetFormDefaults);
 
   const query = useQuery({
     queryKey: ["budgetLimits"],
@@ -41,41 +40,29 @@ export function useBudgetLimits() {
 
   const handleDialogClose = useCallback(() => {
     setIsDialogOpen(false);
-    setFormData(budgetFormDefaults);
   }, []);
 
-  const handleSubmit = useCallback(
-    async (event: FormEvent) => {
-      event.preventDefault();
-
-      const errors = validateBudgetForm(formData);
-      if (errors.length > 0) {
-        toast.error(errors[0]);
-        return;
-      }
-
+  const submitBudget = useCallback(
+    async (data: BudgetLimitForm) => {
       try {
-        await createMutation.mutateAsync(mapBudgetFormToRequest(formData));
+        await createMutation.mutateAsync(mapBudgetFormToRequest(data));
         toast.success("Orçamento criado com sucesso!");
         handleDialogClose();
       } catch (error: unknown) {
         toast.error(getErrorMessage(error, "Erro inesperado ao criar orçamento."));
       }
     },
-    [createMutation, formData, handleDialogClose],
+    [createMutation, handleDialogClose],
   );
 
   return {
     budgets: (query.data ?? []) as BudgetLimit[],
     error: query.error ? getErrorMessage(query.error, "Não foi possível carregar os orçamentos.") : null,
-    formData,
     isDialogOpen,
-    isSubmitting: createMutation.isPending,
     isRefreshing: query.isFetching || createMutation.isPending,
     refetchBudgets: () => query.refetch(),
     handleDialogClose,
-    handleSubmit,
-    setFormData,
+    submitBudget,
     setIsDialogOpen,
   };
 }
