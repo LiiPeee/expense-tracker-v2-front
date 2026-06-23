@@ -45,11 +45,11 @@ export interface TransactionResponse {
   subCategory?: string;
   numberOfInstallment?: string;
   dateOfInstallment?: string;
-  paid?: string;
+  paid?: boolean;
   contact: Contact;
   recurrence: string;
   description: string;
-  amount: string;
+  amount: number;
   typeTransaction: number;
   category: Category;
   date?: string;
@@ -118,9 +118,9 @@ export function mapTransactionResponseToForm(transaction: TransactionResponse): 
     description: transaction.description ?? "",
     category: transaction.category?.name ?? "",
     subCategory: transaction.subCategory ?? "",
-    amount: String(transaction.amount ?? ""),
+    amount: transaction.amount == null ? "" : String(transaction.amount),
     type: transaction.typeTransaction === TRANSACTION_TYPE.EXPENSE ? "Expense" : "Income",
-    paid: transaction.paid === "true" ? "Sim" : transaction.paid === "false" ? "Não" : "",
+    paid: transaction.paid === true ? "Sim" : transaction.paid === false ? "Não" : "",
     numberOfInstallment: transaction.numberOfInstallment ?? "",
     dateOfInstallment: transaction.dateOfInstallment ?? "",
     recurrence: transaction.recurrence ?? "NONE",

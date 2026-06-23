@@ -46,7 +46,7 @@ const baseTransaction: TransactionResponse = {
   id: 1,
   name: "Salario",
   description: "Pagamento",
-  amount: "1000",
+  amount: 1000,
   recurrence: "Não",
   typeTransaction: 2,
   contact: {

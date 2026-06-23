@@ -4,7 +4,6 @@ import {
   SignInRequest,
   SignUpRequest,
   ValidateResetCodeRequest,
-  VerifyEmailRequest,
   VerifyTokenRequest,
 } from "@/helper/auth";
 import { BASE_URL, clearAuth, getAccessToken, getResponseErrorMessage, readJsonOrThrow } from "@/lib/api";
@@ -58,10 +57,6 @@ export async function logOut(): Promise<void> {
   }
 
   clearAuth();
-}
-
-export async function verifyEmail(input: VerifyEmailRequest): Promise<void> {
-  await postVoid(`${BASE_URL}/Auth/VerifyEmail`, input, "Token inválido ou expirado");
 }
 
 export async function verifyToken(input: VerifyTokenRequest): Promise<void> {
