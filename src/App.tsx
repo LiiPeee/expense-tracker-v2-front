@@ -18,6 +18,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Reports = lazy(() => import("./pages/Reports"));
 const ResetCode = lazy(() => import("./pages/ResetCode"));
 const TransactionsList = lazy(() => import("./pages/TransactionsList"));
+const Stocks = lazy(() => import("./pages/Stocks"));
 const VerifyTokenEmail = lazy(() => import("./pages/VerifyTokenEmail"));
 
 const queryClient = new QueryClient({
@@ -89,6 +90,14 @@ const AppRoutes = () => {
             element={
               <ProtectedRoute>
                 <TransactionsList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/stocks"
+            element={
+              <ProtectedRoute>
+                <Stocks />
               </ProtectedRoute>
             }
           />

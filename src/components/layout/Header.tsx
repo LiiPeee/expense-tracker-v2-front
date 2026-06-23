@@ -2,7 +2,7 @@ import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
-import { BarChart2, LayoutDashboard, List, LogOut, Menu, PiggyBank, Users } from "lucide-react";
+import { BarChart2, LayoutDashboard, List, LogOut, Menu, PiggyBank, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: "/transactions-list", icon: List, label: "Transações" },
   { to: "/contacts", icon: Users, label: "Contatos" },
   { to: "/budgets", icon: PiggyBank, label: "Orçamentos" },
+  { to: "/stocks", icon: TrendingUp, label: "Carteira" },
   { to: "/reports", icon: BarChart2, label: "Relatórios" },
 ];
 
