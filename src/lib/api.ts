@@ -1,8 +1,9 @@
+import type { AuthResponse } from "@/helper/auth";
 import { translateBackendError } from "@/helper/errors";
-import { clearAuth, getAccessToken } from "@/lib/token-store";
+import { clearAuth, getAccessToken, getRefreshToken, setSession } from "@/lib/token-store";
 
 // Re-export da fonte única de token, para manter a superfície pública estável.
-export { clearAuth, getAccessToken, setSession } from "@/lib/token-store";
+export { clearAuth, getAccessToken, getRefreshToken, setSession } from "@/lib/token-store";
 
 const _apiUrl = import.meta.env.VITE_API_URL as string | undefined;
 if (!_apiUrl) throw new Error("[Config] VITE_API_URL is not set. All API calls will fail.");
@@ -31,26 +32,80 @@ export function getAuthHeaders(): Record<string, string> {
   return headers;
 }
 
+// Single-flight refresh: concurrent 401s share one refresh call. The backend rotates
+// the refresh token on each use, so parallel refreshes would invalidate each other.
+let refreshPromise: Promise<boolean> | null = null;
+
 /**
- * Wrapper around fetch that:
- * - Injects the Authorization header automatically (access token from sessionStorage)
- * - Clears auth state and fires "auth:unauthorized" on 401
+ * Exchanges the (possibly expired) access token + stored refresh token for a new pair.
+ * Uses raw fetch — must NOT go through authFetch, or a 401 here would recurse.
+ * Returns false (without throwing) when refresh isn't possible, so callers fall back to logout.
  */
-export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const response = await fetch(url, {
+async function refreshAccessToken(): Promise<boolean> {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken || !getAccessToken()) return false;
+
+  try {
+    const response = await fetch(`${BASE_URL}/Auth/RefreshToken`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ refreshToken }),
+    });
+    if (!response.ok) return false;
+
+    const data = (await response.json()) as AuthResponse;
+    if (!data?.accessToken) return false;
+
+    setSession(data);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function refreshOnce(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = refreshAccessToken().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+function failAuth(): void {
+  clearAuth();
+  window.dispatchEvent(new CustomEvent("auth:unauthorized", { detail: { secret: AUTH_EVENT_SECRET } }));
+}
+
+function withAuthHeaders(options: RequestInit): RequestInit {
+  return {
     ...options,
     headers: {
       ...getAuthHeaders(),
       ...((options.headers as Record<string, string>) ?? {}),
     },
-  });
+  };
+}
 
-  if (response.status === 401) {
-    clearAuth();
-    window.dispatchEvent(new CustomEvent("auth:unauthorized", { detail: { secret: AUTH_EVENT_SECRET } }));
+/**
+ * Wrapper around fetch that:
+ * - Injects the Authorization header automatically (access token from sessionStorage)
+ * - On 401, attempts a single reactive token refresh and retries the request once
+ * - Clears auth state and fires "auth:unauthorized" only when refresh fails
+ */
+export async function authFetch(url: string, options: RequestInit = {}): Promise<Response> {
+  const response = await fetch(url, withAuthHeaders(options));
+  if (response.status !== 401) return response;
+
+  const refreshed = await refreshOnce();
+  if (!refreshed) {
+    failAuth();
+    return response;
   }
 
-  return response;
+  const retry = await fetch(url, withAuthHeaders(options));
+  if (retry.status === 401) failAuth();
+  return retry;
 }
 
 type ApiErrorLike = {
