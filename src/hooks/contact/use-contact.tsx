@@ -1,27 +1,23 @@
-import {
-  Contact,
-  ContactForm,
-  contactFormDefaults,
-  mapContactFormToRequest,
-  mapContactToForm,
-  validateContactForm,
-} from "@/helper/contact";
-import { useCepLookup } from "@/hooks/contact/use-cep";
+import { Contact, ContactForm, contactFormDefaults, mapContactFormToRequest, mapContactToForm } from "@/helper/contact";
 import { useContactsQuery } from "@/hooks/contact/use-contacts-query";
 import { getErrorMessage } from "@/lib/api";
 import { createContact, deleteContact, editContact } from "@/services/contact";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 export function useContact() {
   const queryClient = useQueryClient();
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<ContactForm>(contactFormDefaults);
-  const { lookupCep } = useCepLookup();
   const { contacts, error, isFetching, refetch } = useContactsQuery();
   const lastErrorMessageRef = useRef<string | null>(null);
+
+  // Stable per editing entity so the dialog only resets when the target changes, not on every keystroke.
+  const contactDefaults = useMemo<ContactForm>(
+    () => (editingContact ? mapContactToForm(editingContact) : contactFormDefaults),
+    [editingContact],
+  );
 
   const createContactMutation = useMutation({
     mutationFn: createContact,
@@ -46,17 +42,9 @@ export function useContact() {
     toast.error(message);
   }, [error]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const errors = validateContactForm(formData);
-    if (errors.length) {
-      errors.forEach((message) => toast.error(message));
-      return;
-    }
-
+  const submitContact = async (data: ContactForm) => {
     try {
-      const contactPayload = mapContactFormToRequest(formData, editingContact?.id);
+      const contactPayload = mapContactFormToRequest(data, editingContact?.id);
 
       if (editingContact) {
         await editContactMutation.mutateAsync(contactPayload);
@@ -69,7 +57,6 @@ export function useContact() {
       await queryClient.invalidateQueries({ queryKey: ["contacts"] });
       setIsDialogOpen(false);
       setEditingContact(null);
-      setFormData(contactFormDefaults);
     } catch (error: unknown) {
       toast.error(getErrorMessage(error, "Erro inesperado ao salvar contato."));
     }
@@ -77,7 +64,6 @@ export function useContact() {
 
   const handleEdit = (contact: Contact) => {
     setEditingContact(contact);
-    setFormData(mapContactToForm(contact));
     setIsDialogOpen(true);
   };
 
@@ -91,23 +77,10 @@ export function useContact() {
     }
   };
 
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
-    setEditingContact(null);
-    setFormData(contactFormDefaults);
-  };
-
-  const handleZipCodeBlur = async () => {
-    const address = await lookupCep(formData.zipCode);
-    if (!address) return;
-
-    setFormData((prev) => ({
-      ...prev,
-      street: prev.street || address.street,
-      city: prev.city || address.city,
-      state: prev.state || address.state,
-      country: prev.country || "Brasil",
-    }));
+  // Reset the editing target whenever the dialog closes so the next "Novo Contato" opens blank.
+  const onOpenChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) setEditingContact(null);
   };
 
   const getAllContact = useCallback(async () => {
@@ -122,23 +95,19 @@ export function useContact() {
   }, [refetch]);
 
   return {
-    handleDialogClose,
     handleDelete,
     handleEdit,
-    handleSubmit,
-    handleZipCodeBlur,
-    setIsDialogOpen,
-    setFormData,
+    submitContact,
+    onOpenChange,
     getAllContact,
+    contactDefaults,
     editingContact: Boolean(editingContact),
     contacts,
-    isSubmitting: createContactMutation.isPending || editContactMutation.isPending,
     isRefreshing:
       isFetching ||
       createContactMutation.isPending ||
       editContactMutation.isPending ||
       deleteContactMutation.isPending,
     isDialogOpen,
-    formData,
   };
 }

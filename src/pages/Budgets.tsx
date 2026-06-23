@@ -14,8 +14,7 @@ import { useBudgetLimits } from "@/hooks/budget/use-budget-limits";
 import { Filter, Search } from "lucide-react";
 
 const Budgets = () => {
-  const { budgets, error, formData, isDialogOpen, isSubmitting, isRefreshing, refetchBudgets, handleDialogClose, handleSubmit, setFormData, setIsDialogOpen } =
-    useBudgetLimits();
+  const { budgets, error, isDialogOpen, isRefreshing, refetchBudgets, submitBudget, setIsDialogOpen } = useBudgetLimits();
 
   const {
     filterName,
@@ -49,12 +48,8 @@ const Budgets = () => {
           <BudgetFormDialog
             open={isDialogOpen}
             onOpenChange={setIsDialogOpen}
-            onPrepareNew={handleDialogClose}
-            onSubmit={handleSubmit}
-            formData={formData}
-            setFormData={setFormData}
+            onSubmit={submitBudget}
             categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
-            isSubmitting={isSubmitting}
           />
         </div>
 
