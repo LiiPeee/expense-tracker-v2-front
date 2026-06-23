@@ -1,4 +1,8 @@
-import { type PagedTransactionsResponse, type RecurrenceLabel, type TransactionResponse } from "@/helper/transaction";
+import {
+  type PagedTransactionsResponseRaw,
+  type RecurrenceLabel,
+  type TransactionResponse,
+} from "@/helper/transaction";
 import { getDefaultYearMonth, monthResponse, recurrenceResponse } from "@/helper/utils";
 import {
   getAllTransactionsPaged,
@@ -8,9 +12,6 @@ import {
 } from "@/services/transaction";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { QUERY_STALE_TIME } from "@/constants/query";
-
-type BackendItem = Omit<TransactionResponse, "recurrence"> & { recurrence: number | string | null };
-type BackendPage = Omit<PagedTransactionsResponse, "items"> & { items: BackendItem[] };
 
 export type TransactionListQuery =
   | { kind: "all"; month: number; year: number }
@@ -25,16 +26,16 @@ function normalizeRecurrence(value: number | string | null): RecurrenceLabel {
   return allowed.includes(value as RecurrenceLabel) ? (value as RecurrenceLabel) : "-";
 }
 
-async function fetchTransactions(query: TransactionListQuery, page: number): Promise<BackendPage> {
+async function fetchTransactions(query: TransactionListQuery, page: number): Promise<PagedTransactionsResponseRaw> {
   switch (query.kind) {
     case "all":
-      return getAllTransactionsPaged(query.month, query.year, page) as Promise<BackendPage>;
+      return getAllTransactionsPaged(query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
     case "type":
-      return getTransactionsByTypePaged(query.typeName, query.month, query.year, page) as Promise<BackendPage>;
+      return getTransactionsByTypePaged(query.typeName, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
     case "categoryType":
-      return getTransactionsByCategoryPaged(query.category, query.typeName, query.month, query.year, page) as Promise<BackendPage>;
+      return getTransactionsByCategoryPaged(query.category, query.typeName, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
     case "contactType":
-      return getTransactionsByTypeAndContactPaged(query.typeName, query.contactId, query.month, query.year, page) as Promise<BackendPage>;
+      return getTransactionsByTypeAndContactPaged(query.typeName, query.contactId, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
   }
 }
 

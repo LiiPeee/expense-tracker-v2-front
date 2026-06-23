@@ -91,3 +91,70 @@ export async function readJsonOrThrow<T>(response: Response, fallbackMessage: st
 
   return (await response.json()) as T;
 }
+
+// ----- Typed transport layer -----
+// Single place that builds URLs, attaches auth, and maps errors. Services declare
+// intent (path + params + body) and never touch fetch, headers, or query strings.
+
+type QueryParams = Record<string, string | number | boolean | null | undefined>;
+
+type WriteOptions = {
+  params?: QueryParams;
+  fallback?: string;
+  /** Set false for endpoints that must run without a token and without 401 redirect (login, signup, password reset). */
+  auth?: boolean;
+};
+
+const DEFAULT_FALLBACK = "Falha na requisição";
+
+/** Encodes a params object into a query string, dropping null/undefined. Returns "" when empty. */
+function buildQuery(params?: QueryParams): string {
+  if (!params) return "";
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value == null) continue;
+    search.append(key, String(value));
+  }
+  const query = search.toString();
+  return query ? `?${query}` : "";
+}
+
+type RequestInput = {
+  method: "GET" | "POST" | "DELETE";
+  path: string;
+  params?: QueryParams;
+  body?: unknown;
+  auth?: boolean;
+};
+
+async function request({ method, path, params, body, auth = true }: RequestInput): Promise<Response> {
+  const url = `${BASE_URL}${path}${buildQuery(params)}`;
+
+  const init: RequestInit = { method };
+  if (body !== undefined) init.body = JSON.stringify(body);
+
+  if (auth) return authFetch(url, init);
+
+  // Public call: no token, and 401 must not clear auth / redirect (e.g. wrong login password).
+  return fetch(url, { ...init, headers: { "Content-Type": "application/json" } });
+}
+
+export async function getJson<T>(path: string, params?: QueryParams, fallback = DEFAULT_FALLBACK): Promise<T> {
+  const response = await request({ method: "GET", path, params });
+  return readJsonOrThrow<T>(response, fallback);
+}
+
+export async function del(path: string, params?: QueryParams, fallback = DEFAULT_FALLBACK): Promise<void> {
+  const response = await request({ method: "DELETE", path, params });
+  if (!response.ok) throw new Error(await getResponseErrorMessage(response, fallback));
+}
+
+export async function postJson<T>(path: string, body?: unknown, options: WriteOptions = {}): Promise<T> {
+  const response = await request({ method: "POST", path, body, params: options.params, auth: options.auth });
+  return readJsonOrThrow<T>(response, options.fallback ?? DEFAULT_FALLBACK);
+}
+
+export async function postVoid(path: string, body?: unknown, options: WriteOptions = {}): Promise<void> {
+  const response = await request({ method: "POST", path, body, params: options.params, auth: options.auth });
+  if (!response.ok) throw new Error(await getResponseErrorMessage(response, options.fallback ?? DEFAULT_FALLBACK));
+}

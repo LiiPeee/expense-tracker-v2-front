@@ -1,43 +1,31 @@
-import { authFetch, BASE_URL } from "@/lib/api";
+import { BASE_URL } from "@/lib/api";
+import { createJsonResponse } from "@/test/response";
 import { deleteContact } from "./contact";
 
-vi.mock("@/lib/api", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/api")>("@/lib/api");
-  return {
-    ...actual,
-    BASE_URL: "http://api.test",
-    authFetch: vi.fn(),
-  };
-});
-
-const mockedAuthFetch = vi.mocked(authFetch);
-
-function createResponse<T>(data: T, ok = true, status = 200): Response {
-  return {
-    ok,
-    status,
-    json: vi.fn(async () => data),
-  } as unknown as Response;
-}
+const fetchMock = vi.fn();
 
 describe("contact service", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.stubGlobal("fetch", fetchMock);
+    fetchMock.mockReset();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it("delete contact issues a DELETE request with the id", async () => {
-    mockedAuthFetch.mockResolvedValueOnce(createResponse({}, true, 200));
+    fetchMock.mockResolvedValueOnce(createJsonResponse({}, true, 200));
 
     await expect(deleteContact(12)).resolves.toBeUndefined();
 
-    expect(mockedAuthFetch).toHaveBeenCalledWith(
-      `${BASE_URL}/Contact/DeleteContact?id=12`,
-      expect.objectContaining({ method: "DELETE" }),
-    );
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/Contact/DeleteContact?id=12`);
+    expect(init.method).toBe("DELETE");
   });
 
   it("throw fallback message when delete fails", async () => {
-    mockedAuthFetch.mockResolvedValueOnce(createResponse({}, false, 500));
+    fetchMock.mockResolvedValueOnce(createJsonResponse({}, false, 500));
 
     await expect(deleteContact(7)).rejects.toThrow("Falha ao excluir contato");
   });
