@@ -138,7 +138,8 @@ export function useAuthForm() {
       try {
         setIsLoading(true);
         await validateResetCode({ email, token: normalizedCode });
-        navigate("/new-password", { state: { email } });
+        // Carry the validated code to the new-password step — the backend revalidates it on reset.
+        navigate("/new-password", { state: { email, code: normalizedCode } });
         return { ok: true };
       } catch (error: unknown) {
         const message = getErrorMessage(error, "O código informado é inválido ou expirou. Verifique seu email e tente novamente.");
@@ -251,15 +252,15 @@ export function useAuthForm() {
         return { ok: false, message };
       }
 
-      const state = location.state as { email?: string } | null;
-      if (!state?.email) {
+      const state = location.state as { email?: string; code?: string } | null;
+      if (!state?.email || !state?.code) {
         navigate("/forgot-password", { replace: true });
         return { ok: false, message: "Sessão expirada. Solicite um novo código." };
       }
 
       try {
         setIsLoading(true);
-        await resetPassword({ email: state.email, newPassword: password });
+        await resetPassword({ email: state.email, newPassword: password, token: state.code });
         toast({ title: "Senha redefinida com sucesso!", description: "Faça login com sua nova senha." });
         navigate("/auth", { replace: true });
         return { ok: true };

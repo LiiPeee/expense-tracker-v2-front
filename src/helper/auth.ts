@@ -10,14 +10,12 @@ export interface ValidateResetCodeRequest {
 export interface ResetPasswordRequest {
   email: string;
   newPassword: string;
+  // Reset code from the email — the backend revalidates it before changing the password.
+  token: string;
 }
 
 export interface VerifyTokenRequest {
   id: string;
-  token: string;
-}
-
-export interface VerifyEmailRequest {
   token: string;
 }
 

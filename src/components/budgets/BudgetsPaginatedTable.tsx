@@ -57,7 +57,6 @@ export function BudgetsPaginatedTable({
   currentPage,
   totalPages,
   totalRecords,
-  pageSize,
   isLoading = false,
   onPageChange,
 }: BudgetsPaginatedTableProps) {
