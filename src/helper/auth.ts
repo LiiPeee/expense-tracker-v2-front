@@ -1,3 +1,20 @@
+import { getPasswordStrength, isStrongPassword } from "@/components/ui/password-strength";
+import { z } from "zod";
+
+// Login: email format + password presence (no strength rule on login).
+export const loginSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(1, "Senha é obrigatória"),
+});
+
+// Signup: reuses the live-indicator strength rule so the schema is the single gate (backend enforces it too).
+export const signUpSchema = z.object({
+  firstName: z.string().trim().min(1, "Nome é obrigatório"),
+  lastName: z.string().trim().min(1, "Sobrenome é obrigatório"),
+  email: z.string().email("Email inválido"),
+  password: z.string().refine((value) => isStrongPassword(getPasswordStrength(value)), "A senha não atende todos os requisitos de segurança"),
+});
+
 export interface ForgotPasswordRequest {
   email: string;
 }
