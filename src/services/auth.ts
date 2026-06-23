@@ -6,72 +6,51 @@ import {
   ValidateResetCodeRequest,
   VerifyTokenRequest,
 } from "@/helper/auth";
-import { BASE_URL, clearAuth, getAccessToken, getResponseErrorMessage, readJsonOrThrow } from "@/lib/api";
+import { clearAuth, getAccessToken, postJson, postVoid } from "@/lib/api";
 
-async function postVoid(url: string, body?: unknown, fallbackMessage = "Falha na requisição"): Promise<void> {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: body == null ? undefined : JSON.stringify(body),
-  });
+// Auth endpoints run without a token (login/signup/reset) and must not trigger the 401 redirect,
+// so every call here passes `auth: false`.
+const PUBLIC = { auth: false } as const;
 
-  if (!response.ok) {
-    throw new Error(await getResponseErrorMessage(response, fallbackMessage));
-  }
-}
-
-async function postJson<TResponse>(url: string, body: unknown, fallbackMessage: string): Promise<TResponse> {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-
-  return readJsonOrThrow<TResponse>(response, fallbackMessage);
-}
+// Backend route is spelled "EmailVerifycation" — confirmed intentional, do not "correct" it.
+const REQUEST_PASSWORD_RESET_PATH = "/Auth/EmailVerifycation";
 
 export async function signUp(input: SignUpRequest): Promise<void> {
-  await postVoid(`${BASE_URL}/Auth/SignUp`, input, "Falha ao criar conta");
+  await postVoid("/Auth/SignUp", input, { ...PUBLIC, fallback: "Falha ao criar conta" });
 }
 
 export async function signIn(input: SignInRequest): Promise<AuthResponse> {
-  return postJson<AuthResponse>(`${BASE_URL}/Auth/SignIn`, input, "Email ou senha incorretos");
+  return postJson<AuthResponse>("/Auth/SignIn", input, { ...PUBLIC, fallback: "Email ou senha incorretos" });
 }
 
 export async function signInWithGoogle(idToken: string): Promise<AuthResponse> {
-  return postJson<AuthResponse>(`${BASE_URL}/Auth/SignInGoogle`, { idToken }, "Falha ao entrar com Google");
+  return postJson<AuthResponse>("/Auth/SignInGoogle", { idToken }, { ...PUBLIC, fallback: "Falha ao entrar com Google" });
 }
 
 export async function logOut(): Promise<void> {
   const token = getAccessToken();
 
+  // Best-effort server-side revocation — the authed token is attached automatically; ignore failures.
   if (token) {
-    // Best-effort server-side revocation — ignore failures
-    await fetch(`${BASE_URL}/Auth/LogOut`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    }).catch(() => undefined);
+    await postVoid("/Auth/LogOut").catch(() => undefined);
   }
 
   clearAuth();
 }
 
 export async function verifyToken(input: VerifyTokenRequest): Promise<void> {
-  const params = new URLSearchParams({ id: input.id, token: input.token });
-  await postVoid(`${BASE_URL}/Auth/VerifyToken?${params.toString()}`, undefined, "Código inválido ou expirado");
+  await postVoid("/Auth/VerifyToken", undefined, { ...PUBLIC, params: { id: input.id, token: input.token }, fallback: "Código inválido ou expirado" });
 }
 
 export async function forgotPassword(email: string): Promise<void> {
-  await postVoid(`${BASE_URL}/Auth/EmailVerifycation`, email, "Falha ao enviar email de recuperação");
+  // Backend expects the email as a raw JSON string body (not an object) — confirmed contract.
+  await postVoid(REQUEST_PASSWORD_RESET_PATH, email, { ...PUBLIC, fallback: "Falha ao enviar email de recuperação" });
 }
 
 export async function validateResetCode(input: ValidateResetCodeRequest): Promise<void> {
-  await postVoid(`${BASE_URL}/Auth/ValidateResetCode?email=${encodeURIComponent(input.email)}`, input.token, "Código inválido ou expirado");
+  await postVoid("/Auth/ValidateResetCode", input.token, { ...PUBLIC, params: { email: input.email }, fallback: "Código inválido ou expirado" });
 }
 
 export async function resetPassword(input: ResetPasswordRequest): Promise<void> {
-  await postVoid(`${BASE_URL}/Auth/ResetPassword`, input, "Falha ao redefinir senha");
+  await postVoid("/Auth/ResetPassword", input, { ...PUBLIC, fallback: "Falha ao redefinir senha" });
 }

@@ -61,6 +61,10 @@ export type PagedTransactionsResponse = {
   items: TransactionResponse[];
 };
 
+// Raw backend shape before normalization: recurrence arrives as a numeric code, a label string, or null.
+export type TransactionResponseRaw = Omit<TransactionResponse, "recurrence"> & { recurrence: number | string | null };
+export type PagedTransactionsResponseRaw = Omit<PagedTransactionsResponse, "items"> & { items: TransactionResponseRaw[] };
+
 export const transactionFormDefaults: TransactionForm = {
   recurrence: "NONE",
   contactName: "",
