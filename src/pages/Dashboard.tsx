@@ -1,4 +1,5 @@
 import { ExpensePieChart } from "@/components/charts/ExpensePieChart";
+import { MonthNavigator } from "@/components/dashboard/MonthNavigator";
 import { Header } from "@/components/layout/Header";
 import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
 import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
@@ -13,31 +14,34 @@ import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { useIncomeByCategory } from "@/hooks/transaction/use-income-by-category";
+import { useMonthNavigation } from "@/hooks/use-month-navigation";
 import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
+  const { month, year, label: monthLabel, goToPreviousMonth, goToNextMonth } = useMonthNavigation();
+
   const {
     isFetching: isRefreshingSummary,
     expenseMonthTotal,
     incomeMonthTotal,
     economyMonthTotal,
     refetch: refetchSummary,
-  } = useFinancialSummary();
+  } = useFinancialSummary(month, year);
   const {
     isLoading: isLoadingChart,
     error: expenseChartError,
     chartData,
     totalExpense,
     refetch: refetchExpenseChart,
-  } = useExpenseByCategory();
+  } = useExpenseByCategory(month, year);
   const {
     isLoading: isLoadingIncomeChart,
     error: incomeChartError,
     chartData: incomeChartData,
     totalIncome,
     refetch: refetchIncomeChart,
-  } = useIncomeByCategory();
+  } = useIncomeByCategory(month, year);
 
   const { submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } = useTransaction();
   const { contacts, getAllContact } = useContact();
@@ -75,7 +79,10 @@ const Dashboard = () => {
           />
         </div>
 
-        <RefreshAllButton isRefreshing={isRefreshing} onRefresh={handleRefresh} />
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <MonthNavigator label={monthLabel} onPreviousMonth={goToPreviousMonth} onNextMonth={goToNextMonth} />
+          <RefreshAllButton isRefreshing={isRefreshing} onRefresh={handleRefresh} />
+        </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
           <Card className="rounded-2xl reveal-up stagger-1 overflow-hidden border-success/20 bg-gradient-to-br from-success/5 to-success/10">
@@ -87,7 +94,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl lg:text-4xl font-bold text-success tabular-nums">{formatBRL(incomeMonthTotal)}</div>
-              <p className="text-xs text-muted-foreground mt-1">Este mês</p>
+              <p className="text-xs text-muted-foreground mt-1 capitalize">{monthLabel}</p>
             </CardContent>
           </Card>
 
@@ -100,7 +107,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl lg:text-4xl font-bold text-destructive tabular-nums">{formatBRL(expenseMonthTotal)}</div>
-              <p className="text-xs text-muted-foreground mt-1">Este mês</p>
+              <p className="text-xs text-muted-foreground mt-1 capitalize">{monthLabel}</p>
             </CardContent>
           </Card>
 
@@ -113,7 +120,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl lg:text-4xl font-bold text-primary tabular-nums">{formatBRL(economyMonthTotal)}</div>
-              <p className="text-xs text-muted-foreground mt-1">Este mês</p>
+              <p className="text-xs text-muted-foreground mt-1 capitalize">{monthLabel}</p>
             </CardContent>
           </Card>
         </div>
