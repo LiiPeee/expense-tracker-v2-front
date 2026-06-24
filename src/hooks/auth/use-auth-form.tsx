@@ -1,12 +1,9 @@
-import { getPasswordStrength, isStrongPassword } from "@/components/ui/password-strength";
 import { SignInRequest, SignUpRequest } from "@/helper/auth";
 import { getErrorMessage, setSession } from "@/lib/api";
 import { forgotPassword, logOut, resetPassword, signIn, signInWithGoogle, signUp, validateResetCode, verifyToken } from "@/services/auth";
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useToast } from "../use-toast";
-
-const isValidEmail = (value: string) => /\S+@\S+\.\S+/.test(value.trim());
 
 type AuthActionResult = {
   ok: boolean;
@@ -16,19 +13,11 @@ type AuthActionResult = {
 export function useAuthForm() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [code, setCode] = useState("");
   const { toast } = useToast();
-  const [emailForgot, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email") ?? "";
   const { id = "" } = useParams<{ id: string }>();
-
-  const strength = getPasswordStrength(password);
-  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
 
   useEffect(() => {
     const state = location.state as { email?: string } | null;
@@ -120,138 +109,74 @@ export function useAuthForm() {
     [toast],
   );
 
-  const handleSendCode = useCallback(
-    async (e: FormEvent): Promise<AuthActionResult> => {
-      e.preventDefault();
-
-      const normalizedCode = code.trim();
-      if (!normalizedCode) {
-        const message = "Informe o código recebido no email.";
-        toast({
-          title: "Código obrigatório",
-          description: message,
-          variant: "destructive",
-        });
-        return { ok: false, message };
-      }
-
+  const handleForgotPassword = useCallback(
+    async (forgotEmail: string): Promise<AuthActionResult> => {
       try {
         setIsLoading(true);
-        await validateResetCode({ email, token: normalizedCode });
-        // Carry the validated code to the new-password step — the backend revalidates it on reset.
-        navigate("/new-password", { state: { email, code: normalizedCode } });
+        await forgotPassword(forgotEmail);
+        toast({
+          title: "Email enviado!",
+          description: "Verifique sua caixa de entrada e insira o código recebido.",
+        });
+        navigate(`/reset-code?email=${encodeURIComponent(forgotEmail)}`);
         return { ok: true };
       } catch (error: unknown) {
-        const message = getErrorMessage(error, "O código informado é inválido ou expirou. Verifique seu email e tente novamente.");
-        toast({
-          title: "Código inválido",
-          description: message,
-          variant: "destructive",
-        });
+        const message = getErrorMessage(error, "Não foi possível enviar o email de recuperação. Verifique o endereço e tente novamente.");
+        toast({ title: "Erro ao enviar email", description: message, variant: "destructive" });
         return { ok: false, message };
       } finally {
         setIsLoading(false);
       }
     },
-    [code, email, navigate, toast],
+    [navigate, toast],
+  );
+
+  const handleSendCode = useCallback(
+    async (code: string): Promise<AuthActionResult> => {
+      try {
+        setIsLoading(true);
+        await validateResetCode({ email, token: code });
+        // Carry the validated code to the new-password step — the backend revalidates it on reset.
+        navigate("/new-password", { state: { email, code } });
+        return { ok: true };
+      } catch (error: unknown) {
+        const message = getErrorMessage(error, "O código informado é inválido ou expirou. Verifique seu email e tente novamente.");
+        toast({ title: "Código inválido", description: message, variant: "destructive" });
+        return { ok: false, message };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [email, navigate, toast],
   );
 
   const handleVerifyEmailToken = useCallback(
-    async (e: FormEvent): Promise<AuthActionResult> => {
-      e.preventDefault();
-
+    async (code: string): Promise<AuthActionResult> => {
       if (!id) {
         const message = "O link de verificação é inválido. Solicite um novo email.";
-        toast({
-          title: "Link inválido",
-          description: message,
-          variant: "destructive",
-        });
-        return { ok: false, message };
-      }
-
-      const normalizedCode = code.trim();
-      if (!normalizedCode) {
-        const message = "Informe o código de verificação.";
-        toast({
-          title: "Código obrigatório",
-          description: message,
-          variant: "destructive",
-        });
+        toast({ title: "Link inválido", description: message, variant: "destructive" });
         return { ok: false, message };
       }
 
       try {
         setIsLoading(true);
-        await verifyToken({ id, token: normalizedCode });
+        await verifyToken({ id, token: code });
         toast({ title: "Email verificado!", description: "Sua conta foi confirmada com sucesso." });
         navigate("/auth");
         return { ok: true };
       } catch (error: unknown) {
         const message = getErrorMessage(error, "O código informado é inválido ou expirou. Verifique seu email e tente novamente.");
-        toast({
-          title: "Código inválido",
-          description: message,
-          variant: "destructive",
-        });
+        toast({ title: "Código inválido", description: message, variant: "destructive" });
         return { ok: false, message };
       } finally {
         setIsLoading(false);
       }
     },
-    [code, id, navigate, toast],
+    [id, navigate, toast],
   );
 
-  const handleForgotPassword = useCallback(async (): Promise<AuthActionResult> => {
-    const normalizedEmail = emailForgot.trim();
-    if (!isValidEmail(normalizedEmail)) {
-      const message = "Informe um email válido para recuperar a senha.";
-      toast({
-        title: "Email inválido",
-        description: message,
-        variant: "destructive",
-      });
-      return { ok: false, message };
-    }
-
-    try {
-      setIsLoading(true);
-      await forgotPassword(normalizedEmail);
-      toast({
-        title: "Email enviado!",
-        description: "Verifique sua caixa de entrada e insira o código recebido.",
-      });
-      navigate(`/reset-code?email=${encodeURIComponent(normalizedEmail)}`);
-      return { ok: true };
-    } catch (error: unknown) {
-      const message = getErrorMessage(error, "Não foi possível enviar o email de recuperação. Verifique o endereço e tente novamente.");
-      toast({
-        title: "Erro ao enviar email",
-        description: message,
-        variant: "destructive",
-      });
-      return { ok: false, message };
-    } finally {
-      setIsLoading(false);
-    }
-  }, [emailForgot, navigate, toast]);
-
   const handleResetPassword = useCallback(
-    async (e: FormEvent): Promise<AuthActionResult> => {
-      e.preventDefault();
-
-      if (!isStrongPassword(strength)) {
-        const message = "A senha não atende todos os requisitos de segurança.";
-        toast({ title: "Senha fraca", description: message, variant: "destructive" });
-        return { ok: false, message };
-      }
-
-      if (!passwordsMatch) {
-        const message = "As senhas digitadas não conferem.";
-        toast({ title: "Senhas diferentes", description: message, variant: "destructive" });
-        return { ok: false, message };
-      }
-
+    async (newPassword: string): Promise<AuthActionResult> => {
       const state = location.state as { email?: string; code?: string } | null;
       if (!state?.email || !state?.code) {
         navigate("/forgot-password", { replace: true });
@@ -260,7 +185,7 @@ export function useAuthForm() {
 
       try {
         setIsLoading(true);
-        await resetPassword({ email: state.email, newPassword: password, token: state.code });
+        await resetPassword({ email: state.email, newPassword, token: state.code });
         toast({ title: "Senha redefinida com sucesso!", description: "Faça login com sua nova senha." });
         navigate("/auth", { replace: true });
         return { ok: true };
@@ -272,21 +197,11 @@ export function useAuthForm() {
         setIsLoading(false);
       }
     },
-    [strength, passwordsMatch, password, location.state, navigate, toast],
+    [location.state, navigate, toast],
   );
 
   return {
     isLoading,
-    code,
-    emailForgot,
-    password,
-    confirmPassword,
-    strength,
-    passwordsMatch,
-    setEmail,
-    setCode,
-    setPassword,
-    setConfirmPassword,
     handleForgotPassword,
     handleResetPassword,
     handleSignIn,

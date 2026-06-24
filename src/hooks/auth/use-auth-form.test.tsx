@@ -17,11 +17,13 @@ vi.mock("../use-toast", () => ({
 }));
 
 vi.mock("@/services/auth", () => ({
-  forgotPassword: vi.fn(),
+  forgotPassword: vi.fn(async () => undefined),
   logOut: vi.fn(),
   signIn: vi.fn(),
+  signInWithGoogle: vi.fn(),
   signUp: vi.fn(),
-  validateResetCode: vi.fn(),
+  resetPassword: vi.fn(async () => undefined),
+  validateResetCode: vi.fn(async () => undefined),
   verifyToken: vi.fn(),
 }));
 
@@ -30,41 +32,25 @@ describe("useAuthForm", () => {
     vi.clearAllMocks();
   });
 
-  it("block forgot password with invalid email", async () => {
+  it("sends the recovery email and navigates to the reset-code route", async () => {
     const { result } = renderHook(() => useAuthForm());
 
-    act(() => {
-      result.current.setEmail("bad-email");
-    });
-
     await act(async () => {
-      await result.current.handleForgotPassword();
+      await result.current.handleForgotPassword("user@mail.com");
     });
 
-    expect(forgotPassword).not.toHaveBeenCalled();
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: "Email inválido",
-        variant: "destructive",
-      }),
-    );
+    expect(forgotPassword).toHaveBeenCalledWith("user@mail.com");
+    expect(mockNavigate).toHaveBeenCalledWith("/reset-code?email=user%40mail.com");
   });
 
-  it("trim code before send", async () => {
+  it("validates the code against the email from the query string", async () => {
     const { result } = renderHook(() => useAuthForm());
-    const event = { preventDefault: vi.fn() } as unknown as React.FormEvent;
-
-    act(() => {
-      result.current.setCode("  123456  ");
-    });
 
     await act(async () => {
-      await result.current.handleSendCode(event);
+      await result.current.handleSendCode("123456");
     });
 
-    expect(validateResetCode).toHaveBeenCalledWith({
-      email: "dev@test.com",
-      token: "123456",
-    });
+    expect(validateResetCode).toHaveBeenCalledWith({ email: "dev@test.com", token: "123456" });
+    expect(mockNavigate).toHaveBeenCalledWith("/new-password", { state: { email: "dev@test.com", code: "123456" } });
   });
 });

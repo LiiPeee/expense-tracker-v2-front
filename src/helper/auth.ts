@@ -15,6 +15,29 @@ export const signUpSchema = z.object({
   password: z.string().refine((value) => isStrongPassword(getPasswordStrength(value)), "A senha não atende todos os requisitos de segurança"),
 });
 
+// Recovery flow schemas (single validation gate per step; backend revalidates the code/password).
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Email inválido"),
+});
+export type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
+
+// Shared by both 6-digit code steps (reset-code and email verification).
+export const verificationCodeSchema = z.object({
+  code: z.string().regex(/^\d{6}$/, "O código deve ter 6 dígitos"),
+});
+export type VerificationCodeForm = z.infer<typeof verificationCodeSchema>;
+
+export const newPasswordSchema = z
+  .object({
+    password: z.string().refine((value) => isStrongPassword(getPasswordStrength(value)), "A senha não atende todos os requisitos de segurança"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "As senhas não conferem.",
+  });
+export type NewPasswordForm = z.infer<typeof newPasswordSchema>;
+
 export interface ForgotPasswordRequest {
   email: string;
 }
