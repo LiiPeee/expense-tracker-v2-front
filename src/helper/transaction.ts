@@ -43,6 +43,8 @@ export interface TransactionResponse {
   id: number;
   name?: string;
   createdDate?: string;
+  // Financial reference month (competência) — the month this transaction belongs to.
+  competenceDate?: string;
   subCategory?: string;
   numberOfInstallment?: string;
   dateOfInstallment?: string;
