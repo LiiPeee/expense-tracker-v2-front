@@ -1,21 +1,24 @@
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
 import { BarChart2, LayoutDashboard, List, LogOut, Menu, PiggyBank, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
 const NAV_ITEMS = [
-  { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { to: "/transactions-list", icon: List, label: "Transações" },
-  { to: "/contacts", icon: Users, label: "Contatos" },
-  { to: "/budgets", icon: PiggyBank, label: "Orçamentos" },
-  { to: "/stocks", icon: TrendingUp, label: "Carteira" },
-  { to: "/reports", icon: BarChart2, label: "Relatórios" },
+  { to: "/dashboard", icon: LayoutDashboard, labelKey: "nav.dashboard" },
+  { to: "/transactions-list", icon: List, labelKey: "nav.transactions" },
+  { to: "/contacts", icon: Users, labelKey: "nav.contacts" },
+  { to: "/budgets", icon: PiggyBank, labelKey: "nav.budgets" },
+  { to: "/stocks", icon: TrendingUp, labelKey: "nav.portfolio" },
+  { to: "/reports", icon: BarChart2, labelKey: "nav.reports" },
 ];
 
 export const Header = () => {
+  const { t } = useTranslation();
   const { handleLogOut, isLoading } = useAuthForm();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -36,17 +39,17 @@ export const Header = () => {
               <span className="text-white font-bold text-xl">F</span>
             </div>
             <div className="hidden sm:block">
-              <span className="text-lg font-bold text-foreground leading-none">Controle Financeiro</span>
-              <p className="text-xs text-muted-foreground mt-1">Painel de gestão pessoal</p>
+              <span className="text-lg font-bold text-foreground leading-none">{t("appName")}</span>
+              <p className="text-xs text-muted-foreground mt-1">{t("appTagline")}</p>
             </div>
           </Link>
 
           <nav className="hidden md:flex items-center gap-1 p-1 rounded-xl border border-glass bg-card/60 backdrop-blur-md">
-            {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+            {NAV_ITEMS.map(({ to, icon: Icon, labelKey }) => (
               <Link key={to} to={to}>
                 <Button variant="ghost" size="sm" className={navLinkClass(to)}>
                   <Icon className="w-4 h-4" />
-                  {label}
+                  {t(labelKey)}
                 </Button>
               </Link>
             ))}
@@ -54,6 +57,7 @@ export const Header = () => {
         </div>
 
         <div className="flex items-center gap-2">
+          <LanguageSwitcher className="gap-2 rounded-xl border-glass bg-card/70 w-auto" />
           <ThemeToggle className="rounded-xl" />
 
           <Button
@@ -64,13 +68,13 @@ export const Header = () => {
             disabled={isLoading}
           >
             <LogOut className="w-4 h-4" />
-            {isLoading ? "Saindo..." : "Sair"}
+            {isLoading ? t("loggingOut") : t("logout")}
           </Button>
 
           {/* Mobile menu */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden rounded-xl" aria-label="Abrir menu de navegação">
+              <Button variant="ghost" size="icon" className="md:hidden rounded-xl" aria-label={t("openMenu")}>
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
@@ -80,20 +84,20 @@ export const Header = () => {
                   <span className="text-white font-bold text-xl">F</span>
                 </div>
                 <div>
-                  <span className="text-base font-bold text-foreground leading-none">Controle Financeiro</span>
-                  <p className="text-xs text-muted-foreground mt-0.5">Painel de gestão pessoal</p>
+                  <span className="text-base font-bold text-foreground leading-none">{t("appName")}</span>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t("appTagline")}</p>
                 </div>
               </div>
 
               <nav className="flex flex-col gap-1">
-                {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
+                {NAV_ITEMS.map(({ to, icon: Icon, labelKey }) => (
                   <Link key={to} to={to} onClick={() => setMobileOpen(false)}>
                     <Button
                       variant="ghost"
                       className={`w-full justify-start text-base ${navLinkClass(to)}`}
                     >
                       <Icon className="w-5 h-5" />
-                      {label}
+                      {t(labelKey)}
                     </Button>
                   </Link>
                 ))}
@@ -108,7 +112,7 @@ export const Header = () => {
                   disabled={isLoading}
                 >
                   <LogOut className="w-4 h-4" />
-                  {isLoading ? "Saindo..." : "Sair"}
+                  {isLoading ? t("loggingOut") : t("logout")}
                 </Button>
               </div>
             </SheetContent>

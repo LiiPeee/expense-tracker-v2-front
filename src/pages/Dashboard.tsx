@@ -16,9 +16,11 @@ import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { useIncomeByCategory } from "@/hooks/transaction/use-income-by-category";
 import { useMonthNavigation } from "@/hooks/use-month-navigation";
 import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
+  const { t } = useTranslation("dashboard");
   const { month, year, label: monthLabel, goToPreviousMonth, goToNextMonth } = useMonthNavigation();
 
   const {
@@ -63,8 +65,8 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="flex items-center justify-between mb-8">
           <div className="rounded-3xl border border-glass bg-card/70 backdrop-blur-md px-6 py-6 shadow-medium reveal-up flex-1 mr-4">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Dashboard</h2>
-            <p className="text-muted-foreground text-base">Visão geral das suas finanças em tempo real</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">{t("title")}</h2>
+            <p className="text-muted-foreground text-base">{t("subtitle")}</p>
           </div>
 
           <TransactionFormDialog
@@ -87,7 +89,7 @@ const Dashboard = () => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
           <Card className="rounded-2xl reveal-up stagger-1 overflow-hidden border-success/20 bg-gradient-to-br from-success/5 to-success/10">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Receitas</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("income")}</CardTitle>
               <div className="w-8 h-8 rounded-full bg-success/15 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-success" />
               </div>
@@ -100,7 +102,7 @@ const Dashboard = () => {
 
           <Card className="rounded-2xl reveal-up stagger-2 overflow-hidden border-destructive/20 bg-gradient-to-br from-destructive/5 to-destructive/10">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Despesas</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("expenses")}</CardTitle>
               <div className="w-8 h-8 rounded-full bg-destructive/15 flex items-center justify-center">
                 <TrendingDown className="w-4 h-4 text-destructive" />
               </div>
@@ -113,7 +115,7 @@ const Dashboard = () => {
 
           <Card className="rounded-2xl reveal-up stagger-3 overflow-hidden border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Economia</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("savings")}</CardTitle>
               <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
                 <DollarSign className="w-4 h-4 text-primary" />
               </div>
@@ -128,10 +130,10 @@ const Dashboard = () => {
         <div className="grid gap-6 md:grid-cols-2 mb-8">
           <Card className="surface-card rounded-2xl reveal-up stagger-1">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-base font-semibold">Gastos por Categoria</CardTitle>
+              <CardTitle className="text-base font-semibold">{t("expensesByCategory")}</CardTitle>
               <Link to="/reports">
                 <Button variant="ghost" size="sm" className="text-xs text-muted-foreground h-7 px-2">
-                  Ver relatório
+                  {t("viewReport")}
                 </Button>
               </Link>
             </CardHeader>
@@ -148,10 +150,10 @@ const Dashboard = () => {
 
           <Card className="surface-card rounded-2xl reveal-up stagger-2">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-base font-semibold">Receitas por Categoria</CardTitle>
+              <CardTitle className="text-base font-semibold">{t("incomeByCategory")}</CardTitle>
               <Link to="/reports">
                 <Button variant="ghost" size="sm" className="text-xs text-muted-foreground h-7 px-2">
-                  Ver relatório
+                  {t("viewReport")}
                 </Button>
               </Link>
             </CardHeader>

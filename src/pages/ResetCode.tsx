@@ -9,9 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 export default function ResetCode() {
+  const { t } = useTranslation("auth");
   const { handleSendCode } = useAuthForm();
   const form = useForm<VerificationCodeForm>({ resolver: zodResolver(verificationCodeSchema), defaultValues: { code: "" } });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export default function ResetCode() {
   async function onSubmit(data: VerificationCodeForm) {
     setErrorMessage(null);
     const result = await handleSendCode(data.code);
-    if (!result.ok) setErrorMessage(result.message ?? "Não foi possível validar o código informado.");
+    if (!result.ok) setErrorMessage(result.message ?? t("fallback.resetCode"));
   }
 
   return (
@@ -32,9 +34,9 @@ export default function ResetCode() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-4">
             <KeyRound className="text-white w-8 h-8" />
           </div>
-          <CardTitle className="text-2xl">Inserir Código</CardTitle>
+          <CardTitle className="text-2xl">{t("codeTitle")}</CardTitle>
           <CardDescription>
-            Insira o código de 6 dígitos enviado para <span className="font-medium text-foreground">seu email</span>.
+            <Trans t={t} i18nKey="codeDescription" components={{ strong: <span className="font-medium text-foreground" /> }} />
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -42,18 +44,18 @@ export default function ResetCode() {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <VerificationCodeField control={form.control} name="code" label="Código de verificação" />
-              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText="Verificando...">
-                Verificar código
+              <VerificationCodeField control={form.control} name="code" label={t("codeLabel")} />
+              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText={t("verifying")}>
+                {t("verifyCode")}
               </LoadingButton>
             </form>
           </Form>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              Não recebeu o código?{" "}
+              {t("codeNotReceived")}{" "}
               <Link to={`/forgot-password`} className="text-primary hover:underline">
-                Reenviar
+                {t("resend")}
               </Link>
             </p>
             <Link
@@ -61,7 +63,7 @@ export default function ResetCode() {
               className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Voltar para o login
+              {t("backToLogin")}
             </Link>
           </div>
         </CardContent>
