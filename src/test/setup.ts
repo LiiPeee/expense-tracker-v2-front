@@ -1,4 +1,9 @@
 import "@testing-library/jest-dom";
+import i18n from "@/i18n";
+
+// Force a deterministic locale so assertions on Portuguese copy stay stable
+// regardless of the jsdom navigator language.
+i18n.changeLanguage("pt-BR");
 
 // jsdom não implementa estas APIs de DOM que o Radix UI (Select, Dropdown, etc.)
 // usa ao abrir/posicionar overlays. Sem elas, abrir um Select lança

@@ -9,9 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MailCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 export default function VerifyTokenEmail() {
+  const { t } = useTranslation("auth");
   const { handleVerifyEmailToken } = useAuthForm();
   const form = useForm<VerificationCodeForm>({ resolver: zodResolver(verificationCodeSchema), defaultValues: { code: "" } });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export default function VerifyTokenEmail() {
   async function onSubmit(data: VerificationCodeForm) {
     setErrorMessage(null);
     const result = await handleVerifyEmailToken(data.code);
-    if (!result.ok) setErrorMessage(result.message ?? "Não foi possível verificar o código informado.");
+    if (!result.ok) setErrorMessage(result.message ?? t("fallback.verifyEmail"));
   }
 
   return (
@@ -32,9 +34,9 @@ export default function VerifyTokenEmail() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-4">
             <MailCheck className="text-white w-8 h-8" />
           </div>
-          <CardTitle className="text-2xl">Verificar Email</CardTitle>
+          <CardTitle className="text-2xl">{t("verifyEmailTitle")}</CardTitle>
           <CardDescription>
-            Insira o código de 6 dígitos enviado para <span className="font-medium text-foreground">seu email</span>.
+            <Trans t={t} i18nKey="verifyEmailDescription" components={{ strong: <span className="font-medium text-foreground" /> }} />
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -42,9 +44,9 @@ export default function VerifyTokenEmail() {
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <VerificationCodeField control={form.control} name="code" label="Código de verificação" />
-              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText="Verificando...">
-                Verificar código
+              <VerificationCodeField control={form.control} name="code" label={t("codeLabel")} />
+              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText={t("verifying")}>
+                {t("verifyCode")}
               </LoadingButton>
             </form>
           </Form>
@@ -54,7 +56,7 @@ export default function VerifyTokenEmail() {
               to="/auth"
               className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              Voltar para o login
+              {t("backToLogin")}
             </Link>
           </div>
         </CardContent>

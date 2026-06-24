@@ -10,8 +10,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LockKeyhole } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 export default function NewPassword() {
+  const { t } = useTranslation("auth");
   const { handleResetPassword } = useAuthForm();
   const form = useForm<NewPasswordForm>({
     resolver: zodResolver(newPasswordSchema),
@@ -23,7 +25,7 @@ export default function NewPassword() {
   async function onSubmit(data: NewPasswordForm) {
     setErrorMessage(null);
     const result = await handleResetPassword(data.password);
-    if (!result.ok) setErrorMessage(result.message ?? "Não foi possível redefinir sua senha. Tente o processo novamente.");
+    if (!result.ok) setErrorMessage(result.message ?? t("fallback.newPassword"));
   }
 
   return (
@@ -36,22 +38,22 @@ export default function NewPassword() {
           <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-hero flex items-center justify-center mb-4">
             <LockKeyhole className="text-white w-8 h-8" />
           </div>
-          <CardTitle className="text-2xl">Nova Senha</CardTitle>
-          <CardDescription>Crie uma senha forte para proteger sua conta.</CardDescription>
+          <CardTitle className="text-2xl">{t("newPasswordTitle")}</CardTitle>
+          <CardDescription>{t("newPasswordDescription")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {errorMessage ? <ErrorStateCard message={errorMessage} onRetry={() => setErrorMessage(null)} /> : null}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <PasswordField control={form.control} name="password" label="Nova senha" placeholder="••••••••">
+              <PasswordField control={form.control} name="password" label={t("newPasswordLabel")} placeholder="••••••••">
                 {password.length > 0 && <PasswordStrengthIndicator password={password} />}
               </PasswordField>
 
-              <PasswordField control={form.control} name="confirmPassword" label="Confirmar senha" placeholder="••••••••" />
+              <PasswordField control={form.control} name="confirmPassword" label={t("confirmPasswordLabel")} placeholder="••••••••" />
 
-              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText="Salvando...">
-                Salvar nova senha
+              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText={t("saving")}>
+                {t("saveNewPassword")}
               </LoadingButton>
             </form>
           </Form>
