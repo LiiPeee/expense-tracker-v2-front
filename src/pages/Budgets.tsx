@@ -1,3 +1,4 @@
+import { BudgetAlertsBanner } from "@/components/budgets/BudgetAlertsBanner";
 import { BudgetFormDialog } from "@/components/budgets/BudgetFormDialog";
 import { BudgetsPaginatedTable } from "@/components/budgets/BudgetsPaginatedTable";
 import { Header } from "@/components/layout/Header";
@@ -54,6 +55,8 @@ const Budgets = () => {
         </div>
 
         <RefreshAllButton isRefreshing={isRefreshing} onRefresh={handleRefresh} />
+
+        <BudgetAlertsBanner budgets={budgets} />
 
         <Card className="mb-6 rounded-2xl">
           <CardHeader>
