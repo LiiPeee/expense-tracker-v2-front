@@ -32,8 +32,8 @@ export function TransactionsTable({ transactions, onEdit, onDelete }: Transactio
         {transactions.map((transaction) => (
           <TableRow key={transaction.id}>
             <TableCell className="truncate">
-              {transaction.dateOfInstallment
-                ? new Date(transaction.dateOfInstallment).toLocaleDateString("pt-BR")
+              {transaction.competenceDate
+                ? new Date(transaction.competenceDate).toLocaleDateString("pt-BR")
                 : transaction.createdDate
                   ? new Date(transaction.createdDate).toLocaleDateString("pt-BR")
                   : "-"}
