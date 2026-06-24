@@ -1,28 +1,30 @@
-import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
-import { LoadingButton } from "@/components/ui/loading-button";
+import { ErrorStateCard } from "@/components/ui/async-state";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { isStrongPassword, PasswordStrengthIndicator } from "@/components/ui/password-strength";
+import { Form } from "@/components/ui/form";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { PasswordField } from "@/components/ui/password-field";
+import { PasswordStrengthIndicator } from "@/components/ui/password-strength";
+import { type NewPasswordForm, newPasswordSchema } from "@/helper/auth";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
-import { Eye, EyeOff, LockKeyhole } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LockKeyhole } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export default function NewPassword() {
-  const { password, confirmPassword, strength, passwordsMatch, isLoading, setPassword, setConfirmPassword, handleResetPassword } =
-    useAuthForm();
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const { handleResetPassword } = useAuthForm();
+  const form = useForm<NewPasswordForm>({
+    resolver: zodResolver(newPasswordSchema),
+    defaultValues: { password: "", confirmPassword: "" },
+  });
+  const password = form.watch("password");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  async function onSubmit(data: NewPasswordForm) {
     setErrorMessage(null);
-    const result = await handleResetPassword(e);
-    if (!result.ok) {
-      setErrorMessage(result.message ?? "Não foi possível redefinir sua senha. Tente o processo novamente.");
-    }
-  };
+    const result = await handleResetPassword(data.password);
+    if (!result.ok) setErrorMessage(result.message ?? "Não foi possível redefinir sua senha. Tente o processo novamente.");
+  }
 
   return (
     <div className="page-shell relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
@@ -40,70 +42,19 @@ export default function NewPassword() {
         <CardContent className="space-y-4">
           {errorMessage ? <ErrorStateCard message={errorMessage} onRetry={() => setErrorMessage(null)} /> : null}
 
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="new-password">Nova senha</Label>
-              <div className="relative">
-                <Input
-                  id="new-password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={isLoading}
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  disabled={isLoading}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <PasswordField control={form.control} name="password" label="Nova senha" placeholder="••••••••">
+                {password.length > 0 && <PasswordStrengthIndicator password={password} />}
+              </PasswordField>
 
-            {password.length > 0 && <PasswordStrengthIndicator password={password} />}
+              <PasswordField control={form.control} name="confirmPassword" label="Confirmar senha" placeholder="••••••••" />
 
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirmar senha</Label>
-              <div className="relative">
-                <Input
-                  id="confirm-password"
-                  type={showConfirm ? "text" : "password"}
-                  placeholder="••••••••"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  disabled={isLoading}
-                  className={`pr-10 ${confirmPassword.length > 0 ? (passwordsMatch ? "border-green-500 focus-visible:ring-green-500" : "border-destructive focus-visible:ring-destructive") : ""}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  disabled={isLoading}
-                >
-                  {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              {confirmPassword.length > 0 && !passwordsMatch && <p className="text-xs text-destructive">As senhas não conferem.</p>}
-            </div>
-
-            <LoadingButton
-              type="submit"
-              className="w-full"
-              isLoading={isLoading}
-              loadingText="Salvando..."
-              disabled={!isStrongPassword(strength) || !passwordsMatch}
-            >
-              Salvar nova senha
-            </LoadingButton>
-          </form>
-
-          {isLoading ? <LoadingStateCard lines={2} /> : null}
+              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText="Salvando...">
+                Salvar nova senha
+              </LoadingButton>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

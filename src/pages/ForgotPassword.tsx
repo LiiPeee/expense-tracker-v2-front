@@ -1,25 +1,26 @@
-import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
-import { LoadingButton } from "@/components/ui/loading-button";
+import { ErrorStateCard } from "@/components/ui/async-state";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Form } from "@/components/ui/form";
+import { FormTextField } from "@/components/ui/form-text-field";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { type ForgotPasswordForm, forgotPasswordSchema } from "@/helper/auth";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, Mail } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
 export default function ForgotPassword() {
-  const { emailForgot, isLoading, setEmail, handleForgotPassword } = useAuthForm();
+  const { handleForgotPassword } = useAuthForm();
+  const form = useForm<ForgotPasswordForm>({ resolver: zodResolver(forgotPasswordSchema), defaultValues: { email: "" } });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  async function onSubmit(data: ForgotPasswordForm) {
     setErrorMessage(null);
-    const result = await handleForgotPassword();
-    if (!result.ok) {
-      setErrorMessage(result.message ?? "Não foi possível enviar o código de recuperação.");
-    }
-  };
+    const result = await handleForgotPassword(data.email);
+    if (!result.ok) setErrorMessage(result.message ?? "Não foi possível enviar o código de recuperação.");
+  }
 
   return (
     <div className="page-shell relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
@@ -37,25 +38,14 @@ export default function ForgotPassword() {
         <CardContent className="space-y-4">
           {errorMessage ? <ErrorStateCard message={errorMessage} onRetry={() => setErrorMessage(null)} /> : null}
 
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                value={emailForgot}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <LoadingButton type="submit" className="w-full" isLoading={isLoading} loadingText="Enviando...">
-              Enviar código de recuperação
-            </LoadingButton>
-          </form>
-
-          {isLoading ? <LoadingStateCard lines={2} /> : null}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormTextField control={form.control} name="email" label="Email" type="email" placeholder="seu@email.com" />
+              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText="Enviando...">
+                Enviar código de recuperação
+              </LoadingButton>
+            </form>
+          </Form>
 
           <div className="text-center">
             <Link

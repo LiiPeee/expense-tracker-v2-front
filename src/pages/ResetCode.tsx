@@ -1,24 +1,26 @@
-import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
-import { LoadingButton } from "@/components/ui/loading-button";
+import { ErrorStateCard } from "@/components/ui/async-state";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Form } from "@/components/ui/form";
+import { LoadingButton } from "@/components/ui/loading-button";
+import { VerificationCodeField } from "@/components/ui/verification-code-field";
+import { type VerificationCodeForm, verificationCodeSchema } from "@/helper/auth";
 import { useAuthForm } from "@/hooks/auth/use-auth-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, KeyRound } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 
 export default function ResetCode() {
-  const { handleSendCode, isLoading, code, setCode } = useAuthForm();
+  const { handleSendCode } = useAuthForm();
+  const form = useForm<VerificationCodeForm>({ resolver: zodResolver(verificationCodeSchema), defaultValues: { code: "" } });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const onSubmit = async (e: React.FormEvent) => {
+  async function onSubmit(data: VerificationCodeForm) {
     setErrorMessage(null);
-    const result = await handleSendCode(e);
-    if (!result.ok) {
-      setErrorMessage(result.message ?? "Não foi possível validar o código informado.");
-    }
-  };
+    const result = await handleSendCode(data.code);
+    if (!result.ok) setErrorMessage(result.message ?? "Não foi possível validar o código informado.");
+  }
 
   return (
     <div className="page-shell relative min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden">
@@ -32,33 +34,20 @@ export default function ResetCode() {
           </div>
           <CardTitle className="text-2xl">Inserir Código</CardTitle>
           <CardDescription>
-            Insira o código de 6 dígitos enviado para <span className="font-medium text-foreground">{"seu email"}</span>.
+            Insira o código de 6 dígitos enviado para <span className="font-medium text-foreground">seu email</span>.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {errorMessage ? <ErrorStateCard message={errorMessage} onRetry={() => setErrorMessage(null)} /> : null}
 
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="code">Código de verificação</Label>
-              <Input
-                id="code"
-                type="text"
-                placeholder="000000"
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                required
-                disabled={isLoading}
-                maxLength={6}
-                className="tracking-widest text-center text-lg font-mono"
-              />
-            </div>
-            <LoadingButton type="submit" className="w-full" isLoading={isLoading} loadingText="Verificando..." disabled={code.length < 6}>
-              Verificar código
-            </LoadingButton>
-          </form>
-
-          {isLoading ? <LoadingStateCard lines={2} /> : null}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <VerificationCodeField control={form.control} name="code" label="Código de verificação" />
+              <LoadingButton type="submit" className="w-full" isLoading={form.formState.isSubmitting} loadingText="Verificando...">
+                Verificar código
+              </LoadingButton>
+            </form>
+          </Form>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">

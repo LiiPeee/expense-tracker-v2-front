@@ -87,6 +87,44 @@ describe("auth pages", () => {
     expect(await screen.findByText("Nova Senha")).toBeInTheDocument();
   });
 
+  it("ForgotPassword blocks submit and shows an inline error for an invalid email", async () => {
+    render(
+      <MemoryRouter initialEntries={["/forgot-password"]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Routes>
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const input = screen.getByLabelText("Email");
+    fireEvent.change(input, { target: { value: "not-an-email" } });
+    const form = input.closest("form");
+    if (!form) throw new Error("Form not found");
+    fireEvent.submit(form);
+
+    expect(await screen.findByText("Email inválido")).toBeInTheDocument();
+    expect(mockedForgotPassword).not.toHaveBeenCalled();
+  });
+
+  it("ResetCode blocks submit and shows an inline error for a short code", async () => {
+    render(
+      <MemoryRouter initialEntries={["/reset-code?email=dev@mail.com"]} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Routes>
+          <Route path="/reset-code" element={<ResetCode />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const input = screen.getByLabelText("Código de verificação");
+    fireEvent.change(input, { target: { value: "123" } });
+    const form = input.closest("form");
+    if (!form) throw new Error("Form not found");
+    fireEvent.submit(form);
+
+    expect(await screen.findByText("O código deve ter 6 dígitos")).toBeInTheDocument();
+    expect(mockedValidateResetCode).not.toHaveBeenCalled();
+  });
+
   it("VerifyTokenEmail verifies token and navigates to auth route", async () => {
     render(
       <MemoryRouter
