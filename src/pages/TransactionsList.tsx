@@ -3,19 +3,25 @@ import { TransactionFormDialog } from "@/components/transactions/TransactionForm
 import { TransactionsFiltersCard } from "@/components/transactions/TransactionsFiltersCard";
 import { TransactionsPaginatedTable } from "@/components/transactions/TransactionsPaginatedTable";
 import { TransactionsSummaryCards } from "@/components/transactions/TransactionsSummaryCards";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories";
+import { buildTransactionsCsv } from "@/helper/transaction-export";
+import { downloadCsv } from "@/helper/csv";
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
-import { useTransactionsList } from "@/hooks/transaction/use-get-transactions";
+import { fetchAllTransactions, useTransactionsList } from "@/hooks/transaction/use-get-transactions";
 import { useTransactionFilters } from "@/hooks/transaction/use-transaction-filters";
 import type { TransactionForm } from "@/helper/transaction";
 import { useQueryClient } from "@tanstack/react-query";
+import { Download } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 const TransactionsList = () => {
   const queryClient = useQueryClient();
+  const [isExporting, setIsExporting] = useState(false);
 
   const { handleDelete, handleEdit, submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } = useTransaction();
 
@@ -76,6 +82,23 @@ const TransactionsList = () => {
     resetToFirstPage();
   };
 
+  const handleExportCsv = async () => {
+    setIsExporting(true);
+    try {
+      const allTransactions = await fetchAllTransactions(transactionQuery);
+      if (allTransactions.length === 0) {
+        toast.info("Nenhuma transação para exportar.");
+        return;
+      }
+      downloadCsv(`transacoes-${activePeriod.year}-${String(activePeriod.month).padStart(2, "0")}.csv`, buildTransactionsCsv(allTransactions));
+      toast.success("Exportação concluída!");
+    } catch {
+      toast.error("Erro ao exportar transações.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="page-shell">
       <Header />
@@ -105,7 +128,20 @@ const TransactionsList = () => {
           economyMonthTotal={economyMonthTotal}
         />
 
-        <RefreshAllButton isRefreshing={isRefreshing || isSummaryFetching} onRefresh={handleRefresh} />
+        <div className="flex flex-wrap items-center gap-3">
+          <RefreshAllButton isRefreshing={isRefreshing || isSummaryFetching} onRefresh={handleRefresh} />
+          <LoadingButton
+            variant="outline"
+            className="gap-2 rounded-xl"
+            onClick={handleExportCsv}
+            isLoading={isExporting}
+            loadingText="Exportando..."
+            disabled={totalRecords === 0}
+          >
+            <Download className="h-4 w-4" />
+            Exportar CSV
+          </LoadingButton>
+        </div>
 
         <TransactionsFiltersCard
           month={month}

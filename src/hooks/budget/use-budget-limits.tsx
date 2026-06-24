@@ -1,23 +1,14 @@
 import { QUERY_STALE_TIME } from "@/constants/query";
 import { type BudgetLimit, type BudgetLimitForm, mapBudgetFormToRequest } from "@/helper/budget";
 import { getErrorMessage } from "@/lib/api";
+import { fetchAllPages } from "@/lib/paginate";
 import { createBudgetLimit, getBudgetLimitsByAccountPage } from "@/services/budget";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
-async function fetchAllBudgetLimits(): Promise<BudgetLimit[]> {
-  const firstPage = await getBudgetLimitsByAccountPage(1);
-  const firstItems = (firstPage.items ?? []).filter((item): item is BudgetLimit => item != null);
-  const safePageSize = Math.max(firstPage.pageSize || 0, firstItems.length, 1);
-  const totalPages = Math.max(1, Math.ceil((firstPage.totalRecords || firstItems.length) / safePageSize));
-
-  if (totalPages === 1) return firstItems;
-
-  const remainingPages = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
-  const responses = await Promise.all(remainingPages.map((page) => getBudgetLimitsByAccountPage(page)));
-
-  return [...firstItems, ...responses.flatMap((r) => (r.items ?? []).filter((item): item is BudgetLimit => item != null))];
+function fetchAllBudgetLimits(): Promise<BudgetLimit[]> {
+  return fetchAllPages<BudgetLimit>((page) => getBudgetLimitsByAccountPage(page));
 }
 
 export function useBudgetLimits() {
