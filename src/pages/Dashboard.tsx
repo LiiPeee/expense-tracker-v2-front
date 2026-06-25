@@ -2,20 +2,23 @@ import { ExpensePieChart } from "@/components/charts/ExpensePieChart";
 import { MonthNavigator } from "@/components/dashboard/MonthNavigator";
 import { Header } from "@/components/layout/Header";
 import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories";
+import { summarizeBudgetAlerts } from "@/helper/budget";
 import type { TransactionForm } from "@/helper/transaction";
 import { formatBRL } from "@/helper/utils";
+import { useBudgetLimits } from "@/hooks/budget/use-budget-limits";
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { useIncomeByCategory } from "@/hooks/transaction/use-income-by-category";
 import { useMonthNavigation } from "@/hooks/use-month-navigation";
-import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
+import { AlertTriangle, DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -47,6 +50,9 @@ const Dashboard = () => {
 
   const { submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } = useTransaction();
   const { contacts, getAllContact } = useContact();
+  const { budgets } = useBudgetLimits();
+
+  const overBudgetCount = summarizeBudgetAlerts(budgets.filter((budget) => budget.month === month && budget.year === year)).over;
 
   const isRefreshing = isRefreshingSummary || isLoadingChart || isLoadingIncomeChart;
 
@@ -85,6 +91,19 @@ const Dashboard = () => {
           <MonthNavigator label={monthLabel} onPreviousMonth={goToPreviousMonth} onNextMonth={goToNextMonth} />
           <RefreshAllButton isRefreshing={isRefreshing} onRefresh={handleRefresh} />
         </div>
+
+        {overBudgetCount > 0 ? (
+          <Alert variant="destructive" className="mb-6 rounded-2xl">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>{t("budgetAlertTitle")}</AlertTitle>
+            <AlertDescription className="flex flex-wrap items-center justify-between gap-2">
+              <span>{t("budgetAlert", { count: overBudgetCount })}</span>
+              <Link to="/budgets" className="font-medium underline underline-offset-4">
+                {t("viewBudgets")}
+              </Link>
+            </AlertDescription>
+          </Alert>
+        ) : null}
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
           <Card className="rounded-2xl reveal-up stagger-1 overflow-hidden border-success/20 bg-gradient-to-br from-success/5 to-success/10">

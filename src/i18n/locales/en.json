@@ -110,7 +110,11 @@
     "incomeByCategory": "Income by Category",
     "viewReport": "View report",
     "previousMonth": "Previous month",
-    "nextMonth": "Next month"
+    "nextMonth": "Next month",
+    "budgetAlertTitle": "Budget warning",
+    "budgetAlert_one": "{{count}} budget over its limit this month.",
+    "budgetAlert_other": "{{count}} budgets over their limit this month.",
+    "viewBudgets": "View budgets"
   },
   "errors": {
     "emailInvalid": "Invalid email.",
