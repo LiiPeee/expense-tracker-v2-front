@@ -1,4 +1,5 @@
 import type { TransactionResponse } from "@/helper/transaction";
+import { fetchAllPages } from "@/lib/paginate";
 import { getTransactionsByTypePaged } from "@/services/transaction";
 
 export type CategoryChartData = {
@@ -24,18 +25,8 @@ export const CHART_COLORS = [
   "#10b981",
 ];
 
-async function fetchAllTransactionsByType(typeName: "Expense" | "Income", month: number, year: number): Promise<TransactionResponse[]> {
-  const firstPage = await getTransactionsByTypePaged(typeName, month, year, 1);
-  const totalPages = Math.ceil(firstPage.totalRecords / firstPage.pageSize);
-  const allItems = [...firstPage.items];
-
-  if (totalPages > 1) {
-    const remainingPages = Array.from({ length: totalPages - 1 }, (_, index) => index + 2);
-    const responses = await Promise.all(remainingPages.map((pageNumber) => getTransactionsByTypePaged(typeName, month, year, pageNumber)));
-    responses.forEach((response) => allItems.push(...response.items));
-  }
-
-  return allItems;
+function fetchAllTransactionsByType(typeName: "Expense" | "Income", month: number, year: number): Promise<TransactionResponse[]> {
+  return fetchAllPages<TransactionResponse>((page) => getTransactionsByTypePaged(typeName, month, year, page));
 }
 
 function aggregateByCategory(transactions: TransactionResponse[]): CategoryChartData[] {

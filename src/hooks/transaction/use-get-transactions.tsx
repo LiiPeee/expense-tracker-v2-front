@@ -10,6 +10,7 @@ import {
   getTransactionsByTypeAndContactPaged,
   getTransactionsByTypePaged,
 } from "@/services/transaction";
+import { fetchAllPages } from "@/lib/paginate";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { QUERY_STALE_TIME } from "@/constants/query";
 
@@ -37,6 +38,12 @@ async function fetchTransactions(query: TransactionListQuery, page: number): Pro
     case "contactType":
       return getTransactionsByTypeAndContactPaged(query.typeName, query.contactId, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
   }
+}
+
+/** Fetches every page for the given query and returns the flattened, recurrence-normalized list (for export). */
+export async function fetchAllTransactions(query: TransactionListQuery): Promise<TransactionResponse[]> {
+  const items = await fetchAllPages((page) => fetchTransactions(query, page));
+  return items.map((item) => ({ ...item, recurrence: normalizeRecurrence(item.recurrence) })) as TransactionResponse[];
 }
 
 /** Resolves month/year filter strings into numeric values, falling back to the current month/year. */
