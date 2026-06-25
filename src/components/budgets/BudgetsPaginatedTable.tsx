@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { BudgetLimit, BudgetUsageStatus } from "@/helper/budget";
-import { getBudgetCategoryName, getBudgetUsageStatus, parseBudgetPercentage } from "@/helper/budget";
+import { getBudgetCategoryName, getBudgetUsageStatus, parseBudgetAmount, parseBudgetPercentage } from "@/helper/budget";
 import { formatBRL, getMonthNames } from "@/helper/utils";
 import { PiggyBank } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -105,7 +105,7 @@ export function BudgetsPaginatedTable({
 
       <CardContent>
         {isLoading && budgets.length === 0 ? (
-          <TableLoadingState columns={5} rows={8} />
+          <TableLoadingState columns={6} rows={8} />
         ) : (
           <Table>
             <TableHeader>
@@ -113,6 +113,7 @@ export function BudgetsPaginatedTable({
                 <TableHead>{t("category")}</TableHead>
                 <TableHead>{t("colPeriod")}</TableHead>
                 <TableHead className="text-right">{t("limit")}</TableHead>
+                <TableHead className="text-right">{t("colSpent")}</TableHead>
                 <TableHead className="text-right">{t("colUsage")}</TableHead>
                 <TableHead className="text-center">{t("colStatus")}</TableHead>
               </TableRow>
@@ -121,7 +122,7 @@ export function BudgetsPaginatedTable({
             <TableBody>
               {budgets.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5}>
+                  <TableCell colSpan={6}>
                     <div className="empty-state">
                       <PiggyBank className="h-6 w-6 text-muted-foreground" />
                       <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
@@ -132,9 +133,10 @@ export function BudgetsPaginatedTable({
               ) : (
                 budgets.map((budget) => (
                   <TableRow key={`${budget.id ?? getBudgetCategoryName(budget)}-${budget.month}-${budget.year}`} className="table-row-lift">
-                    <TableCell className="font-medium">{budget.category?.name?.trim() || t("noCategory")}</TableCell>
+                    <TableCell className="font-medium">{getBudgetCategoryName(budget, t("noCategory"))}</TableCell>
                     <TableCell className="text-muted-foreground">{`${monthLabels[budget.month - 1] ?? budget.month}/${budget.year}`}</TableCell>
                     <TableCell className="text-right font-semibold tabular-nums">{formatBRL(Number(budget.limitAmount) || 0)}</TableCell>
+                    <TableCell className="text-right tabular-nums">{formatBRL(parseBudgetAmount(budget.spentAmount))}</TableCell>
                     <TableCell className="text-right">
                       <BudgetProgressBar percentage={budget.percentage} />
                     </TableCell>

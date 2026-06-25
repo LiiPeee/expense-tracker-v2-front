@@ -46,4 +46,14 @@ describe("budget alerts", () => {
     expect(screen.getByText("Atenção aos seus orçamentos")).toBeInTheDocument();
     expect(screen.getByText("1 acima do limite.")).toBeInTheDocument();
   });
+
+  it("renders the flat categoryName and spentAmount from BudgetLimitOutput", async () => {
+    const output: BudgetLimit = { id: 2, month: 1, year: 2026, limitAmount: 200, spentAmount: 150, percentage: 75, isLimit: false, categoryName: "Transporte" };
+    mockedGetBudgets.mockResolvedValue({ pageNumber: 1, pageSize: 1, totalRecords: 1, items: [output] });
+
+    renderBudgets();
+
+    expect(await screen.findByText("Transporte")).toBeInTheDocument();
+    expect(screen.getByText("R$ 150,00")).toBeInTheDocument();
+  });
 });

@@ -9,8 +9,12 @@ export interface BudgetLimit {
   year: number;
   categoryId?: number;
   percentage?: number | string;
+  // Backend BudgetLimitOutput returns a flat categoryName + spentAmount; the nested
+  // `category` is kept optional for backward compatibility with older responses.
+  categoryName?: string;
+  spentAmount?: number | string;
   category?: Category | null;
-  accountId: number;
+  accountId?: number;
   limitAmount: number | string;
 }
 
@@ -105,8 +109,14 @@ export function summarizeBudgetAlerts(budgets: BudgetLimit[]): { over: number; w
   );
 }
 
-export function getBudgetCategoryName(budget: BudgetLimit): string {
-  return budget.category?.name?.trim() || "Sem categoria";
+export function getBudgetCategoryName(budget: BudgetLimit, fallback = "Sem categoria"): string {
+  return budget.categoryName?.trim() || budget.category?.name?.trim() || fallback;
+}
+
+export function parseBudgetAmount(value: number | string | undefined): number {
+  if (value == null || value === "") return 0;
+  const parsed = typeof value === "number" ? value : Number.parseFloat(String(value).replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 export function formatBudgetMonthYear(budget: Pick<BudgetLimit, "month" | "year">): string {
