@@ -355,6 +355,7 @@
     "refreshError": "Error updating the page!",
     "tableTitle": "My Assets",
     "columnTicker": "Ticker",
+    "columnQuantity": "Quantity",
     "columnMarketPrice": "Market Price",
     "columnBuyPrice": "Purchase Price",
     "columnChange": "Change",

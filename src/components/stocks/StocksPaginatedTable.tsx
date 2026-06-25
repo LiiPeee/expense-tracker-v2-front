@@ -53,6 +53,7 @@ export function StocksPaginatedTable({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[140px]">{t("columnTicker")}</TableHead>
+                <TableHead className="w-[110px] text-right">{t("columnQuantity")}</TableHead>
                 <TableHead className="w-[160px] text-right">{t("columnMarketPrice")}</TableHead>
                 <TableHead className="w-[160px] text-right">{t("columnBuyPrice")}</TableHead>
                 <TableHead className="w-[140px] text-right">{t("columnChange")}</TableHead>
@@ -62,7 +63,7 @@ export function StocksPaginatedTable({
             <TableBody>
               {stocks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4}>
+                  <TableCell colSpan={5}>
                     <div className="empty-state">
                       <TrendingUp className="w-6 h-6 text-muted-foreground" />
                       <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
@@ -81,6 +82,7 @@ export function StocksPaginatedTable({
                           <span className="font-semibold">{stock.ticker}</span>
                         </div>
                       </TableCell>
+                      <TableCell className="text-right tabular-nums">{stock.quantity}</TableCell>
                       <TableCell className="text-right">
                         {stock.priceMarket.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                       </TableCell>

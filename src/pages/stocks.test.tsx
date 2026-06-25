@@ -31,13 +31,14 @@ describe("Stocks page", () => {
       pageNumber: 1,
       pageSize: 10,
       totalRecords: 1,
-      items: [{ ticker: "PETR4", priceMarket: 40, priceBuyed: 30, percentage: "33.33%" }],
+      items: [{ ticker: "PETR4", quantity: 7, priceMarket: 40, priceBuyed: 30, percentage: "33.33%" }],
     } as PagedStocksResponse);
 
     renderStocks();
 
     expect(await screen.findByText("PETR4")).toBeInTheDocument();
     expect(screen.getByText("Minha Carteira")).toBeInTheDocument();
+    expect(screen.getByText("7")).toBeInTheDocument();
     // totalLabel must interpolate the value (regression guard for the {{value}} key)
     expect(screen.getByText(/Total: 1/)).toBeInTheDocument();
   });
