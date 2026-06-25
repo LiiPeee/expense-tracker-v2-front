@@ -12,6 +12,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { type StockResponse } from "@/helper/stock";
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type StocksPaginatedTableProps = {
   stocks: StockResponse[];
@@ -34,10 +35,14 @@ export function StocksPaginatedTable({
   isLoading = false,
   onPageChange,
 }: StocksPaginatedTableProps) {
+  const { t } = useTranslation("stocks");
+
   return (
     <Card className="surface-card rounded-2xl reveal-up stagger-2">
       <CardHeader>
-        <CardTitle>Meus Ativos ({totalRecords})</CardTitle>
+        <CardTitle>
+          {t("tableTitle")} ({totalRecords})
+        </CardTitle>
       </CardHeader>
 
       <CardContent>
@@ -47,10 +52,10 @@ export function StocksPaginatedTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[140px]">Ticker</TableHead>
-                <TableHead className="w-[160px] text-right">Preço de Mercado</TableHead>
-                <TableHead className="w-[160px] text-right">Preço de Compra</TableHead>
-                <TableHead className="w-[140px] text-right">Variação</TableHead>
+                <TableHead className="w-[140px]">{t("columnTicker")}</TableHead>
+                <TableHead className="w-[160px] text-right">{t("columnMarketPrice")}</TableHead>
+                <TableHead className="w-[160px] text-right">{t("columnBuyPrice")}</TableHead>
+                <TableHead className="w-[140px] text-right">{t("columnChange")}</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -60,8 +65,8 @@ export function StocksPaginatedTable({
                   <TableCell colSpan={4}>
                     <div className="empty-state">
                       <TrendingUp className="w-6 h-6 text-muted-foreground" />
-                      <p className="text-sm font-medium text-foreground">Nenhum ativo encontrado</p>
-                      <p className="text-xs text-muted-foreground">Adicione um ativo para começar a acompanhar sua carteira.</p>
+                      <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
+                      <p className="text-xs text-muted-foreground">{t("emptySubtitle")}</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -98,11 +103,8 @@ export function StocksPaginatedTable({
 
         <div className="mt-4 flex items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            Página <span className="font-medium text-foreground">{currentPage}</span> de{" "}
-            <span className="font-medium text-foreground">{totalPages}</span>
-            <span className="ml-2">
-              (Total: <span className="font-medium text-foreground">{totalRecords}</span>)
-            </span>
+            {t("pagination", { current: currentPage, total: totalPages })}
+            <span className="ml-2">({t("totalLabel", { value: totalRecords })})</span>
           </div>
 
           <Pagination>
