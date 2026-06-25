@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { TransactionResponse } from "@/helper/transaction";
-import { formatBRL } from "@/helper/utils";
+import { formatBRL, RECURRENCE_LABEL_KEY } from "@/helper/utils";
 import { Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -51,7 +51,7 @@ export function TransactionsTable({ transactions, onEdit, onDelete }: Transactio
             <TableCell className="truncate">{transaction.contact?.name ?? "-"}</TableCell>
             <TableCell className="truncate">{transaction.contact?.email ?? "-"}</TableCell>
             <TableCell className="truncate">{transaction.contact?.phone ?? "-"}</TableCell>
-            <TableCell className="truncate">{transaction.recurrence ?? "-"}</TableCell>
+            <TableCell className="truncate">{transaction.recurrence && RECURRENCE_LABEL_KEY[transaction.recurrence] ? t(`recLabel.${RECURRENCE_LABEL_KEY[transaction.recurrence]}`) : (transaction.recurrence ?? "-")}</TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" size="icon" aria-label={t("editAria")} onClick={() => onEdit(transaction)}>

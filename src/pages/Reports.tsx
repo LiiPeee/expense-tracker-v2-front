@@ -4,7 +4,7 @@ import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatBRL, getDefaultYearMonth, monthNames } from "@/helper/utils";
+import { formatBRL, getDefaultYearMonth, getMonthNames } from "@/helper/utils";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
 import { PieChart, RefreshCw } from "lucide-react";
 import { useState } from "react";
@@ -14,7 +14,8 @@ const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 const Reports = () => {
-  const { t } = useTranslation("reports");
+  const { t, i18n } = useTranslation("reports");
+  const localizedMonths = getMonthNames(i18n.language);
   const ym = getDefaultYearMonth();
   const [selectedMonth, setSelectedMonth] = useState<string>(String(ym.month));
   const [selectedYear, setSelectedYear] = useState<string>(String(ym.year));
@@ -27,7 +28,7 @@ const Reports = () => {
     setAppliedYear(Number(selectedYear));
   }
 
-  const selectedMonthLabel = monthNames[appliedMonth - 1];
+  const selectedMonthLabel = localizedMonths[appliedMonth - 1];
 
   return (
     <div className="page-shell">
@@ -49,7 +50,7 @@ const Reports = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {monthNames.map((name, i) => (
+                    {localizedMonths.map((name, i) => (
                       <SelectItem key={i + 1} value={String(i + 1)}>
                         {name}
                       </SelectItem>

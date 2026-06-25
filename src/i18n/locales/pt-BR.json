@@ -309,7 +309,13 @@
     "fieldSubCategoryPlaceholder": "Ex: Salário",
     "update": "Atualizar",
     "create": "Criar",
-    "saving": "Salvando..."
+    "saving": "Salvando...",
+    "recLabel": {
+      "none": "Não",
+      "weekly": "Semanal",
+      "biweekly": "Quinzenal",
+      "monthly": "Mensal"
+    }
   },
   "validation": {
     "emailInvalid": "Email inválido",

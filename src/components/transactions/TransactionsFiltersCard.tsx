@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CategoryList } from "@/helper/category";
 import type { Contact } from "@/helper/contact";
-import { monthNames } from "@/helper/utils";
+import { getMonthNames, monthNames } from "@/helper/utils";
 import { useTranslation } from "react-i18next";
 
 type TransactionsFiltersCardProps = {
@@ -36,7 +36,8 @@ export function TransactionsFiltersCard({
   onChangeContact,
   onApplyFilters,
 }: TransactionsFiltersCardProps) {
-  const { t } = useTranslation("transactions");
+  const { t, i18n } = useTranslation("transactions");
+  const localizedMonths = getMonthNames(i18n.language);
   return (
     <Card className="surface-card rounded-2xl mb-6 reveal-up stagger-1">
       <CardHeader>
@@ -53,9 +54,9 @@ export function TransactionsFiltersCard({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("allMonths")}</SelectItem>
-                {monthNames.map((monthName) => (
+                {monthNames.map((monthName, index) => (
                   <SelectItem key={monthName} value={monthName}>
-                    {monthName}
+                    {localizedMonths[index]}
                   </SelectItem>
                 ))}
               </SelectContent>

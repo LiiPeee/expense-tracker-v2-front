@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TRANSACTION_TYPE, type TransactionResponse } from "@/helper/transaction";
-import { formatBRL } from "@/helper/utils";
+import { formatBRL, RECURRENCE_LABEL_KEY } from "@/helper/utils";
 import { Pencil, ReceiptText, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -104,7 +104,7 @@ export function TransactionsPaginatedTable({
                     <TableCell className="truncate">{transaction.contact?.email ?? "-"}</TableCell>
                     <TableCell className="truncate">{transaction.contact?.name ?? "-"}</TableCell>
                     <TableCell className="truncate">{transaction.contact?.phone ?? "-"}</TableCell>
-                    <TableCell className="truncate">{transaction.recurrence ?? "-"}</TableCell>
+                    <TableCell className="truncate">{transaction.recurrence && RECURRENCE_LABEL_KEY[transaction.recurrence] ? t(`recLabel.${RECURRENCE_LABEL_KEY[transaction.recurrence]}`) : (transaction.recurrence ?? "-")}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button

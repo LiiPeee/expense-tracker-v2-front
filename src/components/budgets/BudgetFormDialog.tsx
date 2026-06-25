@@ -5,7 +5,7 @@ import { FormTextField } from "@/components/ui/form-text-field";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { budgetFormDefaults, budgetFormSchema, type BudgetLimitForm } from "@/helper/budget";
-import { monthNames } from "@/helper/utils";
+import { getMonthNames } from "@/helper/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
@@ -20,7 +20,8 @@ type BudgetFormDialogProps = {
 };
 
 export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions }: BudgetFormDialogProps) {
-  const { t } = useTranslation("budgets");
+  const { t, i18n } = useTranslation("budgets");
+  const localizedMonths = getMonthNames(i18n.language);
   const form = useForm<BudgetLimitForm>({
     resolver: zodResolver(budgetFormSchema),
     defaultValues: budgetFormDefaults,
@@ -92,7 +93,7 @@ export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {monthNames.map((monthLabel, index) => (
+                        {localizedMonths.map((monthLabel, index) => (
                           <SelectItem key={monthLabel} value={String(index + 1)}>
                             {monthLabel}
                           </SelectItem>
