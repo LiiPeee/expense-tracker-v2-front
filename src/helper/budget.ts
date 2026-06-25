@@ -57,19 +57,19 @@ export function mapBudgetFormToRequest(form: BudgetLimitForm): CreateBudgetLimit
 
 // Mirrors the previous validateBudgetForm rules exactly — now surfaced inline via RHF.
 export const budgetFormSchema = z.object({
-  categoryName: z.string().trim().min(1, "Categoria é obrigatória"),
+  categoryName: z.string().trim().min(1, "validation:categoryRequired"),
   month: z.string().refine((value) => {
     const month = Number(value);
     return Number.isInteger(month) && month >= 1 && month <= 12;
-  }, "Mês inválido"),
+  }, "validation:monthInvalid"),
   year: z.string().refine((value) => {
     const year = Number(value);
     return Number.isInteger(year) && year >= 2000;
-  }, "Ano inválido"),
+  }, "validation:yearInvalid"),
   limitAmount: z.string().refine((value) => {
     const amount = Number.parseFloat(value.replace(",", "."));
     return Number.isFinite(amount) && amount > 0;
-  }, "Limite deve ser maior que zero"),
+  }, "validation:limitPositive"),
 });
 
 // Usage thresholds (percentage of the limit already consumed).
