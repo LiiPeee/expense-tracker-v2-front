@@ -355,6 +355,7 @@
     "refreshError": "¡Error al actualizar la página!",
     "tableTitle": "Mis Activos",
     "columnTicker": "Ticker",
+    "columnQuantity": "Cantidad",
     "columnMarketPrice": "Precio de Mercado",
     "columnBuyPrice": "Precio de Compra",
     "columnChange": "Variación",
