@@ -5,6 +5,7 @@ import { fetchAllPages } from "@/lib/paginate";
 import { createBudgetLimit, getBudgetLimitsByAccountPage } from "@/services/budget";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 function fetchAllBudgetLimits(): Promise<BudgetLimit[]> {
@@ -12,6 +13,7 @@ function fetchAllBudgetLimits(): Promise<BudgetLimit[]> {
 }
 
 export function useBudgetLimits() {
+  const { t } = useTranslation("budgets");
   const queryClient = useQueryClient();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -37,18 +39,18 @@ export function useBudgetLimits() {
     async (data: BudgetLimitForm) => {
       try {
         await createMutation.mutateAsync(mapBudgetFormToRequest(data));
-        toast.success("Orçamento criado com sucesso!");
+        toast.success(t("createSuccess"));
         handleDialogClose();
       } catch (error: unknown) {
-        toast.error(getErrorMessage(error, "Erro inesperado ao criar orçamento."));
+        toast.error(getErrorMessage(error, t("createError")));
       }
     },
-    [createMutation, handleDialogClose],
+    [createMutation, handleDialogClose, t],
   );
 
   return {
     budgets: (query.data ?? []) as BudgetLimit[],
-    error: query.error ? getErrorMessage(query.error, "Não foi possível carregar os orçamentos.") : null,
+    error: query.error ? getErrorMessage(query.error, t("loadError")) : null,
     isDialogOpen,
     isRefreshing: query.isFetching || createMutation.isPending,
     refetchBudgets: () => query.refetch(),

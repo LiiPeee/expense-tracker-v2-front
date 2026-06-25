@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CategoryList } from "@/helper/category";
 import type { Contact } from "@/helper/contact";
-import { monthNames } from "@/helper/utils";
+import { getMonthNames, monthNames } from "@/helper/utils";
+import { useTranslation } from "react-i18next";
 
 type TransactionsFiltersCardProps = {
   month: string;
@@ -35,25 +36,27 @@ export function TransactionsFiltersCard({
   onChangeContact,
   onApplyFilters,
 }: TransactionsFiltersCardProps) {
+  const { t, i18n } = useTranslation("transactions");
+  const localizedMonths = getMonthNames(i18n.language);
   return (
     <Card className="surface-card rounded-2xl mb-6 reveal-up stagger-1">
       <CardHeader>
-        <CardTitle>Filtros</CardTitle>
+        <CardTitle>{t("filters")}</CardTitle>
       </CardHeader>
 
       <CardContent>
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2 focus-premium rounded-xl p-1">
-            <label className="text-sm font-medium">Mes</label>
+            <label className="text-sm font-medium">{t("month")}</label>
             <Select value={month} onValueChange={onChangeMonth}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os meses</SelectItem>
-                {monthNames.map((monthName) => (
+                <SelectItem value="all">{t("allMonths")}</SelectItem>
+                {monthNames.map((monthName, index) => (
                   <SelectItem key={monthName} value={monthName}>
-                    {monthName}
+                    {localizedMonths[index]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -61,14 +64,14 @@ export function TransactionsFiltersCard({
           </div>
 
           <div className="space-y-2 focus-premium rounded-xl p-1">
-            <label className="text-sm font-medium">Ano</label>
+            <label className="text-sm font-medium">{t("year")}</label>
             <Input
               id="year"
               type="number"
               step="1"
               value={year}
               onChange={(event) => onChangeYear(event.target.value)}
-              placeholder="Ex: 2026"
+              placeholder={t("yearPlaceholder")}
               required
             />
           </div>
@@ -78,13 +81,13 @@ export function TransactionsFiltersCard({
       <CardContent>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-2 focus-premium rounded-xl p-1">
-            <label className="text-sm font-medium">Categoria</label>
+            <label className="text-sm font-medium">{t("colCategory")}</label>
             <Select value={filterCategory} onValueChange={onChangeCategory}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todas as categorias</SelectItem>
+                <SelectItem value="all">{t("allCategories")}</SelectItem>
                 {Object.keys(CategoryList)
                   .filter((key) => Number.isNaN(Number(key)))
                   .map((category) => (
@@ -97,27 +100,27 @@ export function TransactionsFiltersCard({
           </div>
 
           <div className="space-y-2 focus-premium rounded-xl p-1">
-            <label className="text-sm font-medium">Tipo</label>
+            <label className="text-sm font-medium">{t("type")}</label>
             <Select value={filterType} onValueChange={onChangeType}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os tipos</SelectItem>
-                <SelectItem value="INCOME">Receita</SelectItem>
-                <SelectItem value="EXPENSE">Despesa</SelectItem>
+                <SelectItem value="all">{t("allTypes")}</SelectItem>
+                <SelectItem value="INCOME">{t("typeIncome")}</SelectItem>
+                <SelectItem value="EXPENSE">{t("typeExpense")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2 focus-premium rounded-xl p-1">
-            <label className="text-sm font-medium">Contato</label>
+            <label className="text-sm font-medium">{t("contact")}</label>
             <Select value={filterContact} onValueChange={onChangeContact}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os contatos</SelectItem>
+                <SelectItem value="all">{t("allContacts")}</SelectItem>
                 {contacts.map((contact) => (
                   <SelectItem key={contact.id} value={String(contact.id)}>
                     {contact.name}
@@ -134,7 +137,7 @@ export function TransactionsFiltersCard({
         className="w-full h-16 flex-col gap-2 rounded-b-2xl border-0 border-t border-glass bg-card/45"
         onClick={onApplyFilters}
       >
-        Consulta por Filtros
+        {t("applyFilters")}
       </Button>
     </Card>
   );

@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 type StockFormDialogProps = {
   open: boolean;
@@ -16,6 +17,7 @@ type StockFormDialogProps = {
 };
 
 export function StockFormDialog({ open, onOpenChange, onSubmit }: StockFormDialogProps) {
+  const { t } = useTranslation("stocks");
   const form = useForm<StockForm>({
     resolver: zodResolver(stockFormSchema),
     defaultValues: stockFormDefaults,
@@ -36,26 +38,26 @@ export function StockFormDialog({ open, onOpenChange, onSubmit }: StockFormDialo
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="w-4 h-4" />
-          Novo Ativo
+          {t("newAsset")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="border-glass bg-card/90 backdrop-blur-md">
         <DialogHeader>
-          <DialogTitle>Novo Ativo</DialogTitle>
-          <DialogDescription>Preencha os campos para registrar um novo ativo na sua carteira.</DialogDescription>
+          <DialogTitle>{t("newAsset")}</DialogTitle>
+          <DialogDescription>{t("formDescription")}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormTextField control={form.control} name="ticker" label="Ticker" placeholder="Ex: PETR4" />
-            <FormTextField control={form.control} name="title" label="Nome" placeholder="Ex: Petrobras" />
-            <FormTextField control={form.control} name="price" label="Preço de Compra" type="number" step="0.01" placeholder="Ex: 41.12" />
-            <FormTextField control={form.control} name="quantity" label="Quantidade" type="number" step="1" placeholder="Ex: 2" />
-            <FormTextField control={form.control} name="description" label="Descrição" placeholder="Opcional" />
+            <FormTextField control={form.control} name="ticker" label={t("fieldTicker")} placeholder={t("tickerPlaceholder")} />
+            <FormTextField control={form.control} name="title" label={t("fieldName")} placeholder={t("namePlaceholder")} />
+            <FormTextField control={form.control} name="price" label={t("fieldBuyPrice")} type="number" step="0.01" placeholder={t("buyPricePlaceholder")} />
+            <FormTextField control={form.control} name="quantity" label={t("fieldQuantity")} type="number" step="1" placeholder={t("quantityPlaceholder")} />
+            <FormTextField control={form.control} name="description" label={t("fieldDescription")} placeholder={t("descriptionPlaceholder")} />
 
-            <LoadingButton type="submit" className="w-full" isLoading={isSubmitting} loadingText="Salvando...">
-              Criar
+            <LoadingButton type="submit" className="w-full" isLoading={isSubmitting} loadingText={t("saving")}>
+              {t("create")}
             </LoadingButton>
           </form>
         </Form>

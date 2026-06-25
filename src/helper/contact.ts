@@ -98,15 +98,15 @@ export function mapContactToForm(contact: Contact): ContactForm {
 // Mirrors the previous validateContactForm rules exactly (required, non-empty) — surfaced inline via RHF.
 // Email keeps the original "required only" rule (no format check) to stay behavior-preserving.
 export const contactFormSchema = z.object({
-  name: z.string().trim().min(1, "Nome é obrigatório"),
-  email: z.string().trim().min(1, "E-mail é obrigatório"),
-  phone: z.string().trim().min(1, "Telefone é obrigatório"),
-  document: z.string().trim().min(1, "Documento é obrigatório"),
-  typeContact: z.enum(["", "1", "2"]).refine((value) => value !== "", "Tipo de contato é obrigatório"),
-  street: z.string().trim().min(1, "Rua é obrigatória"),
-  city: z.string().trim().min(1, "Cidade é obrigatória"),
-  state: z.string().trim().min(1, "Estado é obrigatório"),
-  zipCode: z.string().trim().min(1, "CEP é obrigatório"),
-  country: z.string().trim().min(1, "Pais é obrigatorio"),
+  name: z.string().trim().min(1, "validation:nameRequired"),
+  email: z.string().trim().min(1, "validation:emailFieldRequired"),
+  phone: z.string().trim().min(1, "validation:phoneRequired"),
+  document: z.string().trim().min(1, "validation:documentRequired"),
+  typeContact: z.enum(["", "1", "2"]).refine((value) => value !== "", "validation:contactTypeRequired"),
+  street: z.string().trim().min(1, "validation:streetRequired"),
+  city: z.string().trim().min(1, "validation:cityRequired"),
+  state: z.string().trim().min(1, "validation:stateRequired"),
+  zipCode: z.string().trim().min(1, "validation:zipRequired"),
+  country: z.string().trim().min(1, "validation:countryRequired"),
   isPrimary: z.boolean(),
 });

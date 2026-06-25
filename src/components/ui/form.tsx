@@ -2,6 +2,7 @@ import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 import { Controller, ControllerProps, FieldPath, FieldValues, FormProvider, useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import { Label } from "@/components/ui/label";
 import { cn } from "@/helper/utils";
@@ -107,8 +108,11 @@ FormDescription.displayName = "FormDescription";
 
 const FormMessage = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
   ({ className, children, ...props }, ref) => {
+    const { t } = useTranslation();
     const { error, formMessageId } = useFormField();
-    const body = error ? String(error?.message) : children;
+    // Validation messages are stored as i18n keys (e.g. "validation:required"); t()
+    // translates them and falls through unchanged for any plain-text message.
+    const body = error ? t(String(error?.message)) : children;
 
     if (!body) {
       return null;

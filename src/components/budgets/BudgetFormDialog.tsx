@@ -5,11 +5,12 @@ import { FormTextField } from "@/components/ui/form-text-field";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { budgetFormDefaults, budgetFormSchema, type BudgetLimitForm } from "@/helper/budget";
-import { monthNames } from "@/helper/utils";
+import { getMonthNames } from "@/helper/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 type BudgetFormDialogProps = {
   open: boolean;
@@ -19,6 +20,8 @@ type BudgetFormDialogProps = {
 };
 
 export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions }: BudgetFormDialogProps) {
+  const { t, i18n } = useTranslation("budgets");
+  const localizedMonths = getMonthNames(i18n.language);
   const form = useForm<BudgetLimitForm>({
     resolver: zodResolver(budgetFormSchema),
     defaultValues: budgetFormDefaults,
@@ -39,14 +42,14 @@ export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions
       <DialogTrigger asChild>
         <Button className="gap-2 rounded-xl">
           <Plus className="h-4 w-4" />
-          Novo Orçamento
+          {t("newBudget")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="border-glass bg-card/90 backdrop-blur-md sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Novo Orçamento</DialogTitle>
-          <DialogDescription>Defina um limite por categoria para acompanhar o orçamento da conta atual.</DialogDescription>
+          <DialogTitle>{t("newBudget")}</DialogTitle>
+          <DialogDescription>{t("formDescription")}</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -56,11 +59,11 @@ export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions
               name="categoryName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Categoria</FormLabel>
+                  <FormLabel>{t("category")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione a categoria" />
+                        <SelectValue placeholder={t("selectCategory")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -82,15 +85,15 @@ export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions
                 name="month"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mês</FormLabel>
+                    <FormLabel>{t("month")}</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione o mês" />
+                          <SelectValue placeholder={t("selectMonth")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {monthNames.map((monthLabel, index) => (
+                        {localizedMonths.map((monthLabel, index) => (
                           <SelectItem key={monthLabel} value={String(index + 1)}>
                             {monthLabel}
                           </SelectItem>
@@ -102,13 +105,13 @@ export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions
                 )}
               />
 
-              <FormTextField control={form.control} name="year" label="Ano" type="number" min="2000" step="1" placeholder="Ex: 2026" />
+              <FormTextField control={form.control} name="year" label={t("year")} type="number" min="2000" step="1" placeholder={t("yearPlaceholder")} />
             </div>
 
-            <FormTextField control={form.control} name="limitAmount" label="Limite" type="number" min="0" step="0.01" placeholder="Ex: 1500.00" />
+            <FormTextField control={form.control} name="limitAmount" label={t("limit")} type="number" min="0" step="0.01" placeholder={t("limitPlaceholder")} />
 
-            <LoadingButton type="submit" className="w-full rounded-xl" isLoading={isSubmitting} loadingText="Salvando...">
-              Criar
+            <LoadingButton type="submit" className="w-full rounded-xl" isLoading={isSubmitting} loadingText={t("saving")}>
+              {t("create")}
             </LoadingButton>
           </form>
         </Form>

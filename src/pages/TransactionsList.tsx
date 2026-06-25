@@ -17,9 +17,11 @@ import type { TransactionForm } from "@/helper/transaction";
 import { useQueryClient } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const TransactionsList = () => {
+  const { t } = useTranslation("transactions");
   const queryClient = useQueryClient();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -63,9 +65,9 @@ const TransactionsList = () => {
   const handleRefresh = async () => {
     try {
       await Promise.all([queryClient.invalidateQueries({ queryKey: ["transactions"] }), getAllContact()]);
-      toast.success("Sucesso ao atualizar a página!");
+      toast.success(t("refreshSuccess"));
     } catch {
-      toast.error("Erro ao atualizar a página!");
+      toast.error(t("refreshError"));
     }
   };
 
@@ -87,13 +89,13 @@ const TransactionsList = () => {
     try {
       const allTransactions = await fetchAllTransactions(transactionQuery);
       if (allTransactions.length === 0) {
-        toast.info("Nenhuma transação para exportar.");
+        toast.info(t("nothingToExport"));
         return;
       }
       downloadCsv(`transacoes-${activePeriod.year}-${String(activePeriod.month).padStart(2, "0")}.csv`, buildTransactionsCsv(allTransactions));
-      toast.success("Exportação concluída!");
+      toast.success(t("exportDone"));
     } catch {
-      toast.error("Erro ao exportar transações.");
+      toast.error(t("exportError"));
     } finally {
       setIsExporting(false);
     }
@@ -106,8 +108,8 @@ const TransactionsList = () => {
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="flex items-center justify-between mb-8">
           <div className="rounded-3xl border border-glass bg-card/70 backdrop-blur-md px-6 py-6 shadow-medium flex-1 mr-4">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Todas as Transações</h2>
-            <p className="text-muted-foreground text-base">Visualize, filtre e gerencie suas transações com agilidade</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">{t("pageTitle")}</h2>
+            <p className="text-muted-foreground text-base">{t("pageSubtitle")}</p>
           </div>
 
           <TransactionFormDialog
@@ -135,11 +137,11 @@ const TransactionsList = () => {
             className="gap-2 rounded-xl"
             onClick={handleExportCsv}
             isLoading={isExporting}
-            loadingText="Exportando..."
+            loadingText={t("exporting")}
             disabled={totalRecords === 0}
           >
             <Download className="h-4 w-4" />
-            Exportar CSV
+            {t("exportCsv")}
           </LoadingButton>
         </div>
 
