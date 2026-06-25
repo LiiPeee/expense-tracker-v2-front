@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 interface ContactFormDialogProps {
   editingContact: boolean;
@@ -21,6 +22,7 @@ interface ContactFormDialogProps {
 }
 
 export function ContactFormDialog({ editingContact, isDialogOpen, onOpenChange, defaultValues, onSubmit }: ContactFormDialogProps) {
+  const { t } = useTranslation("contacts");
   const { lookupCep } = useCepLookup();
   const form = useForm<ContactForm>({
     resolver: zodResolver(contactFormSchema),
@@ -54,37 +56,37 @@ export function ContactFormDialog({ editingContact, isDialogOpen, onOpenChange, 
       <DialogTrigger asChild>
         <Button className="gap-2 rounded-xl">
           <Plus className="w-4 h-4" />
-          Novo Contato
+          {t("newContact")}
         </Button>
       </DialogTrigger>
       <DialogContent className="border-glass bg-card/90 backdrop-blur-md sm:max-w-[560px] flex flex-col max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle>{editingContact ? "Editar Contato" : "Novo Contato"}</DialogTitle>
+          <DialogTitle>{editingContact ? t("editContact") : t("newContact")}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col flex-1 min-h-0">
             <div className="space-y-4 overflow-y-auto flex-1 pr-1">
-              <FormTextField control={form.control} name="name" label="Nome" placeholder="Ex: João Silva" />
-              <FormTextField control={form.control} name="email" label="E-mail" type="email" placeholder="Ex: joao@email.com" />
-              <FormTextField control={form.control} name="phone" label="Telefone" placeholder="Ex: (11) 99999-9999" />
-              <FormTextField control={form.control} name="document" label="Documento" placeholder="Ex: 111.555.333-14" />
+              <FormTextField control={form.control} name="name" label={t("fieldName")} placeholder={t("namePlaceholder")} />
+              <FormTextField control={form.control} name="email" label={t("fieldEmail")} type="email" placeholder={t("emailPlaceholder")} />
+              <FormTextField control={form.control} name="phone" label={t("fieldPhone")} placeholder={t("phonePlaceholder")} />
+              <FormTextField control={form.control} name="document" label={t("fieldDocument")} placeholder={t("documentPlaceholder")} />
 
               <FormField
                 control={form.control}
                 name="typeContact"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo de Contato</FormLabel>
+                    <FormLabel>{t("fieldType")}</FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecione tipo de contato" />
+                          <SelectValue placeholder={t("selectType")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="1">Pessoal</SelectItem>
-                        <SelectItem value="2">Empresa</SelectItem>
+                        <SelectItem value="1">{t("typePersonal")}</SelectItem>
+                        <SelectItem value="2">{t("typeCompany")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -92,18 +94,18 @@ export function ContactFormDialog({ editingContact, isDialogOpen, onOpenChange, 
                 )}
               />
 
-              <FormTextField control={form.control} name="street" label="Rua" placeholder="Ex: Avenida Paulista" />
-              <FormTextField control={form.control} name="city" label="Cidade" placeholder="Ex: Sao Paulo" />
-              <FormTextField control={form.control} name="state" label="Estado" placeholder="Ex: SP" />
-              <FormTextField control={form.control} name="zipCode" label="CEP" placeholder="Ex: 01311-000" onBlur={() => void handleZipBlur()} />
-              <FormTextField control={form.control} name="country" label="País" placeholder="Ex: Brasil" />
+              <FormTextField control={form.control} name="street" label={t("fieldStreet")} placeholder={t("streetPlaceholder")} />
+              <FormTextField control={form.control} name="city" label={t("fieldCity")} placeholder={t("cityPlaceholder")} />
+              <FormTextField control={form.control} name="state" label={t("fieldState")} placeholder={t("statePlaceholder")} />
+              <FormTextField control={form.control} name="zipCode" label={t("fieldZip")} placeholder={t("zipPlaceholder")} onBlur={() => void handleZipBlur()} />
+              <FormTextField control={form.control} name="country" label={t("fieldCountry")} placeholder={t("countryPlaceholder")} />
 
               <FormField
                 control={form.control}
                 name="isPrimary"
                 render={({ field }) => (
                   <FormItem className="flex items-center justify-between rounded-md border px-3 py-2 space-y-0">
-                    <FormLabel>Contato principal</FormLabel>
+                    <FormLabel>{t("isPrimary")}</FormLabel>
                     <FormControl>
                       <Switch checked={field.value} onCheckedChange={field.onChange} />
                     </FormControl>
@@ -111,8 +113,8 @@ export function ContactFormDialog({ editingContact, isDialogOpen, onOpenChange, 
                 )}
               />
             </div>
-            <LoadingButton type="submit" className="w-full rounded-xl mt-4" isLoading={isSubmitting} loadingText="Salvando...">
-              {editingContact ? "Atualizar" : "Criar"}
+            <LoadingButton type="submit" className="w-full rounded-xl mt-4" isLoading={isSubmitting} loadingText={t("saving")}>
+              {editingContact ? t("update") : t("create")}
             </LoadingButton>
           </form>
         </Form>

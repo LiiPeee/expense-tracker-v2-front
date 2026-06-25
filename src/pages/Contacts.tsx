@@ -8,8 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { maskPhone } from "@/helper/utils";
 import { useContact } from "@/hooks/contact/use-contact";
 import { Inbox, Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Contacts = () => {
+  const { t } = useTranslation("contacts");
   const {
     editingContact,
     contactDefaults,
@@ -30,8 +32,8 @@ const Contacts = () => {
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="flex items-center justify-between mb-8">
           <div className="rounded-3xl border border-glass bg-card/70 backdrop-blur-md px-6 py-6 shadow-medium flex-1 mr-4">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground">Contatos</h2>
-            <p className="text-muted-foreground">Gerencie seus contatos</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground">{t("pageTitle")}</h2>
+            <p className="text-muted-foreground">{t("pageSubtitle")}</p>
           </div>
 
           <ContactFormDialog
@@ -46,7 +48,7 @@ const Contacts = () => {
         <RefreshAllButton isRefreshing={isRefreshing} onRefresh={getAllContact} />
         <Card className="rounded-2xl reveal-up stagger-2">
           <CardHeader>
-            <CardTitle>Lista de Contatos</CardTitle>
+            <CardTitle>{t("listTitle")}</CardTitle>
           </CardHeader>
           <CardContent>
             {isRefreshing && contacts.length === 0 ? (
@@ -55,10 +57,10 @@ const Contacts = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>E-mail</TableHead>
-                    <TableHead>Telefone</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableHead>{t("colName")}</TableHead>
+                    <TableHead>{t("colEmail")}</TableHead>
+                    <TableHead>{t("colPhone")}</TableHead>
+                    <TableHead className="text-right">{t("colActions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -67,8 +69,8 @@ const Contacts = () => {
                       <TableCell colSpan={4}>
                         <div className="empty-state">
                           <Inbox className="w-6 h-6 text-muted-foreground" />
-                          <p className="text-sm font-medium text-foreground">Nenhum contato cadastrado</p>
-                          <p className="text-xs text-muted-foreground">Use o botao Novo Contato para criar o primeiro registro.</p>
+                          <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
+                          <p className="text-xs text-muted-foreground">{t("emptySubtitle")}</p>
                         </div>
                       </TableCell>
                     </TableRow>

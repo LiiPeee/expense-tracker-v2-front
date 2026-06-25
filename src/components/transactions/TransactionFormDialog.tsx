@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 type TransactionFormDialogProps = {
   open: boolean;
@@ -32,6 +33,7 @@ export function TransactionFormDialog({
   defaultValues,
   categoryOptions,
 }: TransactionFormDialogProps) {
+  const { t } = useTranslation("transactions");
   const form = useForm<TransactionForm>({
     resolver: zodResolver(transactionFormSchema),
     defaultValues,
@@ -52,38 +54,38 @@ export function TransactionFormDialog({
       <DialogTrigger asChild>
         <Button className="gap-2" onClick={onPrepareNew}>
           <Plus className="w-4 h-4" />
-          Nova Transacao
+          {t("newTransaction")}
         </Button>
       </DialogTrigger>
 
       <DialogContent className="border-glass bg-card/90 backdrop-blur-md">
         <DialogHeader>
-          <DialogTitle>{editingTransaction ? "Editar Transacao" : "Nova Transacao"}</DialogTitle>
+          <DialogTitle>{editingTransaction ? t("editTransaction") : t("newTransaction")}</DialogTitle>
           <DialogDescription>
-            {editingTransaction ? "Atualize os dados da transacao selecionada." : "Preencha os campos para criar uma nova transacao."}
+            {editingTransaction ? t("editDescription") : t("newDescription")}
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormTextField control={form.control} name="transactionName" label="Nome da Transacao" placeholder="Ex: Salario" />
-            <FormTextField control={form.control} name="description" label="Descricao" placeholder="Ex: Salario de Janeiro" />
+            <FormTextField control={form.control} name="transactionName" label={t("fieldName")} placeholder={t("fieldNamePlaceholder")} />
+            <FormTextField control={form.control} name="description" label={t("fieldDescription")} placeholder={t("fieldDescriptionPlaceholder")} />
 
             <FormField
               control={form.control}
               name="paid"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pago</FormLabel>
+                  <FormLabel>{t("fieldPaid")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
+                        <SelectValue placeholder={t("select")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Sim">Sim</SelectItem>
-                      <SelectItem value="Não">Não</SelectItem>
+                      <SelectItem value="Sim">{t("yes")}</SelectItem>
+                      <SelectItem value="Não">{t("no")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -96,11 +98,11 @@ export function TransactionFormDialog({
               name="contactName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome do Contato</FormLabel>
+                  <FormLabel>{t("fieldContact")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
+                        <SelectValue placeholder={t("select")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -116,27 +118,27 @@ export function TransactionFormDialog({
               )}
             />
 
-            <FormTextField control={form.control} name="numberOfInstallment" label="Numero de Parcelas" placeholder="Ex: 05" />
-            <FormTextField control={form.control} name="dateOfInstallment" label="Data de Parcela" placeholder="Ex: 05 (dia 5 de cada mes)" />
+            <FormTextField control={form.control} name="numberOfInstallment" label={t("fieldInstallments")} placeholder={t("fieldInstallmentsPlaceholder")} />
+            <FormTextField control={form.control} name="dateOfInstallment" label={t("fieldInstallmentDate")} placeholder={t("fieldInstallmentDatePlaceholder")} />
 
             <FormField
               control={form.control}
               name="recurrence"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Recorrencia</FormLabel>
+                  <FormLabel>{t("fieldRecurrence")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione" />
+                        <SelectValue placeholder={t("selectShort")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="NONE">Não</SelectItem>
-                      <SelectItem value="DAILY">Diario</SelectItem>
-                      <SelectItem value="BIWEEKLY">Quinzenal</SelectItem>
-                      <SelectItem value="MONTHLY">Mensal</SelectItem>
-                      <SelectItem value="OCCASIONALLY">Ocasionalmente</SelectItem>
+                      <SelectItem value="NONE">{t("recurrenceNone")}</SelectItem>
+                      <SelectItem value="DAILY">{t("recurrenceDaily")}</SelectItem>
+                      <SelectItem value="BIWEEKLY">{t("recurrenceBiweekly")}</SelectItem>
+                      <SelectItem value="MONTHLY">{t("recurrenceMonthly")}</SelectItem>
+                      <SelectItem value="OCCASIONALLY">{t("recurrenceOccasionally")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -144,23 +146,23 @@ export function TransactionFormDialog({
               )}
             />
 
-            <FormTextField control={form.control} name="amount" label="Valor" type="number" step="0.01" placeholder="Ex: 1000.00" />
+            <FormTextField control={form.control} name="amount" label={t("fieldAmount")} type="number" step="0.01" placeholder={t("fieldAmountPlaceholder")} />
 
             <FormField
               control={form.control}
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tipo</FormLabel>
+                  <FormLabel>{t("fieldType")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione..." />
+                        <SelectValue placeholder={t("select")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Income">Receita</SelectItem>
-                      <SelectItem value="Expense">Despesa</SelectItem>
+                      <SelectItem value="Income">{t("typeIncome")}</SelectItem>
+                      <SelectItem value="Expense">{t("typeExpense")}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -173,11 +175,11 @@ export function TransactionFormDialog({
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Categoria</FormLabel>
+                  <FormLabel>{t("fieldCategory")}</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione a categoria" />
+                        <SelectValue placeholder={t("fieldCategoryPlaceholder")} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -193,10 +195,10 @@ export function TransactionFormDialog({
               )}
             />
 
-            <FormTextField control={form.control} name="subCategory" label="Sub Categoria" placeholder="Ex: Salario" />
+            <FormTextField control={form.control} name="subCategory" label={t("fieldSubCategory")} placeholder={t("fieldSubCategoryPlaceholder")} />
 
-            <LoadingButton type="submit" className="w-full" isLoading={isSubmitting} loadingText="Salvando...">
-              {editingTransaction ? "Atualizar" : "Criar"}
+            <LoadingButton type="submit" className="w-full" isLoading={isSubmitting} loadingText={t("saving")}>
+              {editingTransaction ? t("update") : t("create")}
             </LoadingButton>
           </form>
         </Form>

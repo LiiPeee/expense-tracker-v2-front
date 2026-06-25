@@ -1,6 +1,7 @@
 import { formatBRL } from "@/helper/utils";
 import { CategoryChartData } from "@/hooks/transaction/use-expense-by-category";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useTranslation } from "react-i18next";
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -26,6 +27,7 @@ interface ExpensePieChartProps {
 }
 
 export function ExpensePieChart({ data, totalExpense, compact = false }: ExpensePieChartProps) {
+  const { t } = useTranslation();
   const innerRadius = compact ? 50 : 70;
   const outerRadius = compact ? 80 : 110;
   const chartHeight = compact ? 200 : 280;
@@ -33,7 +35,7 @@ export function ExpensePieChart({ data, totalExpense, compact = false }: Expense
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">
-        Nenhum gasto registrado neste período
+        {t("chartEmpty")}
       </div>
     );
   }
@@ -65,7 +67,7 @@ export function ExpensePieChart({ data, totalExpense, compact = false }: Expense
               className="fill-foreground"
             >
               <tspan x="50%" dy="-0.5em" fontSize={compact ? 11 : 13} fill="currentColor" opacity={0.6}>
-                Total
+                {t("chartTotal")}
               </tspan>
               <tspan x="50%" dy="1.4em" fontSize={compact ? 13 : 16} fontWeight="bold" fill="currentColor">
                 {formatBRL(totalExpense)}

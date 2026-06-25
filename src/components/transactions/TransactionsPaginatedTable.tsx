@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TRANSACTION_TYPE, type TransactionResponse } from "@/helper/transaction";
 import { formatBRL } from "@/helper/utils";
 import { Pencil, ReceiptText, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type TransactionsPaginatedTableProps = {
   transactions: TransactionResponse[];
@@ -36,10 +37,11 @@ export function TransactionsPaginatedTable({
   onEdit,
   onDelete,
 }: TransactionsPaginatedTableProps) {
+  const { t } = useTranslation("transactions");
   return (
     <Card className="surface-card rounded-2xl reveal-up stagger-2">
       <CardHeader>
-        <CardTitle>Transacoes ({totalRecords})</CardTitle>
+        <CardTitle>{t("tableTitle")} ({totalRecords})</CardTitle>
       </CardHeader>
 
       <CardContent>
@@ -49,17 +51,17 @@ export function TransactionsPaginatedTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[120px]">Data</TableHead>
-                <TableHead className="w-[120px]">Nome</TableHead>
-                <TableHead className="w-[120px]">Descricao</TableHead>
-                <TableHead className="w-[120px]">Categoria</TableHead>
-                <TableHead className="w-[120px]">Tipo</TableHead>
-                <TableHead className="w-[120px]">Valor</TableHead>
-                <TableHead className="w-[120px]">Email</TableHead>
-                <TableHead className="w-[120px]">Nome Contato</TableHead>
-                <TableHead className="w-[120px]">Telefone</TableHead>
-                <TableHead className="w-[120px]">Recorrencia</TableHead>
-                <TableHead className="w-[120px]">Acoes</TableHead>
+                <TableHead className="w-[120px]">{t("colDate")}</TableHead>
+                <TableHead className="w-[120px]">{t("colName")}</TableHead>
+                <TableHead className="w-[120px]">{t("colDescription")}</TableHead>
+                <TableHead className="w-[120px]">{t("colCategory")}</TableHead>
+                <TableHead className="w-[120px]">{t("colType")}</TableHead>
+                <TableHead className="w-[120px]">{t("colAmount")}</TableHead>
+                <TableHead className="w-[120px]">{t("colEmail")}</TableHead>
+                <TableHead className="w-[120px]">{t("colContactName")}</TableHead>
+                <TableHead className="w-[120px]">{t("colPhone")}</TableHead>
+                <TableHead className="w-[120px]">{t("colRecurrence")}</TableHead>
+                <TableHead className="w-[120px]">{t("colActions")}</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -69,8 +71,8 @@ export function TransactionsPaginatedTable({
                   <TableCell colSpan={11}>
                     <div className="empty-state">
                       <ReceiptText className="w-6 h-6 text-muted-foreground" />
-                      <p className="text-sm font-medium text-foreground">Nenhuma transacao encontrada</p>
-                      <p className="text-xs text-muted-foreground">Ajuste os filtros ou altere o periodo para ver resultados.</p>
+                      <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
+                      <p className="text-xs text-muted-foreground">{t("emptySubtitle")}</p>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -89,9 +91,9 @@ export function TransactionsPaginatedTable({
                     <TableCell className="truncate">{transaction.category?.name ?? "-"}</TableCell>
                     <TableCell className="truncate">
                       {transaction.typeTransaction === TRANSACTION_TYPE.EXPENSE
-                        ? "Despesa"
+                        ? t("typeExpense")
                         : transaction.typeTransaction === TRANSACTION_TYPE.INCOME
-                          ? "Receita"
+                          ? t("typeIncome")
                           : "-"}
                     </TableCell>
                     <TableCell
@@ -109,7 +111,7 @@ export function TransactionsPaginatedTable({
                           variant="ghost"
                           size="icon"
                           className="rounded-full hover:scale-105 transition-transform"
-                          aria-label="Editar transacao"
+                          aria-label={t("editAria")}
                           onClick={() => onEdit(transaction)}
                         >
                           <Pencil className="w-4 h-4" />
@@ -118,7 +120,7 @@ export function TransactionsPaginatedTable({
                           variant="ghost"
                           size="icon"
                           className="rounded-full hover:scale-105 transition-transform"
-                          aria-label="Excluir transacao"
+                          aria-label={t("deleteAria")}
                           onClick={() => onDelete(transaction.id)}
                         >
                           <Trash2 className="w-4 h-4 text-destructive" />
@@ -134,11 +136,8 @@ export function TransactionsPaginatedTable({
 
         <div className="mt-4 flex items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            Pagina <span className="font-medium text-foreground">{currentPage}</span> de{" "}
-            <span className="font-medium text-foreground">{totalPages}</span>
-            <span className="ml-2">
-              (Total: <span className="font-medium text-foreground">{totalRecords}</span>)
-            </span>
+            {t("pagination", { current: currentPage, total: totalPages })}
+            <span className="ml-2">({t("totalLabel", { value: totalRecords })})</span>
           </div>
 
           <Pagination>

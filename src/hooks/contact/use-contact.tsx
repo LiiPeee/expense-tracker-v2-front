@@ -4,9 +4,11 @@ import { getErrorMessage } from "@/lib/api";
 import { createContact, deleteContact, editContact } from "@/services/contact";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export function useContact() {
+  const { t } = useTranslation("contacts");
   const queryClient = useQueryClient();
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -35,12 +37,12 @@ export function useContact() {
       return;
     }
 
-    const message = getErrorMessage(error, "Erro ao carregar contatos.");
+    const message = getErrorMessage(error, t("loadError"));
     if (message === lastErrorMessageRef.current) return;
 
     lastErrorMessageRef.current = message;
     toast.error(message);
-  }, [error]);
+  }, [error, t]);
 
   const submitContact = async (data: ContactForm) => {
     try {
@@ -48,17 +50,17 @@ export function useContact() {
 
       if (editingContact) {
         await editContactMutation.mutateAsync(contactPayload);
-        toast.success("Contato editado com sucesso!");
+        toast.success(t("editSuccess"));
       } else {
         await createContactMutation.mutateAsync(contactPayload);
-        toast.success("Contato criado com sucesso!");
+        toast.success(t("createSuccess"));
       }
 
       await queryClient.invalidateQueries({ queryKey: ["contacts"] });
       setIsDialogOpen(false);
       setEditingContact(null);
     } catch (error: unknown) {
-      toast.error(getErrorMessage(error, "Erro inesperado ao salvar contato."));
+      toast.error(getErrorMessage(error, t("saveError")));
     }
   };
 
@@ -71,9 +73,9 @@ export function useContact() {
     try {
       await deleteContactMutation.mutateAsync(id);
       await queryClient.invalidateQueries({ queryKey: ["contacts"] });
-      toast.success("Contato excluído com sucesso!");
+      toast.success(t("deleteSuccess"));
     } catch (error: unknown) {
-      toast.error(getErrorMessage(error, "Erro inesperado ao excluir contato."));
+      toast.error(getErrorMessage(error, t("deleteError")));
     }
   };
 
@@ -86,13 +88,13 @@ export function useContact() {
   const getAllContact = useCallback(async () => {
     const result = await refetch();
     if (result.error) {
-      const message = getErrorMessage(result.error, "Erro ao carregar contatos.");
+      const message = getErrorMessage(result.error, t("loadError"));
       toast.error(message);
       throw result.error;
     }
 
     return result.data ?? [];
-  }, [refetch]);
+  }, [refetch, t]);
 
   return {
     handleDelete,

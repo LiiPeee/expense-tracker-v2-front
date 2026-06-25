@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import type { TransactionResponse } from "@/helper/transaction";
 import { formatBRL } from "@/helper/utils";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type TransactionsTableProps = {
   transactions: TransactionResponse[];
@@ -11,20 +12,21 @@ type TransactionsTableProps = {
 };
 
 export function TransactionsTable({ transactions, onEdit, onDelete }: TransactionsTableProps) {
+  const { t } = useTranslation("transactions");
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[110px]">Data</TableHead>
-          <TableHead className="w-[220px]">Descricao</TableHead>
-          <TableHead className="w-[160px]">Categoria</TableHead>
-          <TableHead className="w-[120px]">Tipo</TableHead>
-          <TableHead className="w-[140px] text-right">Valor</TableHead>
-          <TableHead className="w-[160px]">Nome</TableHead>
-          <TableHead className="w-[220px]">Email</TableHead>
-          <TableHead className="w-[160px]">Telefone</TableHead>
-          <TableHead className="w-[90px]">Recorrencia</TableHead>
-          <TableHead className="w-[120px]">Acoes</TableHead>
+          <TableHead className="w-[110px]">{t("colDate")}</TableHead>
+          <TableHead className="w-[220px]">{t("colDescription")}</TableHead>
+          <TableHead className="w-[160px]">{t("colCategory")}</TableHead>
+          <TableHead className="w-[120px]">{t("colType")}</TableHead>
+          <TableHead className="w-[140px] text-right">{t("colAmount")}</TableHead>
+          <TableHead className="w-[160px]">{t("colName")}</TableHead>
+          <TableHead className="w-[220px]">{t("colEmail")}</TableHead>
+          <TableHead className="w-[160px]">{t("colPhone")}</TableHead>
+          <TableHead className="w-[90px]">{t("colRecurrence")}</TableHead>
+          <TableHead className="w-[120px]">{t("colActions")}</TableHead>
         </TableRow>
       </TableHeader>
 
@@ -41,7 +43,7 @@ export function TransactionsTable({ transactions, onEdit, onDelete }: Transactio
             <TableCell className="truncate">{transaction.description}</TableCell>
             <TableCell className="truncate">{transaction.category?.name ?? "-"}</TableCell>
             <TableCell className="truncate">
-              {transaction.typeTransaction === 1 ? "Despesa" : transaction.typeTransaction === 2 ? "Receita" : "-"}
+              {transaction.typeTransaction === 1 ? t("typeExpense") : transaction.typeTransaction === 2 ? t("typeIncome") : "-"}
             </TableCell>
             <TableCell className={`text-right font-medium ${transaction.typeTransaction === 1 ? "text-destructive" : "text-success"}`}>
               {formatBRL(Number(transaction.amount) || 0)}
@@ -52,10 +54,10 @@ export function TransactionsTable({ transactions, onEdit, onDelete }: Transactio
             <TableCell className="truncate">{transaction.recurrence ?? "-"}</TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="icon" aria-label="Editar transacao" onClick={() => onEdit(transaction)}>
+                <Button variant="ghost" size="icon" aria-label={t("editAria")} onClick={() => onEdit(transaction)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon" aria-label="Excluir transacao" onClick={() => onDelete(transaction.id)}>
+                <Button variant="ghost" size="icon" aria-label={t("deleteAria")} onClick={() => onDelete(transaction.id)}>
                   <Trash2 className="w-4 h-4 text-destructive" />
                 </Button>
               </div>

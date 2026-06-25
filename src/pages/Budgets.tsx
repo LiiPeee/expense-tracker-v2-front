@@ -13,8 +13,10 @@ import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories
 import { useBudgetFilters } from "@/hooks/budget/use-budget-filters";
 import { useBudgetLimits } from "@/hooks/budget/use-budget-limits";
 import { Filter, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const Budgets = () => {
+  const { t } = useTranslation("budgets");
   const { budgets, error, isDialogOpen, isRefreshing, refetchBudgets, submitBudget, setIsDialogOpen } = useBudgetLimits();
 
   const {
@@ -42,8 +44,8 @@ const Budgets = () => {
       <main className="container mx-auto px-4 py-8 lg:py-10">
         <div className="mb-8 flex items-center justify-between">
           <div className="mr-4 flex-1 rounded-3xl border border-glass bg-card/70 px-6 py-6 shadow-medium backdrop-blur-md">
-            <h2 className="mb-2 text-3xl font-bold text-foreground lg:text-4xl">Orçamentos</h2>
-            <p className="text-base text-muted-foreground">Acompanhe os limites da conta, filtre por nome e navegue pelos orçamentos com paginação.</p>
+            <h2 className="mb-2 text-3xl font-bold text-foreground lg:text-4xl">{t("pageTitle")}</h2>
+            <p className="text-base text-muted-foreground">{t("pageSubtitle")}</p>
           </div>
 
           <BudgetFormDialog
@@ -62,33 +64,33 @@ const Budgets = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Filter className="h-4 w-4" />
-              Filtros
+              {t("filters")}
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,260px)_auto]">
             <div className="space-y-2">
-              <Label htmlFor="budget-search-name">Filtrar por nome</Label>
+              <Label htmlFor="budget-search-name">{t("filterByName")}</Label>
               <div className="relative">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="budget-search-name"
                   value={filterName}
                   onChange={(event) => setFilterName(event.target.value)}
-                  placeholder="Ex: Alimentação"
+                  placeholder={t("searchPlaceholder")}
                   className="pl-9"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">A busca considera o nome da categoria do orçamento.</p>
+              <p className="text-xs text-muted-foreground">{t("searchHint")}</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="budget-filter-category">Filtrar por categoria</Label>
+              <Label htmlFor="budget-filter-category">{t("filterByCategory")}</Label>
               <Select value={filterCategory} onValueChange={setFilterCategory}>
-                <SelectTrigger id="budget-filter-category" aria-label="Filtrar por categoria">
-                  <SelectValue placeholder="Todas as categorias" />
+                <SelectTrigger id="budget-filter-category" aria-label={t("filterByCategory")}>
+                  <SelectValue placeholder={t("allCategories")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas as categorias</SelectItem>
+                  <SelectItem value="all">{t("allCategories")}</SelectItem>
                   {TRANSACTION_CATEGORY_OPTIONS.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
@@ -96,7 +98,7 @@ const Budgets = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">Use a categoria para restringir a listagem de budgetLimit.</p>
+              <p className="text-xs text-muted-foreground">{t("categoryHint")}</p>
             </div>
 
             <div className="flex items-end">
@@ -107,7 +109,7 @@ const Budgets = () => {
                 onClick={clearFilters}
                 disabled={!filterName && filterCategory === "all"}
               >
-                Limpar filtro
+                {t("clearFilter")}
               </Button>
             </div>
           </CardContent>
