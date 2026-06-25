@@ -215,6 +215,7 @@
     "tableTitle": "Budgets",
     "colPeriod": "Period",
     "colUsage": "Usage",
+    "colSpent": "Spent",
     "colStatus": "Status",
     "emptyTitle": "No budgets found",
     "emptySubtitle": "Create a budget or adjust the filter to see results.",

@@ -1,4 +1,4 @@
-import { type BudgetLimit, getBudgetUsageStatus, summarizeBudgetAlerts } from "./budget";
+import { type BudgetLimit, getBudgetCategoryName, getBudgetUsageStatus, parseBudgetAmount, summarizeBudgetAlerts } from "./budget";
 
 describe("getBudgetUsageStatus", () => {
   it("classifies usage by threshold", () => {
@@ -15,6 +15,26 @@ describe("getBudgetUsageStatus", () => {
     expect(getBudgetUsageStatus(null)).toBe("ok");
     expect(getBudgetUsageStatus("")).toBe("ok");
     expect(getBudgetUsageStatus("abc")).toBe("ok");
+  });
+});
+
+describe("getBudgetCategoryName", () => {
+  it("prefers the flat categoryName from BudgetLimitOutput", () => {
+    expect(getBudgetCategoryName({ categoryName: "Lazer" } as BudgetLimit)).toBe("Lazer");
+  });
+
+  it("falls back to the nested category, then to a default", () => {
+    expect(getBudgetCategoryName({ category: { id: 1, name: "Moradia" } } as BudgetLimit)).toBe("Moradia");
+    expect(getBudgetCategoryName({} as BudgetLimit)).toBe("Sem categoria");
+  });
+});
+
+describe("parseBudgetAmount", () => {
+  it("parses numbers and strings, defaulting to 0", () => {
+    expect(parseBudgetAmount(150)).toBe(150);
+    expect(parseBudgetAmount("99,90")).toBe(99.9);
+    expect(parseBudgetAmount(undefined)).toBe(0);
+    expect(parseBudgetAmount("")).toBe(0);
   });
 });
 
