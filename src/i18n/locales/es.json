@@ -215,6 +215,7 @@
     "tableTitle": "Presupuestos",
     "colPeriod": "Período",
     "colUsage": "Uso",
+    "colSpent": "Gastado",
     "colStatus": "Estado",
     "emptyTitle": "Ningún presupuesto encontrado",
     "emptySubtitle": "Crea un presupuesto o ajusta el filtro para ver resultados.",
