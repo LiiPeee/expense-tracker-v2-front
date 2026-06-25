@@ -6,5 +6,6 @@ export async function createStock(data: StockRequest): Promise<void> {
 }
 
 export async function getAllStocks(pageNumber = 1): Promise<PagedStocksResponse> {
-  return getJson<PagedStocksResponse>("/Stock/GetAllStock", { pageNumber }, "Falha ao buscar ativos");
+  // Backend binds [FromQuery] int page, so the query key must be `page` (not `pageNumber`).
+  return getJson<PagedStocksResponse>("/Stock/GetAllStock", { page: pageNumber }, "Falha ao buscar ativos");
 }

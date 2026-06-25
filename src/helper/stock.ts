@@ -39,10 +39,10 @@ export const stockFormDefaults: StockForm = {
 };
 
 export const stockFormSchema = z.object({
-  ticker: z.string().trim().min(1, "Ticker é obrigatório"),
-  title: z.string().trim().min(1, "Nome é obrigatório"),
-  price: z.string().refine((v) => v.trim() !== "" && !Number.isNaN(Number(v.replace(",", "."))), "Preço inválido"),
-  quantity: z.string().refine((v) => v.trim() !== "" && Number.isInteger(Number(v)) && Number(v) > 0, "Quantidade inválida"),
+  ticker: z.string().trim().min(1, "validation:tickerRequired"),
+  title: z.string().trim().min(1, "validation:nameRequired"),
+  price: z.string().refine((v) => v.trim() !== "" && !Number.isNaN(Number(v.replace(",", "."))), "validation:priceInvalid"),
+  quantity: z.string().refine((v) => v.trim() !== "" && Number.isInteger(Number(v)) && Number(v) > 0, "validation:quantityInvalid"),
   description: z.string(),
 });
 

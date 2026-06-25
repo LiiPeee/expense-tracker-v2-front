@@ -3,38 +3,38 @@ import { z } from "zod";
 
 // Login: email format + password presence (no strength rule on login).
 export const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(1, "Senha é obrigatória"),
+  email: z.string().email("validation:emailInvalid"),
+  password: z.string().min(1, "validation:passwordRequired"),
 });
 
 // Signup: reuses the live-indicator strength rule so the schema is the single gate (backend enforces it too).
 export const signUpSchema = z.object({
-  firstName: z.string().trim().min(1, "Nome é obrigatório"),
-  lastName: z.string().trim().min(1, "Sobrenome é obrigatório"),
-  email: z.string().email("Email inválido"),
-  password: z.string().refine((value) => isStrongPassword(getPasswordStrength(value)), "A senha não atende todos os requisitos de segurança"),
+  firstName: z.string().trim().min(1, "validation:nameRequired"),
+  lastName: z.string().trim().min(1, "validation:lastNameRequired"),
+  email: z.string().email("validation:emailInvalid"),
+  password: z.string().refine((value) => isStrongPassword(getPasswordStrength(value)), "validation:passwordStrength"),
 });
 
 // Recovery flow schemas (single validation gate per step; backend revalidates the code/password).
 export const forgotPasswordSchema = z.object({
-  email: z.string().email("Email inválido"),
+  email: z.string().email("validation:emailInvalid"),
 });
 export type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
 
 // Shared by both 6-digit code steps (reset-code and email verification).
 export const verificationCodeSchema = z.object({
-  code: z.string().regex(/^\d{6}$/, "O código deve ter 6 dígitos"),
+  code: z.string().regex(/^\d{6}$/, "validation:codeSixDigits"),
 });
 export type VerificationCodeForm = z.infer<typeof verificationCodeSchema>;
 
 export const newPasswordSchema = z
   .object({
-    password: z.string().refine((value) => isStrongPassword(getPasswordStrength(value)), "A senha não atende todos os requisitos de segurança"),
+    password: z.string().refine((value) => isStrongPassword(getPasswordStrength(value)), "validation:passwordStrength"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
-    message: "As senhas não conferem.",
+    message: "validation:passwordsMismatch",
   });
 export type NewPasswordForm = z.infer<typeof newPasswordSchema>;
 

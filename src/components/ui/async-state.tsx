@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/helper/utils";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type LoadingStateCardProps = {
   className?: string;
@@ -9,11 +10,12 @@ type LoadingStateCardProps = {
 };
 
 export function LoadingStateCard({ className, lines = 4 }: LoadingStateCardProps) {
+  const { t } = useTranslation();
   return (
     <div className={cn("rounded-2xl border border-glass bg-card/65 p-4 backdrop-blur-sm", className)}>
       <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground">
         <Loader2 className="h-4 w-4 animate-spin" />
-        Carregando dados...
+        {t("loadingData")}
       </div>
 
       <div className="space-y-3">
@@ -61,15 +63,16 @@ type ErrorStateCardProps = {
   onRetry?: () => void;
 };
 
-export function ErrorStateCard({ title = "Não foi possível carregar", message, className, onRetry }: ErrorStateCardProps) {
+export function ErrorStateCard({ title, message, className, onRetry }: ErrorStateCardProps) {
+  const { t } = useTranslation();
   return (
     <div className={cn("empty-state border-destructive/25 bg-destructive/5", className)}>
       <AlertTriangle className="h-6 w-6 text-destructive" />
-      <p className="text-sm font-semibold text-foreground">{title}</p>
+      <p className="text-sm font-semibold text-foreground">{title ?? t("loadErrorTitle")}</p>
       <p className="max-w-md text-xs text-muted-foreground">{message}</p>
       {onRetry ? (
         <Button variant="outline" size="sm" className="mt-2 rounded-full" onClick={onRetry}>
-          Tentar novamente
+          {t("retry")}
         </Button>
       ) : null}
     </div>

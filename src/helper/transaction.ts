@@ -109,17 +109,17 @@ export function mapTransactionFormToRequest(form: TransactionForm): TransactionR
 // Unvalidated fields are kept in the schema as passthrough so RHF doesn't strip them from the submit payload.
 export const transactionFormSchema = z.object({
   id: z.number(),
-  transactionName: z.string().trim().min(1, "Nome da transação é obrigatório"),
+  transactionName: z.string().trim().min(1, "validation:transactionNameRequired"),
   subCategory: z.string(),
   numberOfInstallment: z.string(),
   dateOfInstallment: z.string(),
-  paid: z.enum(["", "Sim", "Não"]).refine((value) => value !== "", "Status de pagamento é obrigatório"),
-  contactName: z.string().trim().min(1, "Contato é obrigatório"),
-  recurrence: z.string().min(1, "Recorrência é obrigatória"),
+  paid: z.enum(["", "Sim", "Não"]).refine((value) => value !== "", "validation:paymentStatusRequired"),
+  contactName: z.string().trim().min(1, "validation:contactRequired"),
+  recurrence: z.string().min(1, "validation:recurrenceRequired"),
   description: z.string(),
-  amount: z.string().refine((value) => value.trim() !== "" && !Number.isNaN(Number(value)), "Valor inválido"),
+  amount: z.string().refine((value) => value.trim() !== "" && !Number.isNaN(Number(value)), "validation:amountInvalid"),
   type: z.enum(["Income", "Expense"]),
-  category: z.string().trim().min(1, "Categoria é obrigatória"),
+  category: z.string().trim().min(1, "validation:categoryRequired"),
   date: z.string().optional(),
 });
 

@@ -1,5 +1,6 @@
-import { getDefaultYearMonth, monthNames } from "@/helper/utils";
+import { getDefaultYearMonth, getMonthNames } from "@/helper/utils";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export type MonthNavigation = {
   month: number;
@@ -11,6 +12,7 @@ export type MonthNavigation = {
 
 /** Stateful month/year cursor starting at the current month, with prev/next stepping. */
 export function useMonthNavigation(): MonthNavigation {
+  const { i18n } = useTranslation();
   const initial = getDefaultYearMonth();
   const [{ month, year }, setCursor] = useState({ month: initial.month, year: initial.year });
 
@@ -24,7 +26,7 @@ export function useMonthNavigation(): MonthNavigation {
   return {
     month,
     year,
-    label: `${monthNames[month - 1]} ${year}`,
+    label: `${getMonthNames(i18n.language)[month - 1]} ${year}`,
     goToPreviousMonth: () => shiftBy(-1),
     goToNextMonth: () => shiftBy(1),
   };

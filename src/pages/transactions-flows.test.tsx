@@ -124,7 +124,7 @@ describe("transactions pages flows", () => {
 
     mockedGetAllContacts.mockClear();
 
-    fireEvent.click(screen.getByRole("button", { name: "Nova Transacao" }));
+    fireEvent.click(screen.getByRole("button", { name: "Nova Transação" }));
 
     await waitFor(() => {
       expect(mockedGetAllContacts).toHaveBeenCalledTimes(1);
@@ -138,10 +138,10 @@ describe("transactions pages flows", () => {
       expect(mockedGetAllTransactionsPaged).toHaveBeenCalledWith(defaultMonth, defaultYear, 1);
     });
 
-    fireEvent.click(screen.getByLabelText("Editar transacao"));
-    expect(screen.getByText("Editar Transacao")).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText("Editar transação"));
+    expect(screen.getByText("Editar Transação")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText("Excluir transacao"));
+    fireEvent.click(screen.getByLabelText("Excluir transação"));
 
     await waitFor(() => {
       expect(mockedDeleteTransactions).toHaveBeenCalledWith(baseTransaction.id);
