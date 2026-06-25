@@ -21,7 +21,8 @@
     "lightTheme": "Switch to light theme",
     "darkTheme": "Switch to dark theme",
     "chartTotal": "Total",
-    "chartEmpty": "No expenses recorded in this period"
+    "chartEmpty": "No expenses recorded in this period",
+    "refreshData": "Refresh data"
   },
   "auth": {
     "welcome": "Welcome",

@@ -21,7 +21,8 @@
     "lightTheme": "Activar tema claro",
     "darkTheme": "Activar tema oscuro",
     "chartTotal": "Total",
-    "chartEmpty": "Ningún gasto registrado en este período"
+    "chartEmpty": "Ningún gasto registrado en este período",
+    "refreshData": "Actualizar datos"
   },
   "auth": {
     "welcome": "Bienvenido",
