@@ -110,7 +110,11 @@
     "incomeByCategory": "Receitas por Categoria",
     "viewReport": "Ver relatório",
     "previousMonth": "Mês anterior",
-    "nextMonth": "Próximo mês"
+    "nextMonth": "Próximo mês",
+    "budgetAlertTitle": "Atenção aos orçamentos",
+    "budgetAlert_one": "{{count}} orçamento acima do limite neste mês.",
+    "budgetAlert_other": "{{count}} orçamentos acima do limite neste mês.",
+    "viewBudgets": "Ver orçamentos"
   },
   "errors": {
     "emailInvalid": "Email inválido.",
