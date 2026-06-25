@@ -10,6 +10,7 @@ export interface StockRequest {
 
 export interface StockResponse {
   ticker: string;
+  quantity: number;
   priceMarket: number;
   priceBuyed: number;
   percentage: string;
