@@ -10,24 +10,23 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import type { BudgetLimit } from "@/helper/budget";
-import { formatBudgetMonthYear, getBudgetCategoryName } from "@/helper/budget";
+import type { BudgetLimit, BudgetUsageStatus } from "@/helper/budget";
+import { formatBudgetMonthYear, getBudgetCategoryName, getBudgetUsageStatus, parseBudgetPercentage } from "@/helper/budget";
 import { formatBRL } from "@/helper/utils";
 import { PiggyBank } from "lucide-react";
 
-function parsePct(value: BudgetLimit["percentage"]): number | null {
-  if (value == null || value === "") return null;
-  const n = typeof value === "number" ? value : parseFloat(String(value));
-  return Number.isFinite(n) ? n : null;
-}
+const USAGE_BAR_COLOR: Record<BudgetUsageStatus, string> = {
+  over: "bg-destructive",
+  warning: "bg-amber-400",
+  ok: "bg-success",
+};
 
 function BudgetProgressBar({ percentage }: { percentage: BudgetLimit["percentage"] }) {
-  const pct = parsePct(percentage);
+  const pct = parseBudgetPercentage(percentage);
   if (pct == null) return <span className="text-muted-foreground text-sm">—</span>;
 
   const clamped = Math.min(Math.max(pct, 0), 100);
-  const color =
-    clamped >= 90 ? "bg-destructive" : clamped >= 70 ? "bg-amber-400" : "bg-success";
+  const color = USAGE_BAR_COLOR[getBudgetUsageStatus(pct)];
 
   return (
     <div className="flex items-center gap-2 justify-end">
@@ -39,6 +38,40 @@ function BudgetProgressBar({ percentage }: { percentage: BudgetLimit["percentage
         />
       </div>
     </div>
+  );
+}
+
+function BudgetStatusBadge({ budget }: { budget: BudgetLimit }) {
+  const status = getBudgetUsageStatus(budget.percentage);
+
+  if (status === "over") {
+    return (
+      <Badge variant="default" className="bg-destructive/15 text-destructive border-destructive/30 hover:bg-destructive/20">
+        Acima do limite
+      </Badge>
+    );
+  }
+
+  if (status === "warning") {
+    return (
+      <Badge variant="default" className="bg-amber-400/15 text-amber-600 border-amber-400/30 hover:bg-amber-400/20">
+        Perto do limite
+      </Badge>
+    );
+  }
+
+  if (budget.isLimit) {
+    return (
+      <Badge variant="default" className="bg-success/15 text-success border-success/30 hover:bg-success/20">
+        Ativo
+      </Badge>
+    );
+  }
+
+  return (
+    <Badge variant="outline" className="text-muted-foreground">
+      Inativo
+    </Badge>
   );
 }
 
@@ -102,15 +135,7 @@ export function BudgetsPaginatedTable({
                       <BudgetProgressBar percentage={budget.percentage} />
                     </TableCell>
                     <TableCell className="text-center">
-                      {budget.isLimit ? (
-                        <Badge variant="default" className="bg-success/15 text-success border-success/30 hover:bg-success/20">
-                          Ativo
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-muted-foreground">
-                          Inativo
-                        </Badge>
-                      )}
+                      <BudgetStatusBadge budget={budget} />
                     </TableCell>
                   </TableRow>
                 ))

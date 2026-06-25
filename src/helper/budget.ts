@@ -72,6 +72,39 @@ export const budgetFormSchema = z.object({
   }, "Limite deve ser maior que zero"),
 });
 
+// Usage thresholds (percentage of the limit already consumed).
+export const BUDGET_WARNING_THRESHOLD = 80;
+export const BUDGET_OVER_THRESHOLD = 100;
+
+export type BudgetUsageStatus = "ok" | "warning" | "over";
+
+export function parseBudgetPercentage(value: BudgetLimit["percentage"]): number | null {
+  if (value == null || value === "") return null;
+  const parsed = typeof value === "number" ? value : Number.parseFloat(String(value));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+/** Classifies how close a budget is to (or past) its limit. Unknown percentage → "ok". */
+export function getBudgetUsageStatus(percentage: BudgetLimit["percentage"]): BudgetUsageStatus {
+  const pct = parseBudgetPercentage(percentage);
+  if (pct == null) return "ok";
+  if (pct >= BUDGET_OVER_THRESHOLD) return "over";
+  if (pct >= BUDGET_WARNING_THRESHOLD) return "warning";
+  return "ok";
+}
+
+export function summarizeBudgetAlerts(budgets: BudgetLimit[]): { over: number; warning: number } {
+  return budgets.reduce(
+    (totals, budget) => {
+      const status = getBudgetUsageStatus(budget.percentage);
+      if (status === "over") totals.over += 1;
+      else if (status === "warning") totals.warning += 1;
+      return totals;
+    },
+    { over: 0, warning: 0 },
+  );
+}
+
 export function getBudgetCategoryName(budget: BudgetLimit): string {
   return budget.category?.name?.trim() || "Sem categoria";
 }
