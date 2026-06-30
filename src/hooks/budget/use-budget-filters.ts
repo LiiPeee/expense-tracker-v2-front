@@ -18,10 +18,6 @@ export interface UseBudgetFiltersResult {
   goToPage: (page: number) => void;
 }
 
-/**
- * Filtro (por nome/categoria) e paginação client-side sobre a lista de orçamentos.
- * Recebe a lista já carregada — a fonte de dados (useBudgetLimits) fica na página.
- */
 export function useBudgetFilters(budgets: BudgetLimit[]): UseBudgetFiltersResult {
   const [filterName, setFilterNameRaw] = useState("");
   const [filterCategory, setFilterCategoryRaw] = useState("all");

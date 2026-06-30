@@ -14,7 +14,6 @@ type PasswordFieldProps<T extends FieldValues> = {
   children?: ReactNode;
 };
 
-/** RHF-bound password input with a self-contained show/hide toggle and inline validation message. */
 export function PasswordField<T extends FieldValues>({ control, name, label, placeholder, children }: PasswordFieldProps<T>) {
   const { t } = useTranslation("auth");
   const [show, setShow] = useState(false);

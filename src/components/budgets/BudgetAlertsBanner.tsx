@@ -3,7 +3,6 @@ import { type BudgetLimit, summarizeBudgetAlerts } from "@/helper/budget";
 import { AlertTriangle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-/** Summary banner shown above the budgets list when any budget is near or over its limit. */
 export function BudgetAlertsBanner({ budgets }: { budgets: BudgetLimit[] }) {
   const { t } = useTranslation("budgets");
   const { over, warning } = summarizeBudgetAlerts(budgets);

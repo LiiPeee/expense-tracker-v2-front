@@ -34,6 +34,15 @@ export function validateCategoryForm(form: CategoryForm): string[] {
   return errors;
 }
 
+export function toCategoryKey(category: string): string {
+  return category
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/\s+/g, "_")
+    .replace(/[^a-z0-9_]/g, "");
+}
+
 export enum CategoryList {
   "MORADIA",
   "TRANSPORTE",

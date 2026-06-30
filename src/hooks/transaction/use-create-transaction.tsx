@@ -26,7 +26,6 @@ export function useTransaction() {
     await queryClient.invalidateQueries({ queryKey: ["transactions"], refetchType: "none" });
   }, [queryClient]);
 
-  // Reset the editing target whenever the dialog closes so the next "Nova Transacao" opens blank.
   const onOpenChange = useCallback((open: boolean) => {
     setIsDialogOpen(open);
     if (!open) setEditingTransaction(null);

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CategoryList } from "@/helper/category";
+import { CategoryList, toCategoryKey } from "@/helper/category";
 import type { Contact } from "@/helper/contact";
 import { getMonthNames, monthNames } from "@/helper/utils";
 import { useTranslation } from "react-i18next";
@@ -92,7 +92,7 @@ export function TransactionsFiltersCard({
                   .filter((key) => Number.isNaN(Number(key)))
                   .map((category) => (
                     <SelectItem key={category} value={category}>
-                      {category}
+                      {t(`categories.${toCategoryKey(category)}`)}
                     </SelectItem>
                   ))}
               </SelectContent>

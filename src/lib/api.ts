@@ -12,10 +12,6 @@ export const BASE_URL: string = _apiUrl;
 // Secret known only to this module — prevents external scripts from triggering auth:unauthorized
 const AUTH_EVENT_SECRET = crypto.randomUUID();
 
-/**
- * Registers a handler for the internal "auth:unauthorized" event.
- * Returns a cleanup function to remove the listener.
- */
 export function onAuthUnauthorized(handler: () => void): () => void {
   const listener = (e: Event) => {
     if ((e as CustomEvent<{ secret: string }>).detail?.secret !== AUTH_EVENT_SECRET) return;
@@ -146,10 +142,6 @@ export async function readJsonOrThrow<T>(response: Response, fallbackMessage: st
 
   return (await response.json()) as T;
 }
-
-// ----- Typed transport layer -----
-// Single place that builds URLs, attaches auth, and maps errors. Services declare
-// intent (path + params + body) and never touch fetch, headers, or query strings.
 
 type QueryParams = Record<string, string | number | boolean | null | undefined>;
 

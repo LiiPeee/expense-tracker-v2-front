@@ -8,7 +8,6 @@ type MonthNavigatorProps = {
   onNextMonth: () => void;
 };
 
-/** Compact prev/next month stepper with the selected month label in the middle. */
 export function MonthNavigator({ label, onPreviousMonth, onNextMonth }: MonthNavigatorProps) {
   const { t } = useTranslation("dashboard");
 

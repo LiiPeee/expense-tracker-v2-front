@@ -43,7 +43,6 @@ export interface TransactionResponse {
   id: number;
   name?: string;
   createdDate?: string;
-  // Financial reference month (competência) — the month this transaction belongs to.
   competenceDate?: string;
   subCategory?: string;
   numberOfInstallment?: string;
@@ -105,8 +104,6 @@ export function mapTransactionFormToRequest(form: TransactionForm): TransactionR
   };
 }
 
-// Mirrors the previous validateTransactionForm rules exactly — surfaced inline via RHF.
-// Unvalidated fields are kept in the schema as passthrough so RHF doesn't strip them from the submit payload.
 export const transactionFormSchema = z.object({
   id: z.number(),
   transactionName: z.string().trim().min(1, "validation:transactionNameRequired"),

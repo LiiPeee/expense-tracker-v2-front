@@ -40,13 +40,11 @@ async function fetchTransactions(query: TransactionListQuery, page: number): Pro
   }
 }
 
-/** Fetches every page for the given query and returns the flattened, recurrence-normalized list (for export). */
 export async function fetchAllTransactions(query: TransactionListQuery): Promise<TransactionResponse[]> {
   const items = await fetchAllPages((page) => fetchTransactions(query, page));
   return items.map((item) => ({ ...item, recurrence: normalizeRecurrence(item.recurrence) })) as TransactionResponse[];
 }
 
-/** Resolves month/year filter strings into numeric values, falling back to the current month/year. */
 export function resolveQueryPeriod(monthStr: string, yearStr: string): { month: number; year: number } {
   const queryMonth = monthResponse(monthStr);
   const queryYear = Number(yearStr);

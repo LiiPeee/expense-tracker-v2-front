@@ -43,13 +43,11 @@ function setRefreshToken(token: string | null): void {
   sessionStorage.setItem(REFRESH_TOKEN_KEY, token);
 }
 
-/** Persiste a sessão recém-obtida (login ou rotação de refresh): accessToken + refreshToken. */
 export function setSession(auth: AuthResponse): void {
   setAccessToken(auth.accessToken);
   setRefreshToken(auth.refreshToken ?? null);
 }
 
-/** Limpa a sessão: accessToken + refreshToken + resíduos legados de session/localStorage. */
 export function clearAuth(): void {
   sessionStorage.removeItem(ACCESS_TOKEN_KEY);
   sessionStorage.removeItem(REFRESH_TOKEN_KEY);
