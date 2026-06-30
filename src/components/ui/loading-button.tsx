@@ -8,10 +8,6 @@ export interface LoadingButtonProps extends ButtonProps {
   loadingText?: React.ReactNode;
 }
 
-/**
- * Botão com estado de carregamento: desabilita, marca aria-busy e mostra um
- * spinner enquanto isLoading. Encapsula o padrão repetido de "disabled + Loader2 + texto".
- */
 const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
   ({ isLoading = false, loadingText, disabled, children, ...props }, ref) => (
     <Button ref={ref} disabled={disabled || isLoading} aria-busy={isLoading} {...props}>

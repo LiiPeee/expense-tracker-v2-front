@@ -6,14 +6,14 @@ import { TransactionsSummaryCards } from "@/components/transactions/Transactions
 import { LoadingButton } from "@/components/ui/loading-button";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories";
-import { buildTransactionsCsv } from "@/helper/transaction-export";
 import { downloadCsv } from "@/helper/csv";
+import type { TransactionForm } from "@/helper/transaction";
+import { buildTransactionsCsv } from "@/helper/transaction-export";
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { fetchAllTransactions, useTransactionsList } from "@/hooks/transaction/use-get-transactions";
 import { useTransactionFilters } from "@/hooks/transaction/use-transaction-filters";
-import type { TransactionForm } from "@/helper/transaction";
 import { useQueryClient } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { useState } from "react";
@@ -25,7 +25,8 @@ const TransactionsList = () => {
   const queryClient = useQueryClient();
   const [isExporting, setIsExporting] = useState(false);
 
-  const { handleDelete, handleEdit, submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } = useTransaction();
+  const { handleDelete, handleEdit, submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } =
+    useTransaction();
 
   const { contacts, getAllContact } = useContact();
 
@@ -48,10 +49,12 @@ const TransactionsList = () => {
     resetToFirstPage,
   } = useTransactionFilters();
 
-  const { expenseMonthTotal, incomeMonthTotal, economyMonthTotal, isFetching: isSummaryFetching } = useFinancialSummary(
-    activePeriod.month,
-    activePeriod.year,
-  );
+  const {
+    expenseMonthTotal,
+    incomeMonthTotal,
+    economyMonthTotal,
+    isFetching: isSummaryFetching,
+  } = useFinancialSummary(activePeriod.month, activePeriod.year);
 
   const {
     transactions,
@@ -71,9 +74,6 @@ const TransactionsList = () => {
     }
   };
 
-  // "Consulta por Filtros" é ação explícita do usuário: além de aplicar os
-  // filtros, invalida lista e resumo para sempre buscar dados frescos — mesmo
-  // quando o filtro repete um já consultado (que o cache do React Query serviria).
   const handleApplyFilters = () => {
     applyFilters();
     void queryClient.invalidateQueries({ queryKey: ["transactions"] });
@@ -92,7 +92,10 @@ const TransactionsList = () => {
         toast.info(t("nothingToExport"));
         return;
       }
-      downloadCsv(`transacoes-${activePeriod.year}-${String(activePeriod.month).padStart(2, "0")}.csv`, buildTransactionsCsv(allTransactions));
+      downloadCsv(
+        `transacoes-${activePeriod.year}-${String(activePeriod.month).padStart(2, "0")}.csv`,
+        buildTransactionsCsv(allTransactions),
+      );
       toast.success(t("exportDone"));
     } catch {
       toast.error(t("exportError"));

@@ -59,7 +59,6 @@ export function mapBudgetFormToRequest(form: BudgetLimitForm): CreateBudgetLimit
   };
 }
 
-// Mirrors the previous validateBudgetForm rules exactly — now surfaced inline via RHF.
 export const budgetFormSchema = z.object({
   categoryName: z.string().trim().min(1, "validation:categoryRequired"),
   month: z.string().refine((value) => {
@@ -76,7 +75,6 @@ export const budgetFormSchema = z.object({
   }, "validation:limitPositive"),
 });
 
-// Usage thresholds (percentage of the limit already consumed).
 export const BUDGET_WARNING_THRESHOLD = 80;
 export const BUDGET_OVER_THRESHOLD = 100;
 

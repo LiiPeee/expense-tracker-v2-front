@@ -29,11 +29,6 @@ export interface UseTransactionFiltersResult {
   resetToFirstPage: () => void;
 }
 
-/**
- * Estado e lógica de filtros/paginação da listagem de transações.
- * O período só é "commitado" (vira consulta) ao chamar applyFilters — a página
- * passa transactionQuery + currentPage para useTransactionsList disparar o fetch.
- */
 export function useTransactionFilters(): UseTransactionFiltersResult {
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterType, setFilterType] = useState<string>("all");
@@ -43,7 +38,6 @@ export function useTransactionFilters(): UseTransactionFiltersResult {
   const [month, setMonth] = useState<string>("all");
   const [year, setYear] = useState<string>("");
 
-  // Committed period — only updates when user clicks "Consulta por Filtros" or on page load
   const [activePeriod, setActivePeriod] = useState<{ month: number; year: number }>(() => resolveQueryPeriod("all", ""));
 
   const transactionQuery = useMemo((): TransactionListQuery => {

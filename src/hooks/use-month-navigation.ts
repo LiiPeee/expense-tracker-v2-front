@@ -10,7 +10,6 @@ export type MonthNavigation = {
   goToNextMonth: () => void;
 };
 
-/** Stateful month/year cursor starting at the current month, with prev/next stepping. */
 export function useMonthNavigation(): MonthNavigation {
   const { i18n } = useTranslation();
   const initial = getDefaultYearMonth();

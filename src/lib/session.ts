@@ -36,9 +36,6 @@ function parsePositiveNumber(value: unknown): number | null {
   return null;
 }
 
-/**
- * Resolves the current user's accountId from the JWT claims in the access token.
- */
 export function getCurrentAccountId(): number | null {
   const token = getAccessToken();
   if (!token) return null;

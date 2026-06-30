@@ -71,7 +71,6 @@ export const Header = () => {
             {isLoading ? t("loggingOut") : t("logout")}
           </Button>
 
-          {/* Mobile menu */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden rounded-xl" aria-label={t("openMenu")}>

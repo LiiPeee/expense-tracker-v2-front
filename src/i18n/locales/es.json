@@ -228,7 +228,22 @@
     "noCategory": "Sin categoría",
     "bannerTitle": "Atención a tus presupuestos",
     "bannerOver": "{{value}} por encima del límite",
-    "bannerWarning": "{{value}} cerca del límite"
+    "bannerWarning": "{{value}} cerca del límite",
+    "categories": {
+      "alimentacao": "Alimentación",
+      "conforto": "Comodidad",
+      "moradia": "Vivienda",
+      "transporte": "Transporte",
+      "saude": "Salud",
+      "educacao": "Educación",
+      "lazer": "Ocio",
+      "bens_pessoais": "Bienes Personales",
+      "investimento": "Inversión",
+      "renda_variavel": "Renta Variable",
+      "beneficios": "Beneficios",
+      "salario": "Salario",
+      "outros": "Otros"
+    }
   },
   "transactions": {
     "pageTitle": "Todas las Transacciones",
@@ -316,6 +331,21 @@
       "weekly": "Semanal",
       "biweekly": "Quincenal",
       "monthly": "Mensual"
+    },
+    "categories": {
+      "alimentacao": "Alimentación",
+      "conforto": "Comodidad",
+      "moradia": "Vivienda",
+      "transporte": "Transporte",
+      "saude": "Salud",
+      "educacao": "Educación",
+      "lazer": "Ocio",
+      "bens_pessoais": "Bienes Personales",
+      "investimento": "Inversión",
+      "renda_variavel": "Renta Variable",
+      "beneficios": "Beneficios",
+      "salario": "Salario",
+      "outros": "Otros"
     }
   },
   "validation": {

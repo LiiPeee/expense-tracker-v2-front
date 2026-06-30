@@ -79,7 +79,6 @@ export function useContact() {
     }
   };
 
-  // Reset the editing target whenever the dialog closes so the next "Novo Contato" opens blank.
   const onOpenChange = (open: boolean) => {
     setIsDialogOpen(open);
     if (!open) setEditingContact(null);
