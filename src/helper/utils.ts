@@ -8,8 +8,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
-// Canonical (pt-BR) month names — used as stable filter VALUES (parsed back by monthResponse).
-// For display, use getMonthNames(locale) so the labels follow the active language.
 export const monthNames = [
   "Janeiro",
   "Fevereiro",
@@ -25,7 +23,6 @@ export const monthNames = [
   "Dezembro",
 ];
 
-/** Localized, capitalized month names (index 0 = January) for the given locale. */
 export function getMonthNames(locale: string): string[] {
   // Format in UTC — otherwise Date.UTC(2000, 0, 1) is read in local time and a
   // negative-offset timezone shifts January back to December.
@@ -36,7 +33,6 @@ export function getMonthNames(locale: string): string[] {
   });
 }
 
-// Maps a normalized recurrence label (recurrenceResponse output) to an i18n key suffix.
 export const RECURRENCE_LABEL_KEY: Record<string, string> = {
   Não: "none",
   Semanal: "weekly",

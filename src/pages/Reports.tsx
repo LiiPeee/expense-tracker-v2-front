@@ -39,7 +39,6 @@ const Reports = () => {
           <p className="text-muted-foreground">{t("pageSubtitle")}</p>
         </div>
 
-        {/* Filtros */}
         <Card className="mb-6 rounded-2xl reveal-up stagger-1">
           <CardContent className="pt-4">
             <div className="flex flex-wrap items-end gap-4">
@@ -83,9 +82,7 @@ const Reports = () => {
           </CardContent>
         </Card>
 
-        {/* Conteúdo principal */}
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Gráfico */}
           <Card className="rounded-2xl reveal-up stagger-2">
             <CardHeader>
               <CardTitle className="text-base font-semibold">
@@ -103,7 +100,6 @@ const Reports = () => {
             </CardContent>
           </Card>
 
-          {/* Tabela detalhada */}
           <Card className="rounded-2xl reveal-up stagger-3">
             <CardHeader>
               <CardTitle className="text-base font-semibold">{t("detailTitle")}</CardTitle>

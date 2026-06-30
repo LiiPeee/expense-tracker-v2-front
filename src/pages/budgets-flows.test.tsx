@@ -93,7 +93,6 @@ describe("budgets page flows", () => {
     fireEvent.click(screen.getByRole("combobox", { name: "Filtrar por categoria" }));
     fireEvent.click(await screen.findByRole("option", { name: "Alimentação" }));
 
-    // "Alimentação" também aparece no trigger do Select, então verificamos a célula da tabela.
     await waitFor(() => {
       expect(screen.getByRole("cell", { name: "Alimentação" })).toBeInTheDocument();
       expect(screen.queryByRole("cell", { name: "Saúde" })).not.toBeInTheDocument();

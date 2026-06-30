@@ -91,7 +91,6 @@ describe("authFetch reactive token refresh", () => {
         return Promise.resolve(createJsonResponse({ accessToken: "new-access", refreshToken: "new-refresh" }));
       }
       protectedHits += 1;
-      // First protected hit is 401, the retry succeeds.
       return Promise.resolve(protectedHits === 1 ? createJsonResponse({}, false, 401) : createJsonResponse({ ok: true }));
     });
 
@@ -124,7 +123,6 @@ describe("authFetch reactive token refresh", () => {
         return Promise.resolve(createJsonResponse({ accessToken: "new-access", refreshToken: "new-refresh" }));
       }
       protectedHits += 1;
-      // First two concurrent hits 401; their retries succeed.
       return Promise.resolve(protectedHits <= 2 ? createJsonResponse({}, false, 401) : createJsonResponse({ ok: true }));
     });
 

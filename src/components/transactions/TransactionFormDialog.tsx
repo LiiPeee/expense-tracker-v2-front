@@ -4,6 +4,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { FormTextField } from "@/components/ui/form-text-field";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toCategoryKey } from "@/helper/category";
 import type { Contact } from "@/helper/contact";
 import { type TransactionForm, transactionFormSchema } from "@/helper/transaction";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -185,7 +186,7 @@ export function TransactionFormDialog({
                     <SelectContent>
                       {categoryOptions.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {category}
+                          {t(`categories.${toCategoryKey(category)}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>

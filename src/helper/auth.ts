@@ -1,7 +1,6 @@
 import { getPasswordStrength, isStrongPassword } from "@/components/ui/password-strength";
 import { z } from "zod";
 
-// Login: email format + password presence (no strength rule on login).
 export const loginSchema = z.object({
   email: z.string().email("validation:emailInvalid"),
   password: z.string().min(1, "validation:passwordRequired"),
@@ -15,7 +14,6 @@ export const signUpSchema = z.object({
   password: z.string().refine((value) => isStrongPassword(getPasswordStrength(value)), "validation:passwordStrength"),
 });
 
-// Recovery flow schemas (single validation gate per step; backend revalidates the code/password).
 export const forgotPasswordSchema = z.object({
   email: z.string().email("validation:emailInvalid"),
 });

@@ -14,7 +14,6 @@ type FormTextFieldProps<T extends FieldValues> = {
   onBlur?: () => void;
 };
 
-/** RHF-bound text/number input with inline validation message — removes the repeated FormField boilerplate. */
 export function FormTextField<T extends FieldValues>({ control, name, label, placeholder, type, step, min, onBlur }: FormTextFieldProps<T>) {
   return (
     <FormField

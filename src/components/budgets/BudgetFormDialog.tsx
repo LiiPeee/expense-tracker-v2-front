@@ -5,6 +5,7 @@ import { FormTextField } from "@/components/ui/form-text-field";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { budgetFormDefaults, budgetFormSchema, type BudgetLimitForm } from "@/helper/budget";
+import { toCategoryKey } from "@/helper/category";
 import { getMonthNames } from "@/helper/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
@@ -69,7 +70,7 @@ export function BudgetFormDialog({ open, onOpenChange, onSubmit, categoryOptions
                     <SelectContent>
                       {categoryOptions.map((category) => (
                         <SelectItem key={category} value={category}>
-                          {category}
+                          {t(`categories.${toCategoryKey(category)}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>

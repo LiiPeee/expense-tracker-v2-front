@@ -95,8 +95,6 @@ export function mapContactToForm(contact: Contact): ContactForm {
   };
 }
 
-// Mirrors the previous validateContactForm rules exactly (required, non-empty) — surfaced inline via RHF.
-// Email keeps the original "required only" rule (no format check) to stay behavior-preserving.
 export const contactFormSchema = z.object({
   name: z.string().trim().min(1, "validation:nameRequired"),
   email: z.string().trim().min(1, "validation:emailFieldRequired"),

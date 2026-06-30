@@ -8,7 +8,6 @@ type VerificationCodeFieldProps<T extends FieldValues> = {
   label: string;
 };
 
-/** RHF-bound 6-digit numeric code input (centered, monospaced) with inline validation. */
 export function VerificationCodeField<T extends FieldValues>({ control, name, label }: VerificationCodeFieldProps<T>) {
   return (
     <FormField
