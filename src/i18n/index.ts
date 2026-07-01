@@ -13,7 +13,7 @@ export const SUPPORTED_LANGUAGES = [
 
 export const DEFAULT_LANGUAGE = "pt-BR";
 
-export const NAMESPACES = ["common", "auth", "dashboard", "errors", "stocks", "validation", "transactions", "budgets", "contacts", "reports"] as const;
+export const NAMESPACES = ["common", "auth", "dashboard", "errors", "stocks", "validation", "transactions", "budgets", "contacts", "reports", "cdiCalculator"] as const;
 
 const resources = {
   "pt-BR": ptBR,

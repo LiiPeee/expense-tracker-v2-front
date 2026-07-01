@@ -1,11 +1,35 @@
 import { z } from "zod";
 
+export const FIXED_INCOME_TYPES = [
+  "CDB",
+  "LCI",
+  "LCA",
+  "CRI",
+  "CRA",
+  "Debênture",
+  "Tesouro Prefixado",
+  "Tesouro Selic",
+  "LC",
+  "LIG",
+  "RDB",
+  "DPGE",
+  "FIDC",
+  "Poupança",
+  "CCB",
+] as const;
+
+export type FixedIncomeType = (typeof FIXED_INCOME_TYPES)[number];
+
 export interface StockRequest {
   ticker: string;
   title: string;
   price: number;
   quantity: number;
   description?: string;
+  cdiRate?: number;
+  investmentDate?: string;
+  isStock?: boolean;
+  fixedIncomeType?: string;
 }
 
 export interface StockResponse {
@@ -14,6 +38,10 @@ export interface StockResponse {
   priceMarket: number;
   priceBuyed: number;
   percentage: string;
+  cdiRate?: number | null;
+  investmentDate?: string | null;
+  isStock?: boolean;
+  fixedIncomeType?: string | null;
 }
 
 export type PagedStocksResponse = {
@@ -29,6 +57,10 @@ export interface StockForm {
   price: string;
   quantity: string;
   description: string;
+  cdiRate: string;
+  investmentDate: string;
+  isStock: string;
+  fixedIncomeType: string;
 }
 
 export const stockFormDefaults: StockForm = {
@@ -37,6 +69,10 @@ export const stockFormDefaults: StockForm = {
   price: "",
   quantity: "",
   description: "",
+  cdiRate: "",
+  investmentDate: "",
+  isStock: "true",
+  fixedIncomeType: "",
 };
 
 export const stockFormSchema = z.object({
@@ -45,14 +81,33 @@ export const stockFormSchema = z.object({
   price: z.string().refine((v) => v.trim() !== "" && !Number.isNaN(Number(v.replace(",", "."))), "validation:priceInvalid"),
   quantity: z.string().refine((v) => v.trim() !== "" && Number.isInteger(Number(v)) && Number(v) > 0, "validation:quantityInvalid"),
   description: z.string(),
+  cdiRate: z.string().refine(
+    (v) => v === "" || (!Number.isNaN(Number(v.replace(",", "."))) && Number(v.replace(",", ".")) > 0 && Number(v.replace(",", ".")) <= 500),
+    "validation:cdiRateInvalid",
+  ),
+  investmentDate: z.string(),
+  isStock: z.enum(["true", "false"]),
+  fixedIncomeType: z.string(),
 });
 
+const RENDA_FIXA_PREFIXES = ["CDB", "LCI", "LCA", "CRI", "CRA", "LFT", "LTN", "NTN", "DEB", "COE", "RDB", "LC", "TD", "TESOURO", "POUP", "LIG"];
+
+export function isRendaFixa(ticker: string): boolean {
+  const upper = ticker.toUpperCase().trim();
+  return RENDA_FIXA_PREFIXES.some((prefix) => upper.startsWith(prefix));
+}
+
 export function mapStockFormToRequest(form: StockForm): StockRequest {
+  const isRendaFixa = form.isStock === "false";
   return {
     ticker: form.ticker.trim().toUpperCase(),
     title: form.title.trim(),
     price: Number.parseFloat(form.price.replace(",", ".")),
     quantity: Number.parseInt(form.quantity, 10),
     description: form.description.trim() || undefined,
+    isStock: !isRendaFixa,
+    fixedIncomeType: isRendaFixa ? (form.fixedIncomeType || undefined) : undefined,
+    cdiRate: isRendaFixa && form.cdiRate.trim() ? Number.parseFloat(form.cdiRate.replace(",", ".")) : undefined,
+    investmentDate: isRendaFixa ? (form.investmentDate.trim() || undefined) : undefined,
   };
 }
