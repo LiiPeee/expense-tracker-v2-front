@@ -1,9 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Form } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { FormTextField } from "@/components/ui/form-text-field";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { type StockForm, stockFormDefaults, stockFormSchema } from "@/helper/stock";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FIXED_INCOME_TYPES, type StockForm, stockFormDefaults, stockFormSchema } from "@/helper/stock";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
@@ -23,6 +24,7 @@ export function StockFormDialog({ open, onOpenChange, onSubmit }: StockFormDialo
     defaultValues: stockFormDefaults,
   });
   const { isSubmitting } = form.formState;
+  const isRendaFixa = form.watch("isStock") === "false";
 
   useEffect(() => {
     if (open) form.reset(stockFormDefaults);
@@ -55,6 +57,66 @@ export function StockFormDialog({ open, onOpenChange, onSubmit }: StockFormDialo
             <FormTextField control={form.control} name="price" label={t("fieldBuyPrice")} type="number" step="0.01" placeholder={t("buyPricePlaceholder")} />
             <FormTextField control={form.control} name="quantity" label={t("fieldQuantity")} type="number" step="1" placeholder={t("quantityPlaceholder")} />
             <FormTextField control={form.control} name="description" label={t("fieldDescription")} placeholder={t("descriptionPlaceholder")} />
+
+            <FormField
+              control={form.control}
+              name="isStock"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("assetTypeField")}</FormLabel>
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) => {
+                      field.onChange(v);
+                      form.setValue("fixedIncomeType", "");
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="true">{t("assetTypeStock")}</SelectItem>
+                      <SelectItem value="false">{t("assetTypeFixedIncome")}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {isRendaFixa && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="fixedIncomeType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("fixedIncomeTypeField")}</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t("fixedIncomeTypePlaceholder")} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {FIXED_INCOME_TYPES.map((type) => (
+                            <SelectItem key={type} value={type}>
+                              {type}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormTextField control={form.control} name="cdiRate" label={t("cdiRateField")} type="number" step="0.01" placeholder={t("cdiRatePlaceholder")} />
+                <FormTextField control={form.control} name="investmentDate" label={t("investmentDateField")} type="date" />
+              </>
+            )}
 
             <LoadingButton type="submit" className="w-full" isLoading={isSubmitting} loadingText={t("saving")}>
               {t("create")}
