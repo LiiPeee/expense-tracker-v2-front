@@ -9,3 +9,7 @@ export async function getAllStocks(pageNumber = 1): Promise<PagedStocksResponse>
   // Backend binds [FromQuery] int page, so the query key must be `page` (not `pageNumber`).
   return getJson<PagedStocksResponse>("/Stock/GetAllStock", { page: pageNumber }, "Falha ao buscar ativos");
 }
+
+export async function getAllFunds(pageNumber = 1): Promise<PagedStocksResponse> {
+  return getJson<PagedStocksResponse>("/Stock/GetAllFunds", { page: pageNumber }, "Falha ao buscar fundos");
+}

@@ -24,13 +24,11 @@ interface ExpensePieChartProps {
   data: CategoryChartData[];
   totalExpense: number;
   compact?: boolean;
+  layout?: "column" | "side";
 }
 
-export function ExpensePieChart({ data, totalExpense, compact = false }: ExpensePieChartProps) {
+export function ExpensePieChart({ data, totalExpense, compact = false, layout = "column" }: ExpensePieChartProps) {
   const { t } = useTranslation();
-  const innerRadius = compact ? 50 : 70;
-  const outerRadius = compact ? 80 : 110;
-  const chartHeight = compact ? 200 : 280;
 
   if (data.length === 0) {
     return (
@@ -40,32 +38,56 @@ export function ExpensePieChart({ data, totalExpense, compact = false }: Expense
     );
   }
 
+  if (layout === "side") {
+    return (
+      <div className="flex flex-col sm:flex-row items-center gap-6">
+        <div className="w-full sm:w-72 shrink-0" style={{ height: 280 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie data={data} cx="50%" cy="50%" innerRadius={70} outerRadius={110} paddingAngle={2} dataKey="total">
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} stroke="transparent" />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+              <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground">
+                <tspan x="50%" dy="-0.5em" fontSize={13} fill="currentColor" opacity={0.6}>{t("chartTotal")}</tspan>
+                <tspan x="50%" dy="1.4em" fontSize={16} fontWeight="bold" fill="currentColor">{formatBRL(totalExpense)}</tspan>
+              </text>
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="flex-1 w-full flex flex-col gap-2.5 min-w-0">
+          {data.map((item) => (
+            <div key={item.category} className="flex items-center gap-2 text-sm">
+              <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: item.fill }} />
+              <span className="font-medium">{item.category}</span>
+              <span className="text-muted-foreground ml-1">{formatBRL(item.total)}</span>
+              <span className="font-semibold text-right ml-auto">{item.percentage.toFixed(1)}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const innerRadius = compact ? 50 : 70;
+  const outerRadius = compact ? 80 : 110;
+  const chartHeight = compact ? 200 : 280;
+
   return (
     <div className="flex flex-col gap-4">
       <div style={{ height: chartHeight }}>
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={innerRadius}
-              outerRadius={outerRadius}
-              paddingAngle={2}
-              dataKey="total"
-            >
+            <Pie data={data} cx="50%" cy="50%" innerRadius={innerRadius} outerRadius={outerRadius} paddingAngle={2} dataKey="total">
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} stroke="transparent" />
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
-            <text
-              x="50%"
-              y="50%"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              className="fill-foreground"
-            >
+            <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground">
               <tspan x="50%" dy="-0.5em" fontSize={compact ? 11 : 13} fill="currentColor" opacity={0.6}>
                 {t("chartTotal")}
               </tspan>
