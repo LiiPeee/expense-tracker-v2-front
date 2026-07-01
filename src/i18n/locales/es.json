@@ -448,6 +448,35 @@
     "colAccumulated": "Valor acumulado",
     "monthLabel": "Mes {{month}}"
   },
+  "tour": {
+    "next": "Siguiente →",
+    "prev": "← Anterior",
+    "done": "¡Listo!",
+    "dashboard": {
+      "summaryTitle": "Tu resumen financiero",
+      "summaryDesc": "Aquí puedes ver el total de ingresos, gastos y saldo del mes actual.",
+      "chartTitle": "Gastos por categoría",
+      "chartDesc": "Este gráfico muestra cómo se distribuyen tus gastos por categoría. Usa el navegador de meses para explorar otros períodos."
+    },
+    "transactions": {
+      "newTitle": "Crear una transacción",
+      "newDesc": "Haz clic aquí para registrar un nuevo ingreso o gasto. Completa el nombre, monto, categoría y contacto.",
+      "filtersTitle": "Filtra tus transacciones",
+      "filtersDesc": "Usa los filtros para buscar por mes, tipo, categoría o contacto. Haz clic en 'Aplicar filtros' para ejecutar."
+    },
+    "stocks": {
+      "newTitle": "Registrar un activo",
+      "newDesc": "Haz clic aquí para agregar una acción, FII o Renta Fija a tu cartera. El precio de mercado se actualiza automáticamente.",
+      "chartTitle": "Distribución de cartera",
+      "chartDesc": "Estos gráficos muestran cómo están distribuidas tus inversiones entre renta variable y renta fija."
+    },
+    "budgets": {
+      "newTitle": "Crear un presupuesto",
+      "newDesc": "Haz clic aquí para definir un límite de gastos por categoría. Recibirás una alerta al acercarte o superar el límite.",
+      "tableTitle": "Sigue tus presupuestos",
+      "tableDesc": "Esta tabla muestra cada presupuesto, cuánto gastaste y el estado actual. Usa los filtros para encontrar categorías específicas."
+    }
+  },
   "errors": {
     "emailInvalid": "Correo inválido.",
     "passwordInvalid": "Contraseña incorrecta.",

@@ -10,6 +10,7 @@ import { downloadCsv } from "@/helper/csv";
 import type { TransactionForm } from "@/helper/transaction";
 import { buildTransactionsCsv } from "@/helper/transaction-export";
 import { useContact } from "@/hooks/contact/use-contact";
+import { useProductTour } from "@/hooks/use-product-tour";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { fetchAllTransactions, useTransactionsList } from "@/hooks/transaction/use-get-transactions";
@@ -24,6 +25,8 @@ const TransactionsList = () => {
   const { t } = useTranslation("transactions");
   const queryClient = useQueryClient();
   const [isExporting, setIsExporting] = useState(false);
+
+  useProductTour("transactions");
 
   const { handleDelete, handleEdit, submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } =
     useTransaction();
@@ -115,16 +118,18 @@ const TransactionsList = () => {
             <p className="text-muted-foreground text-base">{t("pageSubtitle")}</p>
           </div>
 
-          <TransactionFormDialog
-            open={isDialogOpen}
-            onOpenChange={onOpenChange}
-            onPrepareNew={() => void getAllContact()}
-            onSubmit={handleSubmitAndRefresh}
-            contacts={contacts}
-            editingTransaction={editingTransaction}
-            defaultValues={transactionDefaults}
-            categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
-          />
+          <div data-tour="new-transaction">
+            <TransactionFormDialog
+              open={isDialogOpen}
+              onOpenChange={onOpenChange}
+              onPrepareNew={() => void getAllContact()}
+              onSubmit={handleSubmitAndRefresh}
+              contacts={contacts}
+              editingTransaction={editingTransaction}
+              defaultValues={transactionDefaults}
+              categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
+            />
+          </div>
         </div>
 
         <TransactionsSummaryCards
@@ -148,20 +153,22 @@ const TransactionsList = () => {
           </LoadingButton>
         </div>
 
-        <TransactionsFiltersCard
-          month={month}
-          year={year}
-          filterCategory={filterCategory}
-          filterType={filterType}
-          filterContact={filterContact}
-          contacts={contacts}
-          onChangeMonth={setMonth}
-          onChangeYear={setYear}
-          onChangeCategory={setFilterCategory}
-          onChangeType={setFilterType}
-          onChangeContact={setFilterContact}
-          onApplyFilters={handleApplyFilters}
-        />
+        <div data-tour="filters-card">
+          <TransactionsFiltersCard
+            month={month}
+            year={year}
+            filterCategory={filterCategory}
+            filterType={filterType}
+            filterContact={filterContact}
+            contacts={contacts}
+            onChangeMonth={setMonth}
+            onChangeYear={setYear}
+            onChangeCategory={setFilterCategory}
+            onChangeType={setFilterType}
+            onChangeContact={setFilterContact}
+            onApplyFilters={handleApplyFilters}
+          />
+        </div>
 
         <TransactionsPaginatedTable
           transactions={transactions}
