@@ -14,16 +14,19 @@ import { useProductTour } from "@/hooks/use-product-tour";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { fetchAllTransactions, useTransactionsList } from "@/hooks/transaction/use-get-transactions";
-import { useTransactionFilters } from "@/hooks/transaction/use-transaction-filters";
+import { isTransactionFilterPreset, useTransactionFilters } from "@/hooks/transaction/use-transaction-filters";
 import { useQueryClient } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 const TransactionsList = () => {
   const { t } = useTranslation("transactions");
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const filterPreset = isTransactionFilterPreset(location.state) ? location.state : undefined;
   const [isExporting, setIsExporting] = useState(false);
 
   useProductTour("transactions");
@@ -50,7 +53,7 @@ const TransactionsList = () => {
     applyFilters,
     goToPage,
     resetToFirstPage,
-  } = useTransactionFilters();
+  } = useTransactionFilters(filterPreset);
 
   const {
     expenseMonthTotal,
