@@ -8,6 +8,7 @@ import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { useCreateStock } from "@/hooks/stock/use-create-stock";
 import { usePortfolioAllocation } from "@/hooks/stock/use-portfolio-allocation";
 import { useStocksList } from "@/hooks/stock/use-stocks-query";
+import { useProductTour } from "@/hooks/use-product-tour";
 import { useQueryClient } from "@tanstack/react-query";
 import { Calculator } from "lucide-react";
 import { useState } from "react";
@@ -34,6 +35,8 @@ const Stocks = () => {
     refetch: refetchAllocation,
   } = usePortfolioAllocation();
 
+  useProductTour("stocks");
+
   const handleRefresh = async () => {
     try {
       await Promise.all([queryClient.invalidateQueries({ queryKey: ["stocks"] }), refetchAllocation()]);
@@ -54,12 +57,14 @@ const Stocks = () => {
             <p className="text-muted-foreground text-base">{t("pageSubtitle")}</p>
           </div>
 
-          <StockFormDialog open={isDialogOpen} onOpenChange={onOpenChange} onSubmit={submitStock} />
+          <div data-tour="new-asset">
+            <StockFormDialog open={isDialogOpen} onOpenChange={onOpenChange} onSubmit={submitStock} />
+          </div>
         </div>
 
         <RefreshAllButton isRefreshing={isLoading || isRefreshing || isLoadingAllocation} onRefresh={handleRefresh} />
 
-        <div className="grid gap-6 md:grid-cols-2 mb-6">
+        <div data-tour="allocation-chart" className="grid gap-6 md:grid-cols-2 mb-6">
           <Card className="surface-card rounded-2xl">
             <CardHeader>
               <CardTitle className="text-base font-semibold">{t("rendaVariavelTitle")}</CardTitle>

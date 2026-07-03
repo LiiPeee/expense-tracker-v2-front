@@ -6,26 +6,47 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatBRL, getDefaultYearMonth, getMonthNames } from "@/helper/utils";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
+import type { TransactionFilterPreset } from "@/hooks/transaction/use-transaction-filters";
 import { PieChart, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 const Reports = () => {
   const { t, i18n } = useTranslation("reports");
+  const navigate = useNavigate();
   const localizedMonths = getMonthNames(i18n.language);
   const ym = getDefaultYearMonth();
   const [selectedMonth, setSelectedMonth] = useState<string>(String(ym.month));
   const [selectedYear, setSelectedYear] = useState<string>(String(ym.year));
   const [appliedMonth, setAppliedMonth] = useState(ym.month);
   const [appliedYear, setAppliedYear] = useState(ym.year);
-  const { isLoading, error, chartData, totalExpense } = useExpenseByCategory(appliedMonth, appliedYear);
+  const { isLoading, error, chartData, totalExpense, refetch } = useExpenseByCategory(appliedMonth, appliedYear);
+
+  function handleCategoryClick(category: string) {
+    const preset: TransactionFilterPreset = {
+      kind: "categoryType",
+      category,
+      typeName: "EXPENSE",
+      period: { month: appliedMonth, year: appliedYear },
+    };
+    navigate("/transactions-list", { state: preset });
+  }
 
   function handleApplyFilter() {
-    setAppliedMonth(Number(selectedMonth));
-    setAppliedYear(Number(selectedYear));
+    const nextMonth = Number(selectedMonth);
+    const nextYear = Number(selectedYear);
+    const isSamePeriod = nextMonth === appliedMonth && nextYear === appliedYear;
+
+    setAppliedMonth(nextMonth);
+    setAppliedYear(nextYear);
+
+    if (isSamePeriod) {
+      void refetch();
+    }
   }
 
   const selectedMonthLabel = localizedMonths[appliedMonth - 1];
@@ -123,7 +144,12 @@ const Reports = () => {
                     <span className="text-right">{t("colPercent")}</span>
                   </div>
                   {chartData.map((item) => (
-                    <div key={item.category} className="grid grid-cols-3 items-center py-2 border-b border-border/40 last:border-0">
+                    <button
+                      key={item.category}
+                      type="button"
+                      onClick={() => handleCategoryClick(item.category)}
+                      className="grid w-full grid-cols-3 items-center py-2 border-b border-border/40 last:border-0 text-left rounded-md transition-colors hover:bg-accent/50 cursor-pointer"
+                    >
                       <div className="flex items-center gap-2 min-w-0">
                         <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.fill }} />
                         <span className="text-sm truncate">{item.category}</span>
@@ -141,7 +167,7 @@ const Reports = () => {
                           />
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                   <div className="grid grid-cols-3 items-center pt-3 font-semibold text-sm">
                     <span>{t("total")}</span>

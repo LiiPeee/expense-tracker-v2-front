@@ -10,20 +10,26 @@ import { downloadCsv } from "@/helper/csv";
 import type { TransactionForm } from "@/helper/transaction";
 import { buildTransactionsCsv } from "@/helper/transaction-export";
 import { useContact } from "@/hooks/contact/use-contact";
+import { useProductTour } from "@/hooks/use-product-tour";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { fetchAllTransactions, useTransactionsList } from "@/hooks/transaction/use-get-transactions";
-import { useTransactionFilters } from "@/hooks/transaction/use-transaction-filters";
+import { isTransactionFilterPreset, useTransactionFilters } from "@/hooks/transaction/use-transaction-filters";
 import { useQueryClient } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
 const TransactionsList = () => {
   const { t } = useTranslation("transactions");
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const filterPreset = isTransactionFilterPreset(location.state) ? location.state : undefined;
   const [isExporting, setIsExporting] = useState(false);
+
+  useProductTour("transactions");
 
   const { handleDelete, handleEdit, submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } =
     useTransaction();
@@ -47,7 +53,7 @@ const TransactionsList = () => {
     applyFilters,
     goToPage,
     resetToFirstPage,
-  } = useTransactionFilters();
+  } = useTransactionFilters(filterPreset);
 
   const {
     expenseMonthTotal,
@@ -115,16 +121,18 @@ const TransactionsList = () => {
             <p className="text-muted-foreground text-base">{t("pageSubtitle")}</p>
           </div>
 
-          <TransactionFormDialog
-            open={isDialogOpen}
-            onOpenChange={onOpenChange}
-            onPrepareNew={() => void getAllContact()}
-            onSubmit={handleSubmitAndRefresh}
-            contacts={contacts}
-            editingTransaction={editingTransaction}
-            defaultValues={transactionDefaults}
-            categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
-          />
+          <div data-tour="new-transaction">
+            <TransactionFormDialog
+              open={isDialogOpen}
+              onOpenChange={onOpenChange}
+              onPrepareNew={() => void getAllContact()}
+              onSubmit={handleSubmitAndRefresh}
+              contacts={contacts}
+              editingTransaction={editingTransaction}
+              defaultValues={transactionDefaults}
+              categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
+            />
+          </div>
         </div>
 
         <TransactionsSummaryCards
@@ -148,20 +156,22 @@ const TransactionsList = () => {
           </LoadingButton>
         </div>
 
-        <TransactionsFiltersCard
-          month={month}
-          year={year}
-          filterCategory={filterCategory}
-          filterType={filterType}
-          filterContact={filterContact}
-          contacts={contacts}
-          onChangeMonth={setMonth}
-          onChangeYear={setYear}
-          onChangeCategory={setFilterCategory}
-          onChangeType={setFilterType}
-          onChangeContact={setFilterContact}
-          onApplyFilters={handleApplyFilters}
-        />
+        <div data-tour="filters-card">
+          <TransactionsFiltersCard
+            month={month}
+            year={year}
+            filterCategory={filterCategory}
+            filterType={filterType}
+            filterContact={filterContact}
+            contacts={contacts}
+            onChangeMonth={setMonth}
+            onChangeYear={setYear}
+            onChangeCategory={setFilterCategory}
+            onChangeType={setFilterType}
+            onChangeContact={setFilterContact}
+            onApplyFilters={handleApplyFilters}
+          />
+        </div>
 
         <TransactionsPaginatedTable
           transactions={transactions}

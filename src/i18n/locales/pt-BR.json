@@ -448,6 +448,35 @@
     "colAccumulated": "Valor acumulado",
     "monthLabel": "Mês {{month}}"
   },
+  "tour": {
+    "next": "Próximo →",
+    "prev": "← Anterior",
+    "done": "Concluir!",
+    "dashboard": {
+      "summaryTitle": "Seu resumo financeiro",
+      "summaryDesc": "Aqui você vê o total de receitas, despesas e saldo do mês atual.",
+      "chartTitle": "Gastos por categoria",
+      "chartDesc": "Este gráfico mostra como seus gastos estão distribuídos por categoria. Use o navegador de meses para explorar outros períodos."
+    },
+    "transactions": {
+      "newTitle": "Criar uma transação",
+      "newDesc": "Clique aqui para registrar uma nova receita ou despesa. Preencha nome, valor, categoria e contato.",
+      "filtersTitle": "Filtre suas transações",
+      "filtersDesc": "Use os filtros para buscar por mês, tipo, categoria ou contato. Clique em 'Consulta por Filtros' para executar."
+    },
+    "stocks": {
+      "newTitle": "Cadastrar um ativo",
+      "newDesc": "Clique aqui para adicionar uma ação, FII ou Renda Fixa à sua carteira. O preço de mercado é atualizado automaticamente.",
+      "chartTitle": "Distribuição da carteira",
+      "chartDesc": "Estes gráficos mostram como seus investimentos estão distribuídos entre renda variável e renda fixa."
+    },
+    "budgets": {
+      "newTitle": "Criar um orçamento",
+      "newDesc": "Clique aqui para definir um limite de gastos por categoria. Você será alertado ao se aproximar ou ultrapassar o limite.",
+      "tableTitle": "Acompanhe seus orçamentos",
+      "tableDesc": "Esta tabela mostra cada orçamento, quanto foi gasto e o status atual. Use os filtros para encontrar categorias específicas."
+    }
+  },
   "errors": {
     "emailInvalid": "Email inválido.",
     "passwordInvalid": "Senha incorreta.",

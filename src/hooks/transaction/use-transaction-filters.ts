@@ -1,4 +1,5 @@
 import { resolveQueryPeriod, type TransactionListQuery } from "@/hooks/transaction/use-get-transactions";
+import { monthNames } from "@/helper/utils";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -7,6 +8,31 @@ type ActiveQueryKind =
   | { kind: "type"; typeName: string }
   | { kind: "categoryType"; category: string; typeName: string }
   | { kind: "contactType"; contactId: string; typeName: string };
+
+export type TransactionFilterPreset = ActiveQueryKind & { period: { month: number; year: number } };
+
+export function isTransactionFilterPreset(value: unknown): value is TransactionFilterPreset {
+  if (typeof value !== "object" || value === null) return false;
+  const preset = value as Record<string, unknown>;
+
+  const period = preset.period as Record<string, unknown> | undefined;
+  if (typeof period !== "object" || period === null || typeof period.month !== "number" || typeof period.year !== "number") {
+    return false;
+  }
+
+  switch (preset.kind) {
+    case "all":
+      return true;
+    case "type":
+      return typeof preset.typeName === "string";
+    case "categoryType":
+      return typeof preset.category === "string" && typeof preset.typeName === "string";
+    case "contactType":
+      return typeof preset.contactId === "string" && typeof preset.typeName === "string";
+    default:
+      return false;
+  }
+}
 
 export interface UseTransactionFiltersResult {
   month: string;
@@ -29,16 +55,20 @@ export interface UseTransactionFiltersResult {
   resetToFirstPage: () => void;
 }
 
-export function useTransactionFilters(): UseTransactionFiltersResult {
-  const [filterCategory, setFilterCategory] = useState<string>("all");
-  const [filterType, setFilterType] = useState<string>("all");
-  const [filterContact, setFilterContact] = useState<string>("all");
-  const [activeQueryKind, setActiveQueryKind] = useState<ActiveQueryKind>({ kind: "all" });
+export function useTransactionFilters(preset?: TransactionFilterPreset): UseTransactionFiltersResult {
+  const [filterCategory, setFilterCategory] = useState<string>(preset?.kind === "categoryType" ? preset.category : "all");
+  const [filterType, setFilterType] = useState<string>(
+    preset?.kind === "type" || preset?.kind === "categoryType" || preset?.kind === "contactType" ? preset.typeName : "all",
+  );
+  const [filterContact, setFilterContact] = useState<string>(preset?.kind === "contactType" ? preset.contactId : "all");
+  const [activeQueryKind, setActiveQueryKind] = useState<ActiveQueryKind>(() => preset ?? { kind: "all" });
   const [currentPage, setCurrentPage] = useState(1);
-  const [month, setMonth] = useState<string>("all");
-  const [year, setYear] = useState<string>("");
+  const [month, setMonth] = useState<string>(() => (preset ? monthNames[preset.period.month - 1] : "all"));
+  const [year, setYear] = useState<string>(() => (preset ? String(preset.period.year) : ""));
 
-  const [activePeriod, setActivePeriod] = useState<{ month: number; year: number }>(() => resolveQueryPeriod("all", ""));
+  const [activePeriod, setActivePeriod] = useState<{ month: number; year: number }>(() =>
+    preset ? preset.period : resolveQueryPeriod("all", ""),
+  );
 
   const transactionQuery = useMemo((): TransactionListQuery => {
     if (activeQueryKind.kind === "type") {
