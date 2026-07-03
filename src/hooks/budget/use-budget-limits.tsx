@@ -8,6 +8,8 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+export const BUDGET_LIMITS_QUERY_KEY = ["budgetLimits"] as const;
+
 function fetchAllBudgetLimits(): Promise<BudgetLimit[]> {
   return fetchAllPages<BudgetLimit>((page) => getBudgetLimitsByAccountPage(page));
 }
@@ -19,7 +21,7 @@ export function useBudgetLimits() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const query = useQuery({
-    queryKey: ["budgetLimits"],
+    queryKey: BUDGET_LIMITS_QUERY_KEY,
     queryFn: fetchAllBudgetLimits,
     staleTime: QUERY_STALE_TIME,
   });
@@ -27,7 +29,7 @@ export function useBudgetLimits() {
   const createMutation = useMutation({
     mutationFn: createBudgetLimit,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["budgetLimits"] });
+      await queryClient.invalidateQueries({ queryKey: BUDGET_LIMITS_QUERY_KEY });
     },
   });
 

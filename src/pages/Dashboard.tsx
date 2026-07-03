@@ -18,6 +18,7 @@ import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-categor
 import { useFinancialSummary } from "@/hooks/transaction/use-financial-summary";
 import { useIncomeByCategory } from "@/hooks/transaction/use-income-by-category";
 import { useMonthNavigation } from "@/hooks/use-month-navigation";
+import { useProductTour } from "@/hooks/use-product-tour";
 import { AlertTriangle, DollarSign, TrendingDown, TrendingUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -53,6 +54,8 @@ const Dashboard = () => {
   const { budgets } = useBudgetLimits();
 
   const overBudgetCount = summarizeBudgetAlerts(budgets.filter((budget) => budget.month === month && budget.year === year)).over;
+
+  useProductTour("dashboard");
 
   const isRefreshing = isRefreshingSummary || isLoadingChart || isLoadingIncomeChart;
 
@@ -105,7 +108,7 @@ const Dashboard = () => {
           </Alert>
         ) : null}
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div data-tour="summary-cards" className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
           <Card className="rounded-2xl reveal-up stagger-1 overflow-hidden border-success/20 bg-gradient-to-br from-success/5 to-success/10">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">{t("income")}</CardTitle>
@@ -147,7 +150,7 @@ const Dashboard = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 mb-8">
-          <Card className="surface-card rounded-2xl reveal-up stagger-1">
+          <Card data-tour="expense-chart" className="surface-card rounded-2xl reveal-up stagger-1">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-base font-semibold">{t("expensesByCategory")}</CardTitle>
               <Link to="/reports">

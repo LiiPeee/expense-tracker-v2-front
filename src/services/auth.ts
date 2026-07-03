@@ -8,11 +8,8 @@ import {
 } from "@/helper/auth";
 import { clearAuth, getAccessToken, postJson, postVoid } from "@/lib/api";
 
-// Auth endpoints run without a token (login/signup/reset) and must not trigger the 401 redirect,
-// so every call here passes `auth: false`.
 const PUBLIC = { auth: false } as const;
 
-// Backend route is spelled "EmailVerifycation" — confirmed intentional, do not "correct" it.
 const REQUEST_PASSWORD_RESET_PATH = "/Auth/EmailVerifycation";
 
 export async function signUp(input: SignUpRequest): Promise<void> {
@@ -39,7 +36,11 @@ export async function logOut(): Promise<void> {
 }
 
 export async function verifyToken(input: VerifyTokenRequest): Promise<void> {
-  await postVoid("/Auth/VerifyToken", undefined, { ...PUBLIC, params: { id: input.id, token: input.token }, fallback: "Código inválido ou expirado" });
+  await postVoid("/Auth/VerifyToken", undefined, {
+    ...PUBLIC,
+    params: { id: input.id, token: input.token },
+    fallback: "Código inválido ou expirado",
+  });
 }
 
 export async function forgotPassword(email: string): Promise<void> {
@@ -48,7 +49,11 @@ export async function forgotPassword(email: string): Promise<void> {
 }
 
 export async function validateResetCode(input: ValidateResetCodeRequest): Promise<void> {
-  await postVoid("/Auth/ValidateResetCode", input.token, { ...PUBLIC, params: { email: input.email }, fallback: "Código inválido ou expirado" });
+  await postVoid("/Auth/ValidateResetCode", input.token, {
+    ...PUBLIC,
+    params: { email: input.email },
+    fallback: "Código inválido ou expirado",
+  });
 }
 
 export async function resetPassword(input: ResetPasswordRequest): Promise<void> {

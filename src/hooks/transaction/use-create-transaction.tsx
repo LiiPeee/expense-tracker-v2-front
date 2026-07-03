@@ -5,6 +5,7 @@ import {
   mapTransactionResponseToForm,
   transactionFormDefaults,
 } from "@/helper/transaction";
+import { BUDGET_LIMITS_QUERY_KEY } from "@/hooks/budget/use-budget-limits";
 import { getErrorMessage } from "@/lib/api";
 import { createTransaction, deleteTransactions, updateTransaction } from "@/services/transaction";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,6 +25,7 @@ export function useTransaction() {
 
   const invalidateTransactionQueries = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["transactions"], refetchType: "none" });
+    await queryClient.invalidateQueries({ queryKey: BUDGET_LIMITS_QUERY_KEY });
   }, [queryClient]);
 
   const onOpenChange = useCallback((open: boolean) => {

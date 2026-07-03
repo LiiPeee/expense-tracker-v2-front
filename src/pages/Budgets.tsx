@@ -13,11 +13,14 @@ import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories
 import { useBudgetFilters } from "@/hooks/budget/use-budget-filters";
 import { useBudgetLimits } from "@/hooks/budget/use-budget-limits";
 import { Filter, Search } from "lucide-react";
+import { useProductTour } from "@/hooks/use-product-tour";
 import { useTranslation } from "react-i18next";
 
 const Budgets = () => {
   const { t } = useTranslation("budgets");
   const { budgets, error, isDialogOpen, isRefreshing, refetchBudgets, submitBudget, setIsDialogOpen } = useBudgetLimits();
+
+  useProductTour("budgets");
 
   const {
     filterName,
@@ -48,12 +51,14 @@ const Budgets = () => {
             <p className="text-base text-muted-foreground">{t("pageSubtitle")}</p>
           </div>
 
-          <BudgetFormDialog
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onSubmit={submitBudget}
-            categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
-          />
+          <div data-tour="new-budget">
+            <BudgetFormDialog
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              onSubmit={submitBudget}
+              categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
+            />
+          </div>
         </div>
 
         <RefreshAllButton isRefreshing={isRefreshing} onRefresh={handleRefresh} />
@@ -118,6 +123,7 @@ const Budgets = () => {
         {error && budgets.length === 0 ? (
           <ErrorStateCard message={error} onRetry={handleRefresh} className="min-h-40" />
         ) : (
+          <div data-tour="budgets-table">
           <BudgetsPaginatedTable
             budgets={paginatedBudgets}
             currentPage={currentPage}
@@ -127,6 +133,7 @@ const Budgets = () => {
             isLoading={isRefreshing}
             onPageChange={goToPage}
           />
+          </div>
         )}
       </main>
     </div>

@@ -448,6 +448,35 @@
     "colAccumulated": "Accumulated value",
     "monthLabel": "Month {{month}}"
   },
+  "tour": {
+    "next": "Next →",
+    "prev": "← Back",
+    "done": "Done!",
+    "dashboard": {
+      "summaryTitle": "Your financial summary",
+      "summaryDesc": "Here you can see your total income, expenses and balance for the current month.",
+      "chartTitle": "Expenses by category",
+      "chartDesc": "This chart shows how your spending is distributed across categories. Use the month navigator to explore other periods."
+    },
+    "transactions": {
+      "newTitle": "Create a transaction",
+      "newDesc": "Click here to register a new income or expense. Fill in the name, amount, category and contact.",
+      "filtersTitle": "Filter your transactions",
+      "filtersDesc": "Use the filters to search by month, type, category or contact. Click 'Apply filters' to run the query."
+    },
+    "stocks": {
+      "newTitle": "Register an asset",
+      "newDesc": "Click here to add a stock, FII or Renda Fixa to your portfolio. The market price is updated automatically.",
+      "chartTitle": "Portfolio allocation",
+      "chartDesc": "These charts show how your investments are distributed between variable income and fixed income."
+    },
+    "budgets": {
+      "newTitle": "Create a budget",
+      "newDesc": "Click here to set a spending limit for a category. You will be alerted when you are close to or over the limit.",
+      "tableTitle": "Track your budgets",
+      "tableDesc": "This table shows each budget, how much you have spent and the current status. Use filters to find specific ones."
+    }
+  },
   "errors": {
     "emailInvalid": "Invalid email.",
     "passwordInvalid": "Incorrect password.",
