@@ -1,13 +1,14 @@
 import {
   TransactionForm,
   TransactionResponse,
+  mapTransactionFormToEditRequest,
   mapTransactionFormToRequest,
   mapTransactionResponseToForm,
   transactionFormDefaults,
 } from "@/helper/transaction";
 import { BUDGET_LIMITS_QUERY_KEY } from "@/hooks/budget/use-budget-limits";
 import { getErrorMessage } from "@/lib/api";
-import { createTransaction, deleteTransactions, updateTransaction } from "@/services/transaction";
+import { createTransaction, deleteTransactions, setTransactionPaid, updateTransaction } from "@/services/transaction";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -37,7 +38,7 @@ export function useTransaction() {
     async (data: TransactionForm) => {
       try {
         if (editingTransaction) {
-          await updateTransaction(editingTransaction.id, mapTransactionFormToRequest(data));
+          await updateTransaction(editingTransaction.id, mapTransactionFormToEditRequest(data));
           toast.success("Transação atualizada com sucesso!");
         } else {
           await createTransaction(mapTransactionFormToRequest(data));
@@ -71,9 +72,23 @@ export function useTransaction() {
     [invalidateTransactionQueries],
   );
 
+  const handleTogglePaid = useCallback(
+    async (transaction: TransactionResponse) => {
+      try {
+        await setTransactionPaid(transaction.id, !transaction.paid);
+        await invalidateTransactionQueries();
+        toast.success("Status de pagamento atualizado com sucesso!");
+      } catch (error: unknown) {
+        toast.error(getErrorMessage(error, "Erro inesperado ao atualizar status de pagamento."));
+      }
+    },
+    [invalidateTransactionQueries],
+  );
+
   return {
     handleDelete,
     handleEdit,
+    handleTogglePaid,
     submitTransaction,
     onOpenChange,
     transactionDefaults,

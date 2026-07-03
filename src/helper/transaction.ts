@@ -23,6 +23,8 @@ export interface TransactionRequest {
   date?: string;
 }
 
+export type EditTransactionRequest = Omit<TransactionRequest, "description" | "dateOfInstallment" | "date">;
+
 export interface TransactionForm {
   id: number;
   transactionName: string;
@@ -102,6 +104,11 @@ export function mapTransactionFormToRequest(form: TransactionForm): TransactionR
     contactName: form.contactName.trim(),
     date: form.date,
   };
+}
+
+export function mapTransactionFormToEditRequest(form: TransactionForm): EditTransactionRequest {
+  const { description, dateOfInstallment, date, ...editRequest } = mapTransactionFormToRequest(form);
+  return editRequest;
 }
 
 export const transactionFormSchema = z.object({
