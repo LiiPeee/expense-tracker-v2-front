@@ -54,7 +54,6 @@ describe("transaction service", () => {
         paid: true,
         contactName: "Contato A",
         recurrence: "Mensal",
-        description: "Conta mensal",
         amount: 120,
         type: "Expense",
         category: "Moradia",

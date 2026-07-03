@@ -7,6 +7,7 @@ import { getDefaultYearMonth, monthResponse, recurrenceResponse } from "@/helper
 import {
   getAllTransactionsPaged,
   getTransactionsByCategoryPaged,
+  getTransactionsByPaidPaged,
   getTransactionsByTypeAndContactPaged,
   getTransactionsByTypePaged,
 } from "@/services/transaction";
@@ -18,7 +19,8 @@ export type TransactionListQuery =
   | { kind: "all"; month: number; year: number }
   | { kind: "type"; typeName: string; month: number; year: number }
   | { kind: "categoryType"; category: string; typeName: string; month: number; year: number }
-  | { kind: "contactType"; contactId: string; typeName: string; month: number; year: number };
+  | { kind: "contactType"; contactId: string; typeName: string; month: number; year: number }
+  | { kind: "paid"; paid: boolean; month: number; year: number };
 
 function normalizeRecurrence(value: number | string | null): RecurrenceLabel {
   if (value == null) return "-";
@@ -37,6 +39,8 @@ async function fetchTransactions(query: TransactionListQuery, page: number): Pro
       return getTransactionsByCategoryPaged(query.category, query.typeName, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
     case "contactType":
       return getTransactionsByTypeAndContactPaged(query.typeName, query.contactId, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
+    case "paid":
+      return getTransactionsByPaidPaged(query.paid, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
   }
 }
 

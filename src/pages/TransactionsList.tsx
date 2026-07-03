@@ -31,7 +31,7 @@ const TransactionsList = () => {
 
   useProductTour("transactions");
 
-  const { handleDelete, handleEdit, submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } =
+  const { handleDelete, handleEdit, handleTogglePaid, submitTransaction, onOpenChange, transactionDefaults, editingTransaction, isDialogOpen } =
     useTransaction();
 
   const { contacts, getAllContact } = useContact();
@@ -42,11 +42,13 @@ const TransactionsList = () => {
     filterCategory,
     filterType,
     filterContact,
+    filterPaid,
     setMonth,
     setYear,
     setFilterCategory,
     setFilterType,
     setFilterContact,
+    setFilterPaid,
     transactionQuery,
     currentPage,
     activePeriod,
@@ -82,7 +84,7 @@ const TransactionsList = () => {
 
   const handleApplyFilters = () => {
     applyFilters();
-    void queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    void queryClient.invalidateQueries({ queryKey: ["transactions", "list"] });
   };
 
   const handleSubmitAndRefresh = async (data: TransactionForm) => {
@@ -163,12 +165,14 @@ const TransactionsList = () => {
             filterCategory={filterCategory}
             filterType={filterType}
             filterContact={filterContact}
+            filterPaid={filterPaid}
             contacts={contacts}
             onChangeMonth={setMonth}
             onChangeYear={setYear}
             onChangeCategory={setFilterCategory}
             onChangeType={setFilterType}
             onChangeContact={setFilterContact}
+            onChangePaid={setFilterPaid}
             onApplyFilters={handleApplyFilters}
           />
         </div>
@@ -183,6 +187,7 @@ const TransactionsList = () => {
           onPageChange={goToPage}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onTogglePaid={handleTogglePaid}
         />
       </main>
     </div>

@@ -13,12 +13,14 @@ type TransactionsFiltersCardProps = {
   filterCategory: string;
   filterType: string;
   filterContact: string;
+  filterPaid: string;
   contacts: Contact[];
   onChangeMonth: (value: string) => void;
   onChangeYear: (value: string) => void;
   onChangeCategory: (value: string) => void;
   onChangeType: (value: string) => void;
   onChangeContact: (value: string) => void;
+  onChangePaid: (value: string) => void;
   onApplyFilters: () => void;
 };
 
@@ -28,12 +30,14 @@ export function TransactionsFiltersCard({
   filterCategory,
   filterType,
   filterContact,
+  filterPaid,
   contacts,
   onChangeMonth,
   onChangeYear,
   onChangeCategory,
   onChangeType,
   onChangeContact,
+  onChangePaid,
   onApplyFilters,
 }: TransactionsFiltersCardProps) {
   const { t, i18n } = useTranslation("transactions");
@@ -79,7 +83,7 @@ export function TransactionsFiltersCard({
       </CardContent>
 
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <div className="space-y-2 focus-premium rounded-xl p-1">
             <label className="text-sm font-medium">{t("colCategory")}</label>
             <Select value={filterCategory} onValueChange={onChangeCategory}>
@@ -126,6 +130,20 @@ export function TransactionsFiltersCard({
                     {contact.name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2 focus-premium rounded-xl p-1">
+            <label className="text-sm font-medium">{t("filterPaidLabel")}</label>
+            <Select value={filterPaid} onValueChange={onChangePaid}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("allPaidStatus")}</SelectItem>
+                <SelectItem value="true">{t("yes")}</SelectItem>
+                <SelectItem value="false">{t("no")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
