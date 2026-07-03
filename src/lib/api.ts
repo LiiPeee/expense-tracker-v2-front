@@ -167,7 +167,7 @@ function buildQuery(params?: QueryParams): string {
 }
 
 type RequestInput = {
-  method: "GET" | "POST" | "DELETE";
+  method: "GET" | "POST" | "PATCH" | "DELETE";
   path: string;
   params?: QueryParams;
   body?: unknown;
@@ -203,5 +203,10 @@ export async function postJson<T>(path: string, body?: unknown, options: WriteOp
 
 export async function postVoid(path: string, body?: unknown, options: WriteOptions = {}): Promise<void> {
   const response = await request({ method: "POST", path, body, params: options.params, auth: options.auth });
+  if (!response.ok) throw new Error(await getResponseErrorMessage(response, options.fallback ?? DEFAULT_FALLBACK));
+}
+
+export async function patchVoid(path: string, body?: unknown, options: WriteOptions = {}): Promise<void> {
+  const response = await request({ method: "PATCH", path, body, params: options.params, auth: options.auth });
   if (!response.ok) throw new Error(await getResponseErrorMessage(response, options.fallback ?? DEFAULT_FALLBACK));
 }

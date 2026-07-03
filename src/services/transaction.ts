@@ -1,13 +1,17 @@
-import { PagedTransactionsResponse, TransactionRequest } from "@/helper/transaction";
+import { EditTransactionRequest, PagedTransactionsResponse, TransactionRequest } from "@/helper/transaction";
 import { getDefaultYearMonth } from "@/helper/utils";
-import { del, getJson, postVoid } from "@/lib/api";
+import { del, getJson, patchVoid, postVoid } from "@/lib/api";
 
 export async function createTransaction(data: TransactionRequest): Promise<void> {
   await postVoid("/Transaction/Create", data, { fallback: "Falha ao criar transação" });
 }
 
-export async function updateTransaction(id: number, data: TransactionRequest): Promise<void> {
+export async function updateTransaction(id: number, data: EditTransactionRequest): Promise<void> {
   await postVoid("/Transaction/EditTransaction", data, { params: { id }, fallback: "Falha ao editar transação" });
+}
+
+export async function setTransactionPaid(transactionId: number, paid: boolean): Promise<void> {
+  await patchVoid("/Transaction/Paid", { transactionId, paid }, { fallback: "Falha ao atualizar status de pagamento" });
 }
 
 export async function getExpenseValue(month?: number, year?: number): Promise<number> {
@@ -56,6 +60,19 @@ export async function getTransactionsByTypePaged(
     "/Transaction/GetByType",
     { type: typeName, month, year, pageNumber },
     "Falha ao buscar transações por tipo",
+  );
+}
+
+export async function getTransactionsByPaidPaged(
+  paid: boolean,
+  month: number,
+  year: number,
+  pageNumber: number,
+): Promise<PagedTransactionsResponse> {
+  return getJson<PagedTransactionsResponse>(
+    "/Transaction/GetByPaidAndMonthAndYear",
+    { paid, month, year, pageNumber },
+    "Falha ao buscar transações por status de pagamento",
   );
 }
 

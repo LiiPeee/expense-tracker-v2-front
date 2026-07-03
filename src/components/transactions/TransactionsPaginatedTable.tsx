@@ -12,7 +12,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TRANSACTION_TYPE, type TransactionResponse } from "@/helper/transaction";
 import { formatBRL, RECURRENCE_LABEL_KEY } from "@/helper/utils";
-import { Pencil, ReceiptText, Trash2 } from "lucide-react";
+import { CircleCheck, CircleX, Pencil, ReceiptText, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 type TransactionsPaginatedTableProps = {
@@ -25,6 +25,7 @@ type TransactionsPaginatedTableProps = {
   onPageChange: (page: number) => void;
   onEdit: (transaction: TransactionResponse) => void;
   onDelete: (id: number) => void;
+  onTogglePaid: (transaction: TransactionResponse) => void;
 };
 
 export function TransactionsPaginatedTable({
@@ -36,6 +37,7 @@ export function TransactionsPaginatedTable({
   onPageChange,
   onEdit,
   onDelete,
+  onTogglePaid,
 }: TransactionsPaginatedTableProps) {
   const { t } = useTranslation("transactions");
   return (
@@ -46,7 +48,7 @@ export function TransactionsPaginatedTable({
 
       <CardContent>
         {isLoading && transactions.length === 0 ? (
-          <TableLoadingState columns={11} rows={8} />
+          <TableLoadingState columns={12} rows={8} />
         ) : (
           <Table>
             <TableHeader>
@@ -57,18 +59,19 @@ export function TransactionsPaginatedTable({
                 <TableHead className="w-[120px]">{t("colCategory")}</TableHead>
                 <TableHead className="w-[120px]">{t("colType")}</TableHead>
                 <TableHead className="w-[120px]">{t("colAmount")}</TableHead>
+                <TableHead className="w-[120px]">{t("colStatus")}</TableHead>
                 <TableHead className="w-[120px]">{t("colEmail")}</TableHead>
                 <TableHead className="w-[120px]">{t("colContactName")}</TableHead>
                 <TableHead className="w-[120px]">{t("colPhone")}</TableHead>
                 <TableHead className="w-[120px]">{t("colRecurrence")}</TableHead>
-                <TableHead className="w-[120px]">{t("colActions")}</TableHead>
+                <TableHead className="w-[150px]">{t("colActions")}</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {transactions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11}>
+                  <TableCell colSpan={12}>
                     <div className="empty-state">
                       <ReceiptText className="w-6 h-6 text-muted-foreground" />
                       <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
@@ -101,12 +104,26 @@ export function TransactionsPaginatedTable({
                     >
                       {formatBRL(Number(transaction.amount) || 0)}
                     </TableCell>
+                    <TableCell className="truncate">{transaction.paid === true ? t("yes") : transaction.paid === false ? t("no") : "-"}</TableCell>
                     <TableCell className="truncate">{transaction.contact?.email ?? "-"}</TableCell>
                     <TableCell className="truncate">{transaction.contact?.name ?? "-"}</TableCell>
                     <TableCell className="truncate">{transaction.contact?.phone ?? "-"}</TableCell>
                     <TableCell className="truncate">{transaction.recurrence && RECURRENCE_LABEL_KEY[transaction.recurrence] ? t(`recLabel.${RECURRENCE_LABEL_KEY[transaction.recurrence]}`) : (transaction.recurrence ?? "-")}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-full hover:scale-105 transition-transform"
+                          aria-label={transaction.paid === true ? t("markUnpaidAria") : t("markPaidAria")}
+                          onClick={() => onTogglePaid(transaction)}
+                        >
+                          {transaction.paid === true ? (
+                            <CircleX className="w-4 h-4 text-destructive" />
+                          ) : (
+                            <CircleCheck className="w-4 h-4 text-success" />
+                          )}
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
