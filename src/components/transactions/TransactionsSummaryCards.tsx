@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatBRL } from "@/helper/utils";
+import { useHideValues } from "@/contexts/hide-values-context";
+import { formatBRLMasked } from "@/helper/utils";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -11,6 +12,7 @@ type TransactionsSummaryCardsProps = {
 
 export function TransactionsSummaryCards({ incomeMonthTotal, expenseMonthTotal, economyMonthTotal }: TransactionsSummaryCardsProps) {
   const { t } = useTranslation("transactions");
+  const { isHidden } = useHideValues();
   return (
     <div className="grid gap-6 md:grid-cols-3 mb-8">
       <Card className="surface-card rounded-2xl">
@@ -19,7 +21,7 @@ export function TransactionsSummaryCards({ incomeMonthTotal, expenseMonthTotal, 
           <TrendingUp className="w-4 h-4 text-success" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl lg:text-3xl font-bold text-success">{formatBRL(incomeMonthTotal)}</div>
+          <div className="text-2xl lg:text-3xl font-bold text-success">{formatBRLMasked(incomeMonthTotal, isHidden)}</div>
           <p className="text-xs text-muted-foreground mt-1">{t("incomeHint")}</p>
         </CardContent>
       </Card>
@@ -30,7 +32,7 @@ export function TransactionsSummaryCards({ incomeMonthTotal, expenseMonthTotal, 
           <TrendingDown className="w-4 h-4 text-destructive" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl lg:text-3xl font-bold text-destructive">{formatBRL(expenseMonthTotal)}</div>
+          <div className="text-2xl lg:text-3xl font-bold text-destructive">{formatBRLMasked(expenseMonthTotal, isHidden)}</div>
           <p className="text-xs text-muted-foreground mt-1">{t("expensesHint")}</p>
         </CardContent>
       </Card>
@@ -41,7 +43,7 @@ export function TransactionsSummaryCards({ incomeMonthTotal, expenseMonthTotal, 
         </CardHeader>
         <CardContent>
           <div className={`text-2xl lg:text-3xl font-bold ${economyMonthTotal >= 0 ? "text-success" : "text-destructive"}`}>
-            {formatBRL(economyMonthTotal)}
+            {formatBRLMasked(economyMonthTotal, isHidden)}
           </div>
           <p className="text-xs text-muted-foreground mt-1">{t("balanceHint")}</p>
         </CardContent>

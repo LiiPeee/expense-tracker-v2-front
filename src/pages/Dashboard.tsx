@@ -1,6 +1,7 @@
 import { ExpensePieChart } from "@/components/charts/ExpensePieChart";
 import { MonthNavigator } from "@/components/dashboard/MonthNavigator";
 import { Header } from "@/components/layout/Header";
+import { HideValuesToggle } from "@/components/layout/HideValuesToggle";
 import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
@@ -8,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RefreshAllButton } from "@/components/ui/RefreshAll";
 import { TRANSACTION_CATEGORY_OPTIONS } from "@/constants/transaction-categories";
+import { useHideValues } from "@/contexts/hide-values-context";
 import { summarizeBudgetAlerts } from "@/helper/budget";
 import type { TransactionForm } from "@/helper/transaction";
-import { formatBRL } from "@/helper/utils";
+import { formatBRLMasked } from "@/helper/utils";
 import { useBudgetLimits } from "@/hooks/budget/use-budget-limits";
 import { useContact } from "@/hooks/contact/use-contact";
 import { useTransaction } from "@/hooks/transaction/use-create-transaction";
@@ -25,6 +27,7 @@ import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const { t } = useTranslation("dashboard");
+  const { isHidden } = useHideValues();
   const { month, year, label: monthLabel, goToPreviousMonth, goToNextMonth } = useMonthNavigation();
 
   const {
@@ -92,7 +95,10 @@ const Dashboard = () => {
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <MonthNavigator label={monthLabel} onPreviousMonth={goToPreviousMonth} onNextMonth={goToNextMonth} />
-          <RefreshAllButton isRefreshing={isRefreshing} onRefresh={handleRefresh} />
+          <div className="flex items-center gap-2">
+            <HideValuesToggle className="rounded-xl border border-glass bg-card/70" />
+            <RefreshAllButton isRefreshing={isRefreshing} onRefresh={handleRefresh} />
+          </div>
         </div>
 
         {overBudgetCount > 0 ? (
@@ -117,7 +123,7 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl lg:text-4xl font-bold text-success tabular-nums">{formatBRL(incomeMonthTotal)}</div>
+              <div className="text-3xl lg:text-4xl font-bold text-success tabular-nums">{formatBRLMasked(incomeMonthTotal, isHidden)}</div>
               <p className="text-xs text-muted-foreground mt-1 capitalize">{monthLabel}</p>
             </CardContent>
           </Card>
@@ -130,7 +136,7 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl lg:text-4xl font-bold text-destructive tabular-nums">{formatBRL(expenseMonthTotal)}</div>
+              <div className="text-3xl lg:text-4xl font-bold text-destructive tabular-nums">{formatBRLMasked(expenseMonthTotal, isHidden)}</div>
               <p className="text-xs text-muted-foreground mt-1 capitalize">{monthLabel}</p>
             </CardContent>
           </Card>
@@ -143,7 +149,7 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl lg:text-4xl font-bold text-primary tabular-nums">{formatBRL(economyMonthTotal)}</div>
+              <div className="text-3xl lg:text-4xl font-bold text-primary tabular-nums">{formatBRLMasked(economyMonthTotal, isHidden)}</div>
               <p className="text-xs text-muted-foreground mt-1 capitalize">{monthLabel}</p>
             </CardContent>
           </Card>

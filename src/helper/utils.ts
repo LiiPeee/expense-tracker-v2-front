@@ -8,6 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export const formatBRL = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 
+export const HIDDEN_VALUE_PLACEHOLDER = "••••••";
+
+export const formatBRLMasked = (value: number, isHidden: boolean) => (isHidden ? HIDDEN_VALUE_PLACEHOLDER : formatBRL(value));
+
 export const monthNames = [
   "Janeiro",
   "Fevereiro",

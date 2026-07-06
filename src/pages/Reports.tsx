@@ -1,10 +1,12 @@
 import { ExpensePieChart } from "@/components/charts/ExpensePieChart";
 import { Header } from "@/components/layout/Header";
+import { HideValuesToggle } from "@/components/layout/HideValuesToggle";
 import { ErrorStateCard, LoadingStateCard } from "@/components/ui/async-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { formatBRL, getDefaultYearMonth, getMonthNames } from "@/helper/utils";
+import { useHideValues } from "@/contexts/hide-values-context";
+import { formatBRLMasked, getDefaultYearMonth, getMonthNames } from "@/helper/utils";
 import { useExpenseByCategory } from "@/hooks/transaction/use-expense-by-category";
 import type { TransactionFilterPreset } from "@/hooks/transaction/use-transaction-filters";
 import { PieChart, RefreshCw } from "lucide-react";
@@ -17,6 +19,7 @@ const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 const Reports = () => {
   const { t, i18n } = useTranslation("reports");
+  const { isHidden } = useHideValues();
   const navigate = useNavigate();
   const localizedMonths = getMonthNames(i18n.language);
   const ym = getDefaultYearMonth();
@@ -62,43 +65,47 @@ const Reports = () => {
 
         <Card className="mb-6 rounded-2xl reveal-up stagger-1">
           <CardContent className="pt-4">
-            <div className="flex flex-wrap items-end gap-4">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-foreground">{t("month")}</span>
-                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {localizedMonths.map((name, i) => (
-                      <SelectItem key={i + 1} value={String(i + 1)}>
-                        {name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="flex flex-wrap items-end gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium text-foreground">{t("month")}</span>
+                  <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {localizedMonths.map((name, i) => (
+                        <SelectItem key={i + 1} value={String(i + 1)}>
+                          {name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium text-foreground">{t("year")}</span>
+                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                    <SelectTrigger className="w-28">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {YEAR_OPTIONS.map((y) => (
+                        <SelectItem key={y} value={String(y)}>
+                          {y}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button onClick={handleApplyFilter} disabled={isLoading} className="gap-2 rounded-xl">
+                  <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+                  {isLoading ? t("loading") : t("apply")}
+                </Button>
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-sm font-medium text-foreground">{t("year")}</span>
-                <Select value={selectedYear} onValueChange={setSelectedYear}>
-                  <SelectTrigger className="w-28">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {YEAR_OPTIONS.map((y) => (
-                      <SelectItem key={y} value={String(y)}>
-                        {y}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Button onClick={handleApplyFilter} disabled={isLoading} className="gap-2 rounded-xl">
-                <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-                {isLoading ? t("loading") : t("apply")}
-              </Button>
+              <HideValuesToggle className="rounded-xl border border-glass bg-card/70" />
             </div>
           </CardContent>
         </Card>
@@ -154,7 +161,7 @@ const Reports = () => {
                         <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.fill }} />
                         <span className="text-sm truncate">{item.category}</span>
                       </div>
-                      <span className="text-sm font-medium text-right">{formatBRL(item.total)}</span>
+                      <span className="text-sm font-medium text-right">{formatBRLMasked(item.total, isHidden)}</span>
                       <div className="flex flex-col items-end gap-1">
                         <span className="text-sm text-muted-foreground">{item.percentage.toFixed(1)}%</span>
                         <div className="w-full max-w-20 h-1 rounded-full bg-muted overflow-hidden">
@@ -171,7 +178,7 @@ const Reports = () => {
                   ))}
                   <div className="grid grid-cols-3 items-center pt-3 font-semibold text-sm">
                     <span>{t("total")}</span>
-                    <span className="text-right text-destructive">{formatBRL(totalExpense)}</span>
+                    <span className="text-right text-destructive">{formatBRLMasked(totalExpense, isHidden)}</span>
                     <span className="text-right text-muted-foreground">100%</span>
                   </div>
                 </div>

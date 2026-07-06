@@ -1,4 +1,5 @@
-import { formatBRL } from "@/helper/utils";
+import { useHideValues } from "@/contexts/hide-values-context";
+import { formatBRLMasked } from "@/helper/utils";
 import { CategoryChartData } from "@/hooks/transaction/use-expense-by-category";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { useTranslation } from "react-i18next";
@@ -6,15 +7,16 @@ import { useTranslation } from "react-i18next";
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{ payload: CategoryChartData }>;
+  isHidden: boolean;
 }
 
-const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
+const CustomTooltip = ({ active, payload, isHidden }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null;
   const data = payload[0].payload;
   return (
     <div className="rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl">
       <p className="font-medium mb-1">{data.category}</p>
-      <p className="text-muted-foreground">{formatBRL(data.total)}</p>
+      <p className="text-muted-foreground">{formatBRLMasked(data.total, isHidden)}</p>
       <p className="text-muted-foreground">{data.percentage.toFixed(1)}%</p>
     </div>
   );
@@ -29,6 +31,7 @@ interface ExpensePieChartProps {
 
 export function ExpensePieChart({ data, totalExpense, compact = false, layout = "column" }: ExpensePieChartProps) {
   const { t } = useTranslation();
+  const { isHidden } = useHideValues();
 
   if (data.length === 0) {
     return (
@@ -49,10 +52,10 @@ export function ExpensePieChart({ data, totalExpense, compact = false, layout = 
                   <Cell key={`cell-${index}`} fill={entry.fill} stroke="transparent" />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip isHidden={isHidden} />} />
               <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground">
                 <tspan x="50%" dy="-0.5em" fontSize={13} fill="currentColor" opacity={0.6}>{t("chartTotal")}</tspan>
-                <tspan x="50%" dy="1.4em" fontSize={16} fontWeight="bold" fill="currentColor">{formatBRL(totalExpense)}</tspan>
+                <tspan x="50%" dy="1.4em" fontSize={16} fontWeight="bold" fill="currentColor">{formatBRLMasked(totalExpense, isHidden)}</tspan>
               </text>
             </PieChart>
           </ResponsiveContainer>
@@ -63,7 +66,7 @@ export function ExpensePieChart({ data, totalExpense, compact = false, layout = 
             <div key={item.category} className="flex items-center gap-2 text-sm">
               <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: item.fill }} />
               <span className="font-medium">{item.category}</span>
-              <span className="text-muted-foreground ml-1">{formatBRL(item.total)}</span>
+              <span className="text-muted-foreground ml-1">{formatBRLMasked(item.total, isHidden)}</span>
               <span className="font-semibold text-right ml-auto">{item.percentage.toFixed(1)}%</span>
             </div>
           ))}
@@ -86,13 +89,13 @@ export function ExpensePieChart({ data, totalExpense, compact = false, layout = 
                 <Cell key={`cell-${index}`} fill={entry.fill} stroke="transparent" />
               ))}
             </Pie>
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip isHidden={isHidden} />} />
             <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground">
               <tspan x="50%" dy="-0.5em" fontSize={compact ? 11 : 13} fill="currentColor" opacity={0.6}>
                 {t("chartTotal")}
               </tspan>
               <tspan x="50%" dy="1.4em" fontSize={compact ? 13 : 16} fontWeight="bold" fill="currentColor">
-                {formatBRL(totalExpense)}
+                {formatBRLMasked(totalExpense, isHidden)}
               </tspan>
             </text>
           </PieChart>
@@ -108,7 +111,7 @@ export function ExpensePieChart({ data, totalExpense, compact = false, layout = 
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {!compact && (
-                <span className="text-foreground font-medium">{formatBRL(item.total)}</span>
+                <span className="text-foreground font-medium">{formatBRLMasked(item.total, isHidden)}</span>
               )}
               <span className="text-muted-foreground w-10 text-right">{item.percentage.toFixed(1)}%</span>
             </div>

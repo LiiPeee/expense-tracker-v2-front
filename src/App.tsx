@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QUERY_GC_TIME, QUERY_STALE_TIME } from "@/constants/query";
+import { HideValuesProvider } from "@/contexts/hide-values-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Suspense, lazy } from "react";
@@ -127,15 +128,17 @@ const AppRoutes = () => {
 
 const App = () => (
   <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner position="top-right" />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <HideValuesProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner position="top-right" />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </HideValuesProvider>
   </ThemeProvider>
 );
 

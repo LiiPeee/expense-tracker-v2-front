@@ -1,4 +1,5 @@
 import { Header } from "@/components/layout/Header";
+import { HideValuesToggle } from "@/components/layout/HideValuesToggle";
 import { TransactionFormDialog } from "@/components/transactions/TransactionFormDialog";
 import { TransactionsFiltersCard } from "@/components/transactions/TransactionsFiltersCard";
 import { TransactionsPaginatedTable } from "@/components/transactions/TransactionsPaginatedTable";
@@ -135,6 +136,10 @@ const TransactionsList = () => {
               categoryOptions={TRANSACTION_CATEGORY_OPTIONS}
             />
           </div>
+        </div>
+
+        <div className="mb-6 flex justify-end">
+          <HideValuesToggle className="rounded-xl border border-glass bg-card/70" />
         </div>
 
         <TransactionsSummaryCards
