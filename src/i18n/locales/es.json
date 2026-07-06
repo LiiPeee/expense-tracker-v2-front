@@ -20,6 +20,8 @@
     "toggleTheme": "Alternar tema",
     "lightTheme": "Activar tema claro",
     "darkTheme": "Activar tema oscuro",
+    "hideValues": "Ocultar valores",
+    "showValues": "Mostrar valores",
     "chartTotal": "Total",
     "chartEmpty": "Ningún gasto registrado en este período",
     "refreshData": "Actualizar datos"

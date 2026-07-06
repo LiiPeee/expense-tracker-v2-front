@@ -48,21 +48,18 @@ export function TransactionsPaginatedTable({
 
       <CardContent>
         {isLoading && transactions.length === 0 ? (
-          <TableLoadingState columns={12} rows={8} />
+          <TableLoadingState columns={9} rows={8} />
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[120px]">{t("colDate")}</TableHead>
                 <TableHead className="w-[120px]">{t("colName")}</TableHead>
-                <TableHead className="w-[120px]">{t("colDescription")}</TableHead>
                 <TableHead className="w-[120px]">{t("colCategory")}</TableHead>
                 <TableHead className="w-[120px]">{t("colType")}</TableHead>
                 <TableHead className="w-[120px]">{t("colAmount")}</TableHead>
                 <TableHead className="w-[120px]">{t("colStatus")}</TableHead>
-                <TableHead className="w-[120px]">{t("colEmail")}</TableHead>
                 <TableHead className="w-[120px]">{t("colContactName")}</TableHead>
-                <TableHead className="w-[120px]">{t("colPhone")}</TableHead>
                 <TableHead className="w-[120px]">{t("colRecurrence")}</TableHead>
                 <TableHead className="w-[150px]">{t("colActions")}</TableHead>
               </TableRow>
@@ -71,7 +68,7 @@ export function TransactionsPaginatedTable({
             <TableBody>
               {transactions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={12}>
+                  <TableCell colSpan={9}>
                     <div className="empty-state">
                       <ReceiptText className="w-6 h-6 text-muted-foreground" />
                       <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
@@ -90,7 +87,6 @@ export function TransactionsPaginatedTable({
                           : "-"}
                     </TableCell>
                     <TableCell className="truncate">{transaction.name ?? "-"}</TableCell>
-                    <TableCell className="truncate">{transaction.description}</TableCell>
                     <TableCell className="truncate">{transaction.category?.name ?? "-"}</TableCell>
                     <TableCell className="truncate">
                       {transaction.typeTransaction === TRANSACTION_TYPE.EXPENSE
@@ -105,9 +101,7 @@ export function TransactionsPaginatedTable({
                       {formatBRL(Number(transaction.amount) || 0)}
                     </TableCell>
                     <TableCell className="truncate">{transaction.paid === true ? t("yes") : transaction.paid === false ? t("no") : "-"}</TableCell>
-                    <TableCell className="truncate">{transaction.contact?.email ?? "-"}</TableCell>
                     <TableCell className="truncate">{transaction.contact?.name ?? "-"}</TableCell>
-                    <TableCell className="truncate">{transaction.contact?.phone ?? "-"}</TableCell>
                     <TableCell className="truncate">{transaction.recurrence && RECURRENCE_LABEL_KEY[transaction.recurrence] ? t(`recLabel.${RECURRENCE_LABEL_KEY[transaction.recurrence]}`) : (transaction.recurrence ?? "-")}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
