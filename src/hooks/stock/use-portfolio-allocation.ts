@@ -27,8 +27,12 @@ async function computePortfolioAllocation() {
   const rfEntries: { ticker: string; total: number }[] = [];
 
   for (const asset of allAssets) {
-    const value = asset.quantity * asset.priceMarket;
-    (asset.isStock === false ? rfEntries : rvEntries).push({ ticker: asset.ticker, total: value });
+    const isFixedIncome = asset.isStock === false;
+    // Renda fixa não tem cotação de mercado (priceMarket vem 0 do backend) — usa o preço de compra como valor atual.
+    // TODO: usar calcCdiAccruedSummary (src/helper/cdi.ts) com cdiRate/investmentDate para refletir o rendimento acumulado,
+    // em vez do valor de compra parado — hoje o total da carteira não cresce mesmo com o CDB rendendo.
+    const value = isFixedIncome ? asset.quantity * asset.priceBuyed : asset.quantity * asset.priceMarket;
+    (isFixedIncome ? rfEntries : rvEntries).push({ ticker: asset.ticker, total: value });
   }
 
   const totalRV = rvEntries.reduce((sum, e) => sum + e.total, 0);

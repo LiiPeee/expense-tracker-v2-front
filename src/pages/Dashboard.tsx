@@ -171,7 +171,7 @@ const Dashboard = () => {
               ) : expenseChartError ? (
                 <ErrorStateCard message={expenseChartError} onRetry={handleRefresh} className="h-40" />
               ) : (
-                <ExpensePieChart data={chartData} totalExpense={totalExpense} compact />
+                <ExpensePieChart data={chartData} totalExpense={totalExpense} compact isHidden={isHidden} />
               )}
             </CardContent>
           </Card>
@@ -191,7 +191,7 @@ const Dashboard = () => {
               ) : incomeChartError ? (
                 <ErrorStateCard message={incomeChartError} onRetry={handleRefresh} className="h-40" />
               ) : (
-                <ExpensePieChart data={incomeChartData} totalExpense={totalIncome} compact />
+                <ExpensePieChart data={incomeChartData} totalExpense={totalIncome} compact isHidden={isHidden} />
               )}
             </CardContent>
           </Card>
