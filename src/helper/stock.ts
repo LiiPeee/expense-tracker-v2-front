@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { calcCdiAccruedSummary, hasValidRates } from "./cdi";
 
 export const FIXED_INCOME_TYPES = [
   "CDB",
@@ -95,6 +96,28 @@ const RENDA_FIXA_PREFIXES = ["CDB", "LCI", "LCA", "CRI", "CRA", "LFT", "LTN", "N
 export function isRendaFixa(ticker: string): boolean {
   const upper = ticker.toUpperCase().trim();
   return RENDA_FIXA_PREFIXES.some((prefix) => upper.startsWith(prefix));
+}
+
+export function canViewCdiHistory(
+  stock: StockResponse,
+): stock is StockResponse & { cdiRate: number; investmentDate: string } {
+  return stock.isStock === false && typeof stock.cdiRate === "number" && !!stock.investmentDate;
+}
+
+// Fixed-income assets have no market quote — the backend's `percentage` field compares
+// priceMarket (always 0) against priceBuyed, producing a bogus -100% instead of real CDI earnings.
+export function calcFixedIncomeChangePercentage(stock: StockResponse, cdiAnnualRate: number, today: Date): string | null {
+  if (!canViewCdiHistory(stock)) return null;
+
+  const principal = stock.priceBuyed * stock.quantity;
+  if (!hasValidRates(principal, stock.cdiRate, cdiAnnualRate)) return null;
+
+  const { totalEarnings } = calcCdiAccruedSummary(
+    { principal, cdbRate: stock.cdiRate, cdiAnnualRate, investmentDate: stock.investmentDate },
+    today,
+  );
+
+  return `${((totalEarnings / principal) * 100).toFixed(2)}%`;
 }
 
 export function mapStockFormToRequest(form: StockForm): StockRequest {

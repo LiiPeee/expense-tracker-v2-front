@@ -1,4 +1,3 @@
-import { useHideValues } from "@/contexts/hide-values-context";
 import { formatBRLMasked } from "@/helper/utils";
 import { CategoryChartData } from "@/hooks/transaction/use-expense-by-category";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
@@ -27,11 +26,13 @@ interface ExpensePieChartProps {
   totalExpense: number;
   compact?: boolean;
   layout?: "column" | "side";
+  // Obrigatório (sem default) para forçar toda página que reusa este componente a decidir
+  // explicitamente de onde vem seu próprio estado de ocultar valores — nunca lido do contexto global aqui.
+  isHidden: boolean;
 }
 
-export function ExpensePieChart({ data, totalExpense, compact = false, layout = "column" }: ExpensePieChartProps) {
+export function ExpensePieChart({ data, totalExpense, compact = false, layout = "column", isHidden }: ExpensePieChartProps) {
   const { t } = useTranslation();
-  const { isHidden } = useHideValues();
 
   if (data.length === 0) {
     return (

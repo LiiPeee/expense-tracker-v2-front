@@ -27,7 +27,6 @@ export async function signInWithGoogle(idToken: string): Promise<AuthResponse> {
 export async function logOut(): Promise<void> {
   const token = getAccessToken();
 
-  // Best-effort server-side revocation — the authed token is attached automatically; ignore failures.
   if (token) {
     await postVoid("/Auth/LogOut").catch(() => undefined);
   }
@@ -44,7 +43,6 @@ export async function verifyToken(input: VerifyTokenRequest): Promise<void> {
 }
 
 export async function forgotPassword(email: string): Promise<void> {
-  // Backend expects the email as a raw JSON string body (not an object) — confirmed contract.
   await postVoid(REQUEST_PASSWORD_RESET_PATH, email, { ...PUBLIC, fallback: "Falha ao enviar email de recuperação" });
 }
 

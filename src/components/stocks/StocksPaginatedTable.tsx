@@ -9,9 +9,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { type StockResponse } from "@/helper/stock";
-import { TrendingDown, TrendingUp } from "lucide-react";
+import { canViewCdiHistory, type StockResponse } from "@/helper/stock";
+import { formatBRLMasked } from "@/helper/utils";
+import { Calculator, TrendingDown, TrendingUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 type StocksPaginatedTableProps = {
@@ -20,7 +22,9 @@ type StocksPaginatedTableProps = {
   totalPages: number;
   totalRecords: number;
   isLoading?: boolean;
+  isHidden?: boolean;
   onPageChange: (page: number) => void;
+  onViewHistory?: (stock: StockResponse) => void;
 };
 
 function isPositive(percentage: string): boolean {
@@ -33,7 +37,9 @@ export function StocksPaginatedTable({
   totalPages,
   totalRecords,
   isLoading = false,
+  isHidden = false,
   onPageChange,
+  onViewHistory,
 }: StocksPaginatedTableProps) {
   const { t } = useTranslation("stocks");
 
@@ -47,7 +53,7 @@ export function StocksPaginatedTable({
 
       <CardContent>
         {isLoading && stocks.length === 0 ? (
-          <TableLoadingState columns={4} rows={6} />
+          <TableLoadingState columns={6} rows={6} />
         ) : (
           <Table>
             <TableHeader>
@@ -57,13 +63,14 @@ export function StocksPaginatedTable({
                 <TableHead className="w-[160px] text-right">{t("columnMarketPrice")}</TableHead>
                 <TableHead className="w-[160px] text-right">{t("columnBuyPrice")}</TableHead>
                 <TableHead className="w-[140px] text-right">{t("columnChange")}</TableHead>
+                <TableHead className="w-[60px]" />
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {stocks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5}>
+                  <TableCell colSpan={6}>
                     <div className="empty-state">
                       <TrendingUp className="w-6 h-6 text-muted-foreground" />
                       <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
@@ -83,17 +90,26 @@ export function StocksPaginatedTable({
                         </div>
                       </TableCell>
                       <TableCell className="text-right tabular-nums">{stock.quantity}</TableCell>
-                      <TableCell className="text-right">
-                        {stock.priceMarket.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {stock.priceBuyed.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                      </TableCell>
+                      <TableCell className="text-right">{formatBRLMasked(stock.priceMarket, isHidden)}</TableCell>
+                      <TableCell className="text-right">{formatBRLMasked(stock.priceBuyed, isHidden)}</TableCell>
                       <TableCell className={`text-right font-medium ${positive ? "text-success" : "text-destructive"}`}>
                         <span className="inline-flex items-center justify-end gap-1">
                           {positive ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
                           {stock.percentage}
                         </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {canViewCdiHistory(stock) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="rounded-full"
+                            aria-label={t("viewHistoryAria")}
+                            onClick={() => onViewHistory?.(stock)}
+                          >
+                            <Calculator className="w-4 h-4" />
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   );

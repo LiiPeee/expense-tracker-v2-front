@@ -123,7 +123,7 @@ const Reports = () => {
               ) : error ? (
                 <ErrorStateCard message={error} onRetry={handleApplyFilter} className="h-64" />
               ) : (
-                <ExpensePieChart data={chartData} totalExpense={totalExpense} />
+                <ExpensePieChart data={chartData} totalExpense={totalExpense} isHidden={isHidden} />
               )}
             </CardContent>
           </Card>
