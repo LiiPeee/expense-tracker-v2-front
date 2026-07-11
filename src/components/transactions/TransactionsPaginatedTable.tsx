@@ -15,6 +15,8 @@ import { formatBRL, RECURRENCE_LABEL_KEY } from "@/helper/utils";
 import { CircleCheck, CircleX, Pencil, ReceiptText, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+const TABLE_COLUMN_COUNT = 10;
+
 type TransactionsPaginatedTableProps = {
   transactions: TransactionResponse[];
   currentPage: number;
@@ -48,7 +50,7 @@ export function TransactionsPaginatedTable({
 
       <CardContent>
         {isLoading && transactions.length === 0 ? (
-          <TableLoadingState columns={9} rows={8} />
+          <TableLoadingState columns={TABLE_COLUMN_COUNT} rows={8} />
         ) : (
           <Table>
             <TableHeader>
@@ -61,6 +63,7 @@ export function TransactionsPaginatedTable({
                 <TableHead className="w-[120px]">{t("colStatus")}</TableHead>
                 <TableHead className="w-[120px]">{t("colContactName")}</TableHead>
                 <TableHead className="w-[120px]">{t("colRecurrence")}</TableHead>
+                <TableHead className="w-[100px]">{t("colInstallments")}</TableHead>
                 <TableHead className="w-[150px]">{t("colActions")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -68,7 +71,7 @@ export function TransactionsPaginatedTable({
             <TableBody>
               {transactions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9}>
+                  <TableCell colSpan={TABLE_COLUMN_COUNT}>
                     <div className="empty-state">
                       <ReceiptText className="w-6 h-6 text-muted-foreground" />
                       <p className="text-sm font-medium text-foreground">{t("emptyTitle")}</p>
@@ -103,6 +106,7 @@ export function TransactionsPaginatedTable({
                     <TableCell className="truncate">{transaction.paid === true ? t("yes") : transaction.paid === false ? t("no") : "-"}</TableCell>
                     <TableCell className="truncate">{transaction.contact?.name ?? "-"}</TableCell>
                     <TableCell className="truncate">{transaction.recurrence && RECURRENCE_LABEL_KEY[transaction.recurrence] ? t(`recLabel.${RECURRENCE_LABEL_KEY[transaction.recurrence]}`) : (transaction.recurrence ?? "-")}</TableCell>
+                    <TableCell className="truncate">{transaction.quantityOfInstallment ?? "-"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button

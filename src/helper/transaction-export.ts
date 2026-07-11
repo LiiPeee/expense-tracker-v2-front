@@ -2,7 +2,7 @@ import { toCsv } from "@/helper/csv";
 import type { TransactionResponse } from "@/helper/transaction";
 import { TRANSACTION_TYPE } from "@/helper/transaction";
 
-export const TRANSACTION_CSV_HEADERS = ["Data", "Nome", "Descrição", "Categoria", "Tipo", "Valor", "Contato", "Recorrência", "Pago"];
+export const TRANSACTION_CSV_HEADERS = ["Data", "Nome", "Descrição", "Categoria", "Tipo", "Valor", "Contato", "Recorrência", "Pago", "Parcelas"];
 
 function formatType(typeTransaction: number): string {
   if (typeTransaction === TRANSACTION_TYPE.EXPENSE) return "Despesa";
@@ -38,6 +38,7 @@ export function transactionToCsvRow(transaction: TransactionResponse): string[] 
     transaction.contact?.name ?? "",
     String(transaction.recurrence ?? ""),
     transaction.paid ? "Sim" : "Não",
+    transaction.quantityOfInstallment ?? "",
   ];
 }
 
