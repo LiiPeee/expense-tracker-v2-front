@@ -48,4 +48,9 @@ describe("transaction CSV export", () => {
     const [header] = buildTransactionsCsv([income]).split("\r\n");
     expect(header).toBe(TRANSACTION_CSV_HEADERS.join(";"));
   });
+
+  it("includes the installment count as the last column", () => {
+    expect(transactionToCsvRow({ ...income, quantityOfInstallment: "2/5" })[9]).toBe("2/5");
+    expect(transactionToCsvRow(income)[9]).toBe("");
+  });
 });

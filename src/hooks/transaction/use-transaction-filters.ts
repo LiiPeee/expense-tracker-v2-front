@@ -3,12 +3,15 @@ import { monthNames } from "@/helper/utils";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+const TYPE_REQUIRED_MESSAGE = "Selecione também o tipo para filtrar.";
+
 type ActiveQueryKind =
   | { kind: "all" }
   | { kind: "type"; typeName: string }
   | { kind: "categoryType"; category: string; typeName: string }
   | { kind: "contactType"; contactId: string; typeName: string }
-  | { kind: "paid"; paid: boolean };
+  | { kind: "paid"; paid: boolean }
+  | { kind: "installments"; typeName: string };
 
 export type TransactionFilterPreset = ActiveQueryKind & { period: { month: number; year: number } };
 
@@ -25,6 +28,7 @@ export function isTransactionFilterPreset(value: unknown): value is TransactionF
     case "all":
       return true;
     case "type":
+    case "installments":
       return typeof preset.typeName === "string";
     case "categoryType":
       return typeof preset.category === "string" && typeof preset.typeName === "string";
@@ -44,12 +48,14 @@ export interface UseTransactionFiltersResult {
   filterType: string;
   filterContact: string;
   filterPaid: string;
+  filterInstallments: string;
   setMonth: (value: string) => void;
   setYear: (value: string) => void;
   setFilterCategory: (value: string) => void;
   setFilterType: (value: string) => void;
   setFilterContact: (value: string) => void;
   setFilterPaid: (value: string) => void;
+  setFilterInstallments: (value: string) => void;
 
   transactionQuery: TransactionListQuery;
   currentPage: number;
@@ -62,11 +68,10 @@ export interface UseTransactionFiltersResult {
 
 export function useTransactionFilters(preset?: TransactionFilterPreset): UseTransactionFiltersResult {
   const [filterCategory, setFilterCategory] = useState<string>(preset?.kind === "categoryType" ? preset.category : "all");
-  const [filterType, setFilterType] = useState<string>(
-    preset?.kind === "type" || preset?.kind === "categoryType" || preset?.kind === "contactType" ? preset.typeName : "all",
-  );
+  const [filterType, setFilterType] = useState<string>(preset && "typeName" in preset ? preset.typeName : "all");
   const [filterContact, setFilterContact] = useState<string>(preset?.kind === "contactType" ? preset.contactId : "all");
   const [filterPaid, setFilterPaid] = useState<string>("all");
+  const [filterInstallments, setFilterInstallments] = useState<string>(preset?.kind === "installments" ? "true" : "all");
   const [activeQueryKind, setActiveQueryKind] = useState<ActiveQueryKind>(() => preset ?? { kind: "all" });
   const [currentPage, setCurrentPage] = useState(1);
   const [month, setMonth] = useState<string>(() => (preset ? monthNames[preset.period.month - 1] : "all"));
@@ -79,6 +84,9 @@ export function useTransactionFilters(preset?: TransactionFilterPreset): UseTran
   const transactionQuery = useMemo((): TransactionListQuery => {
     if (activeQueryKind.kind === "paid") {
       return { kind: "paid", paid: activeQueryKind.paid, month: activePeriod.month, year: activePeriod.year };
+    }
+    if (activeQueryKind.kind === "installments") {
+      return { kind: "installments", typeName: activeQueryKind.typeName, month: activePeriod.month, year: activePeriod.year };
     }
     if (activeQueryKind.kind === "type") {
       return { kind: "type", typeName: activeQueryKind.typeName, month: activePeriod.month, year: activePeriod.year };
@@ -116,7 +124,20 @@ export function useTransactionFilters(preset?: TransactionFilterPreset): UseTran
       setFilterCategory("all");
       setFilterType("all");
       setFilterContact("all");
+      setFilterInstallments("all");
       commit({ kind: "paid", paid: filterPaid === "true" });
+      return;
+    }
+
+    if (filterInstallments !== "all") {
+      if (filterType === "all") {
+        toast.error(TYPE_REQUIRED_MESSAGE);
+        return;
+      }
+      setFilterCategory("all");
+      setFilterContact("all");
+      setFilterPaid("all");
+      commit({ kind: "installments", typeName: filterType });
       return;
     }
 
@@ -143,8 +164,8 @@ export function useTransactionFilters(preset?: TransactionFilterPreset): UseTran
       return;
     }
 
-    toast.error("Selecione também o tipo para filtrar.");
-  }, [month, year, filterPaid, filterCategory, filterType, filterContact]);
+    toast.error(TYPE_REQUIRED_MESSAGE);
+  }, [month, year, filterPaid, filterInstallments, filterCategory, filterType, filterContact]);
 
   const goToPage = useCallback((page: number) => setCurrentPage(page), []);
   const resetToFirstPage = useCallback(() => setCurrentPage(1), []);
@@ -156,12 +177,14 @@ export function useTransactionFilters(preset?: TransactionFilterPreset): UseTran
     filterType,
     filterContact,
     filterPaid,
+    filterInstallments,
     setMonth,
     setYear,
     setFilterCategory,
     setFilterType,
     setFilterContact,
     setFilterPaid,
+    setFilterInstallments,
     transactionQuery,
     currentPage,
     activePeriod,

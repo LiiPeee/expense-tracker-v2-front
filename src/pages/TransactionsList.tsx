@@ -44,12 +44,14 @@ const TransactionsList = () => {
     filterType,
     filterContact,
     filterPaid,
+    filterInstallments,
     setMonth,
     setYear,
     setFilterCategory,
     setFilterType,
     setFilterContact,
     setFilterPaid,
+    setFilterInstallments,
     transactionQuery,
     currentPage,
     activePeriod,
@@ -171,6 +173,7 @@ const TransactionsList = () => {
             filterType={filterType}
             filterContact={filterContact}
             filterPaid={filterPaid}
+            filterInstallments={filterInstallments}
             contacts={contacts}
             onChangeMonth={setMonth}
             onChangeYear={setYear}
@@ -178,6 +181,7 @@ const TransactionsList = () => {
             onChangeType={setFilterType}
             onChangeContact={setFilterContact}
             onChangePaid={setFilterPaid}
+            onChangeInstallments={setFilterInstallments}
             onApplyFilters={handleApplyFilters}
           />
         </div>

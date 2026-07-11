@@ -6,7 +6,7 @@ export const TRANSACTION_TYPE = { EXPENSE: 1, INCOME: 2 } as const;
 
 export type PaidValue = "Sim" | "Não" | "";
 export type TransactionType = "Income" | "Expense";
-export type RecurrenceLabel = "Não" | "Semanal" | "Quinzenal" | "Mensal" | "-";
+export type RecurrenceLabel = "Não" | "Diário" | "Quinzenal" | "Mensal" | "Ocasionalmente" | "-";
 
 export interface TransactionRequest {
   transactionName: string;
@@ -47,7 +47,7 @@ export interface TransactionResponse {
   createdDate?: string;
   competenceDate?: string;
   subCategory?: string;
-  numberOfInstallment?: string;
+  quantityOfInstallment?: string;
   dateOfInstallment?: string;
   paid?: boolean;
   contact: Contact;
@@ -137,7 +137,7 @@ export function mapTransactionResponseToForm(transaction: TransactionResponse): 
     amount: transaction.amount == null ? "" : String(transaction.amount),
     type: transaction.typeTransaction === TRANSACTION_TYPE.EXPENSE ? "Expense" : "Income",
     paid: transaction.paid === true ? "Sim" : transaction.paid === false ? "Não" : "",
-    numberOfInstallment: transaction.numberOfInstallment ?? "",
+    numberOfInstallment: transaction.quantityOfInstallment ?? "",
     dateOfInstallment: transaction.dateOfInstallment ?? "",
     recurrence: transaction.recurrence ?? "NONE",
     contactName: transaction.contact?.name ?? "",

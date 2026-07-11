@@ -277,6 +277,9 @@
     "allContacts": "All contacts",
     "filterPaidLabel": "Paid",
     "allPaidStatus": "All statuses",
+    "filterInstallmentsLabel": "Installments",
+    "allInstallments": "All transactions",
+    "onlyInstallments": "Installments only",
     "applyFilters": "Apply filters",
     "tableTitle": "Transactions",
     "colDate": "Date",
@@ -290,6 +293,7 @@
     "colPhone": "Phone",
     "colStatus": "Paid",
     "colRecurrence": "Recurrence",
+    "colInstallments": "Installments",
     "colActions": "Actions",
     "emptyTitle": "No transactions found",
     "emptySubtitle": "Adjust the filters or change the period to see results.",
@@ -335,9 +339,10 @@
     "saving": "Saving...",
     "recLabel": {
       "none": "None",
-      "weekly": "Weekly",
+      "daily": "Daily",
       "biweekly": "Biweekly",
-      "monthly": "Monthly"
+      "monthly": "Monthly",
+      "occasionally": "Occasionally"
     },
     "categories": {
       "alimentacao": "Food",

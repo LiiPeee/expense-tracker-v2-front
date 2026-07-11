@@ -90,6 +90,19 @@ export async function getTransactionsByTypeAndContactPaged(
   );
 }
 
+export async function getTransactionsByInstallmentsPaged(
+  typeName: string,
+  month: number,
+  year: number,
+  pageNumber: number,
+): Promise<PagedTransactionsResponse> {
+  return getJson<PagedTransactionsResponse>(
+    "/Transaction/GetAllInstallments",
+    { type: typeName, month, year, pageNumber },
+    "Falha ao buscar transações parceladas",
+  );
+}
+
 export async function deleteTransactions(id: number): Promise<void> {
   await del("/Transaction/DeleteTransaction", { id }, "Falha ao excluir transação");
 }

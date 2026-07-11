@@ -3,10 +3,11 @@ import {
   type RecurrenceLabel,
   type TransactionResponse,
 } from "@/helper/transaction";
-import { getDefaultYearMonth, monthResponse, recurrenceResponse } from "@/helper/utils";
+import { getDefaultYearMonth, monthResponse, RECURRENCE_LABEL_KEY, recurrenceResponse } from "@/helper/utils";
 import {
   getAllTransactionsPaged,
   getTransactionsByCategoryPaged,
+  getTransactionsByInstallmentsPaged,
   getTransactionsByPaidPaged,
   getTransactionsByTypeAndContactPaged,
   getTransactionsByTypePaged,
@@ -20,13 +21,15 @@ export type TransactionListQuery =
   | { kind: "type"; typeName: string; month: number; year: number }
   | { kind: "categoryType"; category: string; typeName: string; month: number; year: number }
   | { kind: "contactType"; contactId: string; typeName: string; month: number; year: number }
-  | { kind: "paid"; paid: boolean; month: number; year: number };
+  | { kind: "paid"; paid: boolean; month: number; year: number }
+  | { kind: "installments"; typeName: string; month: number; year: number };
+
+const ALLOWED_RECURRENCE_LABELS = new Set<RecurrenceLabel>([...(Object.keys(RECURRENCE_LABEL_KEY) as RecurrenceLabel[]), "-"]);
 
 function normalizeRecurrence(value: number | string | null): RecurrenceLabel {
   if (value == null) return "-";
   if (typeof value === "number") return recurrenceResponse(value);
-  const allowed: RecurrenceLabel[] = ["Não", "Semanal", "Quinzenal", "Mensal", "-"];
-  return allowed.includes(value as RecurrenceLabel) ? (value as RecurrenceLabel) : "-";
+  return ALLOWED_RECURRENCE_LABELS.has(value as RecurrenceLabel) ? (value as RecurrenceLabel) : "-";
 }
 
 async function fetchTransactions(query: TransactionListQuery, page: number): Promise<PagedTransactionsResponseRaw> {
@@ -41,6 +44,8 @@ async function fetchTransactions(query: TransactionListQuery, page: number): Pro
       return getTransactionsByTypeAndContactPaged(query.typeName, query.contactId, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
     case "paid":
       return getTransactionsByPaidPaged(query.paid, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
+    case "installments":
+      return getTransactionsByInstallmentsPaged(query.typeName, query.month, query.year, page) as Promise<PagedTransactionsResponseRaw>;
   }
 }
 

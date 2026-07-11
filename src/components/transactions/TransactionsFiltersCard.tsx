@@ -14,6 +14,7 @@ type TransactionsFiltersCardProps = {
   filterType: string;
   filterContact: string;
   filterPaid: string;
+  filterInstallments: string;
   contacts: Contact[];
   onChangeMonth: (value: string) => void;
   onChangeYear: (value: string) => void;
@@ -21,6 +22,7 @@ type TransactionsFiltersCardProps = {
   onChangeType: (value: string) => void;
   onChangeContact: (value: string) => void;
   onChangePaid: (value: string) => void;
+  onChangeInstallments: (value: string) => void;
   onApplyFilters: () => void;
 };
 
@@ -31,6 +33,7 @@ export function TransactionsFiltersCard({
   filterType,
   filterContact,
   filterPaid,
+  filterInstallments,
   contacts,
   onChangeMonth,
   onChangeYear,
@@ -38,6 +41,7 @@ export function TransactionsFiltersCard({
   onChangeType,
   onChangeContact,
   onChangePaid,
+  onChangeInstallments,
   onApplyFilters,
 }: TransactionsFiltersCardProps) {
   const { t, i18n } = useTranslation("transactions");
@@ -144,6 +148,19 @@ export function TransactionsFiltersCard({
                 <SelectItem value="all">{t("allPaidStatus")}</SelectItem>
                 <SelectItem value="true">{t("yes")}</SelectItem>
                 <SelectItem value="false">{t("no")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2 focus-premium rounded-xl p-1">
+            <label className="text-sm font-medium">{t("filterInstallmentsLabel")}</label>
+            <Select value={filterInstallments} onValueChange={onChangeInstallments}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t("allInstallments")}</SelectItem>
+                <SelectItem value="true">{t("onlyInstallments")}</SelectItem>
               </SelectContent>
             </Select>
           </div>

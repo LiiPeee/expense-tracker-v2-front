@@ -37,22 +37,25 @@ export function getMonthNames(locale: string): string[] {
   });
 }
 
-export const RECURRENCE_LABEL_KEY: Record<string, string> = {
+export const RECURRENCE_LABEL_KEY: Record<Exclude<RecurrenceLabel, "-">, string> = {
   Não: "none",
-  Semanal: "weekly",
+  Diário: "daily",
   Quinzenal: "biweekly",
   Mensal: "monthly",
+  Ocasionalmente: "occasionally",
 };
 export function recurrence(rec: RecurrenceLabel): number {
   switch (rec) {
     case "Não":
       return 1;
-    case "Semanal":
+    case "Diário":
       return 2;
     case "Quinzenal":
       return 3;
     case "Mensal":
       return 4;
+    case "Ocasionalmente":
+      return 5;
     default: {
       const _exhaustive: string = rec;
       return _exhaustive as never;
@@ -64,11 +67,13 @@ export function recurrenceResponse(rec: number): RecurrenceLabel {
     case 1:
       return "Não";
     case 2:
-      return "Semanal";
+      return "Diário";
     case 3:
       return "Quinzenal";
     case 4:
       return "Mensal";
+    case 5:
+      return "Ocasionalmente";
     default: {
       return "-";
     }

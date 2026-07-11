@@ -277,6 +277,9 @@
     "allContacts": "Todos los contactos",
     "filterPaidLabel": "Pagado",
     "allPaidStatus": "Todos los estados",
+    "filterInstallmentsLabel": "Cuotas",
+    "allInstallments": "Todas las transacciones",
+    "onlyInstallments": "Solo cuotas",
     "applyFilters": "Aplicar filtros",
     "tableTitle": "Transacciones",
     "colDate": "Fecha",
@@ -290,6 +293,7 @@
     "colPhone": "Teléfono",
     "colStatus": "Pagado",
     "colRecurrence": "Recurrencia",
+    "colInstallments": "Cuotas",
     "colActions": "Acciones",
     "emptyTitle": "Ninguna transacción encontrada",
     "emptySubtitle": "Ajusta los filtros o cambia el período para ver resultados.",
@@ -335,9 +339,10 @@
     "saving": "Guardando...",
     "recLabel": {
       "none": "No",
-      "weekly": "Semanal",
+      "daily": "Diario",
       "biweekly": "Quincenal",
-      "monthly": "Mensual"
+      "monthly": "Mensual",
+      "occasionally": "Ocasionalmente"
     },
     "categories": {
       "alimentacao": "Alimentación",
